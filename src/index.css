@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Nunito:wght@400;500;600;700;800;900&family=Fredoka:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 30 50% 97%;
+    --foreground: 20 30% 20%;
+
+    --card: 30 40% 99%;
+    --card-foreground: 20 30% 20%;
+
+    --popover: 30 40% 99%;
+    --popover-foreground: 20 30% 20%;
+
+    --primary: 340 60% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 30 60% 92%;
+    --secondary-foreground: 20 40% 30%;
+
+    --muted: 30 30% 94%;
+    --muted-foreground: 20 15% 50%;
+
+    --accent: 25 80% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 30% 88%;
+    --input: 30 30% 88%;
+    --ring: 340 60% 65%;
+
+    --radius: 1rem;
+
+    /* Bakery custom tokens */
+    --cream: 40 60% 95%;
+    --chocolate: 20 50% 25%;
+    --chocolate-light: 20 40% 40%;
+    --strawberry: 340 70% 70%;
+    --strawberry-light: 340 80% 88%;
+    --vanilla: 45 80% 92%;
+    --caramel: 30 70% 55%;
+    --caramel-light: 30 60% 85%;
+    --mint: 160 40% 80%;
+    --blueberry: 220 50% 75%;
+
+    --shadow-bakery: 0 8px 32px -8px hsl(20 30% 50% / 0.12);
+    --shadow-bakery-lg: 0 16px 48px -12px hsl(20 30% 50% / 0.18);
+    --shadow-neu: 6px 6px 12px hsl(20 30% 50% / 0.08), -6px -6px 12px hsl(0 0% 100% / 0.8);
+
+    --sidebar-background: 30 45% 96%;
+    --sidebar-foreground: 20 30% 25%;
+    --sidebar-primary: 340 60% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 340 80% 92%;
+    --sidebar-accent-foreground: 340 60% 40%;
+    --sidebar-border: 30 30% 90%;
+    --sidebar-ring: 340 60% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border font-lora;
+  }
+  body {
+    @apply bg-background text-foreground font-lora;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-dancing;
+  }
+}
+
+@layer components {
+  .bakery-card {
+    @apply bg-card rounded-2xl border border-border p-6;
+    box-shadow: var(--shadow-bakery);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .bakery-card:hover {
+    box-shadow: var(--shadow-bakery-lg);
+    transform: translateY(-2px);
+  }
+
+  .bakery-btn {
+    @apply rounded-full px-6 py-3 font-semibold transition-all duration-300;
+    box-shadow: var(--shadow-neu);
+  }
+  .bakery-btn:hover {
+    transform: scale(1.05);
+  }
+  .bakery-btn:active {
+    transform: scale(0.98);
+  }
+
+  .cookie-bounce:hover {
+    animation: cookieBounce 0.5s ease;
+  }
+
+  .sprinkle-badge {
+    @apply relative;
+  }
+  .sprinkle-badge::after {
+    content: '';
+    @apply absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full;
+    background: hsl(var(--strawberry));
+    animation: sprinklePulse 2s ease-in-out infinite;
+  }
+
+  .chocolate-progress {
+    @apply rounded-full overflow-hidden;
+    background: hsl(var(--caramel-light));
+  }
+  .chocolate-progress-fill {
+    @apply h-full rounded-full transition-all duration-700 ease-out;
+    background: linear-gradient(90deg, hsl(var(--chocolate-light)), hsl(var(--chocolate)));
+  }
+
+  .macaron-toggle {
+    @apply relative w-12 h-6 rounded-full cursor-pointer transition-colors duration-300;
+    background: hsl(var(--muted));
+  }
+  .macaron-toggle.active {
+    background: hsl(var(--strawberry));
+  }
+  .macaron-toggle::after {
+    content: '';
+    @apply absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-transform duration-300;
+    background: hsl(var(--cream));
+    box-shadow: 0 2px 4px hsl(20 30% 50% / 0.2);
+  }
+  .macaron-toggle.active::after {
+    transform: translateX(24px);
+  }
+}
+
+@layer utilities {
+  .text-gradient-bakery {
+    background: linear-gradient(135deg, hsl(var(--chocolate)), hsl(var(--caramel)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@keyframes cookieBounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-6px) rotate(-3deg); }
+  50% { transform: translateY(-2px) rotate(2deg); }
+  75% { transform: translateY(-4px) rotate(-1deg); }
+}
+
+@keyframes sprinklePulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.7; }
+}
+
+@keyframes chocolateDrip {
+  0% { height: 0; }
+  100% { height: 100%; }
+}
+
+@keyframes floatUp {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
