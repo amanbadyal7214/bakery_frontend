@@ -5,11 +5,13 @@ import axiosInstance from '@/services/api';
 import { api as dashboardApi } from '@/services/api';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ContactSection() {
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
   const [nameValue, setNameValue] = useState<string>('');
   const [phoneValue, setPhoneValue] = useState<string>('');
+  const { toast } = useToast();
   // when logged in, autofill name and phone from authenticated user
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -205,7 +207,7 @@ export default function ContactSection() {
               onSubmit={async (e) => { 
                 e.preventDefault(); 
                 if (!isAuthenticated) {
-                  alert('Please log in to submit the contact form.');
+                  toast({ title: 'Login required', description: 'Please log in to submit the contact form.' });
                   return;
                 }
                 const form = e.currentTarget as HTMLFormElement;
@@ -218,20 +220,23 @@ export default function ContactSection() {
                 };
                 try {
                   // basic local validation
-                  if (!payload.name || !payload.phone || !payload.message) return alert('Please fill required fields');
-                  // post to backend
-                  const res = await axiosInstance.post('/contacts', payload);
-                  if (res && (res.data?.success || res.status === 201)) {
-                    alert('Message sent — we will reply soon.');
-                    form.reset();
-                  } else {
-                    alert('Failed to send message.');
+                  if (!payload.name || !payload.phone || !payload.message) {
+                    toast({ title: 'Please fill required fields', description: 'Name, phone and message are required.' });
+                    return;
                   }
-                } catch (err) {
-                  console.error('Contact form submit failed', err);
-                  alert('Unable to send message. Try again later.');
-                }
-              }} 
+                   // post to backend
+                   const res = await axiosInstance.post('/contacts', payload);
+                   if (res && (res.data?.success || res.status === 201)) {
+                    toast({ title: 'Message sent', description: 'We will reply soon.' });
+                     form.reset();
+                   } else {
+                    toast({ title: 'Failed to send message', description: 'Please try again later.' });
+                   }
+                 } catch (err) {
+                   console.error('Contact form submit failed', err);
+                   toast({ title: 'Unable to send message', description: 'Try again later.' });
+                 }
+               }} 
             > 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2 group">

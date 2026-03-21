@@ -1,7 +1,35 @@
-import { testimonials } from "./home-data";
+import { testimonials as staticTestimonials } from "./home-data";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 export default function TestimonialsSection() {
+  const [items, setItems] = useState(staticTestimonials || []);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || 'http://localhost:5000';
+    fetch(`${apiBase}/api/contacts/testimonials`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json();
+      })
+      .then((data) => {
+        if (!mounted) return;
+        if (data && data.success && Array.isArray(data.testimonials)) {
+          setItems(data.testimonials);
+        }
+      })
+      .catch(() => {
+        // ignore errors and keep static fallback
+      })
+      .finally(() => mounted && setLoading(false));
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <section id="testimonials" className="py-24 px-6 bg-[#FDF6EC]">
       <div className="max-w-6xl mx-auto">
@@ -16,26 +44,30 @@ export default function TestimonialsSection() {
           <h2 className="font-playfair text-4xl md:text-5xl font-bold text-bread-dark mb-4">What Our Customers Say</h2>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
-          {testimonials.map((t, i) => (
-            <motion.blockquote key={i}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.2, duration: 0.6 }}
-              className="bg-white rounded-2xl p-8 shadow-md border border-bread-brown/10 m-0 hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
-              <div className="text-gold text-base tracking-wide mb-4">{"★".repeat(t.stars)}</div>
-              <p className="text-[#7A5C4F] italic leading-[1.75] mb-6 text-[0.975rem]">"{t.text}"</p>
-              <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-bread-brown to-gold text-white font-bold text-lg flex items-center justify-center flex-shrink-0">
-                  {t.name[0]}
+          {items.length === 0 && !loading ? (
+            <div className="col-span-1 md:col-span-3 text-center text-sm text-[#7A5C4F]">No feedback available yet.</div>
+          ) : (
+            items.map((t, i) => (
+              <motion.blockquote key={i}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.2, duration: 0.6 }}
+                className="bg-white rounded-2xl p-8 shadow-md border border-bread-brown/10 m-0 hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
+                <div className="text-gold text-base tracking-wide mb-4">{"★".repeat(t.stars || 5)}</div>
+                <p className="text-[#7A5C4F] italic leading-[1.75] mb-6 text-[0.975rem]">"{t.text}"</p>
+                <div className="flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-bread-brown to-gold text-white font-bold text-lg flex items-center justify-center flex-shrink-0">
+                    {t.name ? t.name[0] : 'U'}
+                  </div>
+                  <div>
+                    <strong className="block text-[0.925rem] font-bold text-bread-dark">{t.name}</strong>
+                    <span className="block text-[0.78rem] text-[#7A5C4F] mt-0.5">{t.role}</span>
+                  </div>
                 </div>
-                <div>
-                  <strong className="block text-[0.925rem] font-bold text-bread-dark">{t.name}</strong>
-                  <span className="block text-[0.78rem] text-[#7A5C4F] mt-0.5">{t.role}</span>
-                </div>
-              </div>
-            </motion.blockquote>
-          ))}
+              </motion.blockquote>
+            ))
+          )}
         </div>
       </div>
     </section>
