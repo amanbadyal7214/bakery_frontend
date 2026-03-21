@@ -140,7 +140,7 @@ const CartSheet = () => {
                                     <SheetHeader className="px-8 pt-6 pb-4 text-center border-b-2 border-dashed border-gray-300 space-y-2 bg-white">
                                         <SheetTitle className="font-mono text-3xl font-bold uppercase tracking-widest text-black">RECEIPT</SheetTitle>
                                         <div className="flex flex-col items-center space-y-1 text-xs text-gray-500 mt-2">
-                                            <span className="font-bold text-lg text-gray-800">Hangary SweetRY</span>
+                                            <span className="font-bold text-lg text-gray-800">Hangary? Sweet.RY</span>
                                             <span>123 Baker Street, Sweet City</span>
                                             <span>Tel: +1 (555) 123-4567</span>
                                         </div>

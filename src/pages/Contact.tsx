@@ -20,7 +20,7 @@ const itemV    = { hidden: { opacity: 0, x: -20 }, show: { opacity: 1, x: 0, tra
 const infoCards = [
   { icon: MapPin,  label: "Visit Us",       val: "12 Baker Street, Mumbai,\nMH 400001",    color: "text-rose-500",   bg: "bg-rose-50",   border: "border-rose-100"   },
   { icon: Phone,   label: "Call Us",         val: "+91 98765 43210",                         color: "text-emerald-500",bg: "bg-emerald-50",border: "border-emerald-100"},
-  { icon: Mail,    label: "Email Us",        val: "hello@Hangary Sweet.in",                      color: "text-blue-500",   bg: "bg-blue-50",   border: "border-blue-100"   },
+  { icon: Mail,    label: "Email Us",        val: "hello@Hangary? Sweet..in",                      color: "text-blue-500",   bg: "bg-blue-50",   border: "border-blue-100"   },
   { icon: Clock,   label: "Opening Hours",   val: "Mon – Sat: 7 AM – 8 PM\nSun: 8 AM – 5 PM",color:"text-amber-500", bg: "bg-amber-50",  border: "border-amber-100"  },
 ];
 
@@ -67,7 +67,7 @@ export default function Contact() {
           <svg viewBox="0 0 120 120" className="w-full h-full">
             <defs><path id="cc" d="M 60,60 m -45,0 a 45,45 0 1,1 90,0 a 45,45 0 1,1 -90,0" /></defs>
             <text fontSize="11" letterSpacing="3.5" fill="#1A2744" fontFamily="Inter,sans-serif">
-              <textPath href="#cc">Hangary Sweet • ARTISAN • EST.1984 •</textPath>
+              <textPath href="#cc">Hangary? Sweet. • ARTISAN • EST.1984 •</textPath>
             </text>
             <text x="60" y="57" textAnchor="middle" fill="#1A2744" fontFamily="Playfair Display,serif" fontWeight="700" fontSize="9" letterSpacing="2">SWEET</text>
             <text x="60" y="70" textAnchor="middle" fill="#1A2744" fontFamily="Playfair Display,serif" fontWeight="700" fontSize="9" letterSpacing="2">BAKE</text>
@@ -266,9 +266,9 @@ export default function Contact() {
               <p className="text-white/50 text-xs mb-5 relative z-10">Daily bakes, behind-the-scenes & specials on our socials</p>
               <div className="flex gap-3 relative z-10">
                 {[
-                  { icon: Instagram, label: "@Hangary Sweet", color: "hover:bg-pink-500" },
-                  { icon: Facebook,  label: "Hangary Sweet",  color: "hover:bg-blue-600" },
-                  { icon: Twitter,   label: "@Hangary Sweet", color: "hover:bg-sky-500" },
+                  { icon: Instagram, label: "@Hangary? Sweet.", color: "hover:bg-pink-500" },
+                  { icon: Facebook,  label: "Hangary? Sweet.",  color: "hover:bg-blue-600" },
+                  { icon: Twitter,   label: "@Hangary? Sweet.", color: "hover:bg-sky-500" },
                 ].map(s => (
                   <button key={s.label} className={`w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-white ${s.color} hover:text-white transition-all duration-200 hover:scale-110`}>
                     <s.icon size={18} />
@@ -284,7 +284,7 @@ export default function Contact() {
               <p className="font-playfair italic text-bread-dark text-base leading-relaxed relative z-10">
                 Life is uncertain. Eat dessert first.
               </p>
-              <p className="text-[#7A5C4F] text-xs mt-3 font-semibold relative z-10">— The Hangary Sweet Team 🍰</p>
+              <p className="text-[#7A5C4F] text-xs mt-3 font-semibold relative z-10">— The Hangary? Sweet. Team 🍰</p>
             </div>
           </motion.div>
         </div>

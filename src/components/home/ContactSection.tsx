@@ -84,7 +84,7 @@ export default function ContactSection() {
                 {[
                   { icon: MapPin, label: "Visit Us", val: "12 Baker Street, Mumbai,\nMH 400001", color: "text-red-500", bg: "bg-red-50" },
                   { icon: Phone, label: "Call Us", val: "+91 98765 43210", color: "text-green-500", bg: "bg-green-50" },
-                  { icon: Mail, label: "Email Us", val: "hello@Hangary Sweet.in", color: "text-blue-500", bg: "bg-blue-50" },
+                  { icon: Mail, label: "Email Us", val: "hello@Hangary? Sweet..in", color: "text-blue-500", bg: "bg-blue-50" },
                   { icon: Clock, label: "Opening Hours", val: "Mon – Sat: 7 AM – 8 PM\nSun: 8 AM – 5 PM", color: "text-orange-500", bg: "bg-orange-50" },
                 ].map((c, i) => (
                   <motion.div key={i} variants={item} className="flex gap-5 items-start group/item">

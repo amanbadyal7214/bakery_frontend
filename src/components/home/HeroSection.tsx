@@ -73,8 +73,8 @@ export default function HeroSection() {
           <text fontSize="11" letterSpacing="3.5" fill="#1A2744" fontFamily="Inter,sans-serif">
             <textPath href="#sc">HANGRY • SWEET • EST.1984 •</textPath>
           </text>
-          <text x="60" y="57" textAnchor="middle" fill="#1A2744" fontFamily="Playfair Display,serif" fontWeight="700" fontSize="9" letterSpacing="2">HANGRY</text>
-          <text x="60" y="70" textAnchor="middle" fill="#1A2744" fontFamily="Playfair Display,serif" fontWeight="700" fontSize="9" letterSpacing="2">SWEET</text>
+          <text x="60" y="57" textAnchor="middle" fill="#1A2744" fontFamily="Playfair Display,serif" fontWeight="700" fontSize="9" letterSpacing="2">HANGRY?</text>
+          <text x="60" y="70" textAnchor="middle" fill="#1A2744" fontFamily="Playfair Display,serif" fontWeight="700" fontSize="9" letterSpacing="2">SWEET.</text>
         </svg>
       </div>
 
@@ -149,7 +149,7 @@ export default function HeroSection() {
             className="font-playfair font-bold text-navy flex-shrink-0 self-end mb-6 leading-none tracking-tight animate-fade-up"
             style={{ fontSize: "clamp(2.8rem, 6.5vw, 5rem)", animationDelay: "0.2s" }}
           >
-            Sweet!
+            Sweet.
           </span>
         </h1>
       </div>

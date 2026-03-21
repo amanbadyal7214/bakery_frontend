@@ -6,6 +6,7 @@ import { logout } from "../store/slices/authSlice";
 import { ShoppingBag, ChevronDown, Search, X, TrendingUp, Clock, ArrowRight, User } from "lucide-react";
 import CartSheet from "./CartSheet";
 import { products } from "./home/home-data";
+import logo from "../assets/logo.jpg";
 
 const navLinks = [
   { label: "HOME",      id: "home",    path: null },
@@ -138,11 +139,11 @@ export default function Navbar() {
 
           {/* ── Logo ── */}
           <Link to="/" className="flex items-center gap-3 group no-underline select-none shrink-0">
-            <div className="relative w-10 h-10 bg-[#1A2744] rounded-xl rotate-3 group-hover:rotate-12 transition-all duration-300 flex items-center justify-center shadow-lg">
-              <span className="text-[#D4A373] font-playfair font-bold text-xl -rotate-3 group-hover:-rotate-12 transition-all duration-300">S</span>
+            <div className="relative w-12 h-12 bg-[#eaccd1] rounded-xl rotate-3 group-hover:rotate-12 transition-all duration-300 flex items-center justify-center shadow-lg">
+              <img src={logo} alt="Hangary? Sweet. Logo" className="w-11 h-11 object-cover rounded-xl" />
             </div>
             <div className="hidden md:flex flex-col leading-none">
-              <span className="font-playfair text-xl font-bold tracking-wider text-[#1A2744] group-hover:text-[#D4A373] transition-colors">Hangary Sweet</span>
+              <span className="font-playfair text-xl font-bold tracking-wider text-[#1A2744] group-hover:text-[#D4A373] transition-colors">Hangry?Sweet.</span>
               <span className="text-[0.6rem] tracking-[0.3em] text-[#8D6E63] font-medium uppercase mt-1">Est. 1984</span>
             </div>
           </Link>

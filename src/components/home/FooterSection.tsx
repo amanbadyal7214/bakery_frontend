@@ -84,8 +84,8 @@ export default function FooterSection() {
               className="flex flex-col md:flex-row justify-between items-end border-t border-white/10 pt-10 gap-8"
             >
                 <div className="flex flex-col gap-3">
-                    <span className="font-playfair text-3xl font-bold tracking-wider">Hangary Sweet</span>
-                    <p className="text-white/30 text-xs tracking-wide">© 2024 Hangary Sweet Inc. All rights reserved.</p>
+                    <span className="font-playfair text-3xl font-bold tracking-wider">Hangary? Sweet.</span>
+                    <p className="text-white/30 text-xs tracking-wide">© 2024 Hangary? Sweet. Inc. All rights reserved.</p>
                     <div className="flex gap-4 mt-2 text-[0.65rem] text-white/20 uppercase tracking-widest">
                          <Link to="/login" className="hover:text-gold transition-colors no-underline">Admin</Link>
                          <a href="#" className="hover:text-gold transition-colors no-underline">Privacy</a>

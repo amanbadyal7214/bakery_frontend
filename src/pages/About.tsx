@@ -87,7 +87,7 @@ const team = [
     role: "Founder & Head Baker",
     since: "Est. 1984",
     quote: "Baking is not a job. It is how I say 'I love you' to the world.",
-    desc: "Margaret started Hangary Sweet in her home kitchen with nothing but a wooden spoon and a dream. 40 years later, she still personally oversees every sourdough batch.",
+    desc: "Margaret started Hangary? Sweet. in her home kitchen with nothing but a wooden spoon and a dream. 40 years later, she still personally oversees every sourdough batch.",
     img: "/about-baker.png",
     badge: "🏆 Founder",
     badgeBg: "bg-amber-100 text-amber-800",
@@ -97,7 +97,7 @@ const team = [
     role: "Master Pastry Chef",
     since: "Since 1998",
     quote: "A perfect croissant is 729 layers of pure patience.",
-    desc: "Margaret's son, trained at Le Cordon Bleu Paris. James brought French pastry techniques to Hangary Sweet, creating our legendary croissants and mille-feuilles.",
+    desc: "Margaret's son, trained at Le Cordon Bleu Paris. James brought French pastry techniques to Hangary? Sweet., creating our legendary croissants and mille-feuilles.",
     img: "/bread.png",
     badge: "🥐 Pastry Chef",
     badgeBg: "bg-orange-100 text-orange-800",
@@ -125,20 +125,20 @@ const team = [
 ];
 
 const milestones = [
-  { year: "1984", event: "Margaret opens Hangary Sweet in her home kitchen on Elm Street.", icon: Home,        iconColor: "#E11D48", iconBg: "#FFF1F2" },
+  { year: "1984", event: "Margaret opens Hangary? Sweet. in her home kitchen on Elm Street.", icon: Home,        iconColor: "#E11D48", iconBg: "#FFF1F2" },
   { year: "1992", event: "First brick-and-mortar bakery opens. Queues form on opening day and never really stop.", icon: Store,       iconColor: "#D97706", iconBg: "#FFFBEB" },
   { year: "1998", event: "James returns from Paris and introduces the artisan pastry program.", icon: Croissant,   iconColor: "#EA580C", iconBg: "#FFF7ED" },
   { year: "2005", event: "Wins first 'Best Bakery' at the City Food Awards — the first of many.", icon: Trophy,      iconColor: "#CA8A04", iconBg: "#FEFCE8" },
   { year: "2012", event: "Custom cake studio opens. Priya Sharma joins and redefines cake art.", icon: Cake,        iconColor: "#DB2777", iconBg: "#FDF2F8" },
   { year: "2018", event: "Online ordering launches. 10,000 orders fulfilled in the very first month.", icon: Smartphone,  iconColor: "#2563EB", iconBg: "#EFF6FF" },
   { year: "2022", event: "50,000 happy customers milestone. Featured on national television.", icon: Tv,          iconColor: "#7C3AED", iconBg: "#F5F3FF" },
-  { year: "2024", event: "Second location opens and Hangary Sweet subscription boxes launch nationwide.", icon: Rocket,      iconColor: "#16A34A", iconBg: "#F0FDF4" },
+  { year: "2024", event: "Second location opens and Hangary? Sweet. subscription boxes launch nationwide.", icon: Rocket,      iconColor: "#16A34A", iconBg: "#F0FDF4" },
 ];
 
 const testimonials = [
   {
     name: "Sophie Martin", role: "Wedding Client", avatar: "S", bg: "bg-rose-100 text-rose-700", stars: 5,
-    text: "Hangary Sweet made our wedding cake and it was absolutely perfect. Tasted even better than it looked. Our guests still talk about it!",
+    text: "Hangary? Sweet. made our wedding cake and it was absolutely perfect. Tasted even better than it looked. Our guests still talk about it!",
   },
   {
     name: "David Okafor", role: "Regular Customer", avatar: "D", bg: "bg-blue-100 text-blue-700", stars: 5,
@@ -146,7 +146,7 @@ const testimonials = [
   },
   {
     name: "Aisha Rahman", role: "Food Blogger", avatar: "A", bg: "bg-amber-100 text-amber-700", stars: 5,
-    text: "As someone who has reviewed hundreds of bakeries, Hangary Sweet is in a league of its own. Authentic, honest, extraordinary food.",
+    text: "As someone who has reviewed hundreds of bakeries, Hangary? Sweet. is in a league of its own. Authentic, honest, extraordinary food.",
   },
 ];
 
@@ -214,7 +214,7 @@ export default function About() {
           <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.55 }}
             className="text-[#F5ECD7]/70 text-xl max-w-2xl mx-auto leading-relaxed font-light mb-12"
           >
-            For over 40 years, Hangary Sweet has been the heartbeat of this community —
+            For over 40 years, Hangary? Sweet. has been the heartbeat of this community —
             one loaf, one croissant, one celebration cake at a time.
           </motion.p>
 
@@ -315,10 +315,10 @@ export default function About() {
                 In 1984, Margaret Howell started baking bread in her tiny kitchen on Elm Street. She had no commercial equipment, no business plan — just a passion for honest, wholesome food and a wooden spoon that she still keeps on display in our bakery today.
               </motion.p>
               <motion.p variants={fadeUp} className="text-[#7A5C4F] leading-[1.95] mb-5 text-base">
-                Word spread fast. Neighbours would knock on her door at 7 AM asking for another loaf. Within a year, Margaret quit her office job and opened Hangary Sweet's first proper location on Market Street. The queue on opening day stretched around the block.
+                Word spread fast. Neighbours would knock on her door at 7 AM asking for another loaf. Within a year, Margaret quit her office job and opened Hangary? Sweet.'s first proper location on Market Street. The queue on opening day stretched around the block.
               </motion.p>
               <motion.p variants={fadeUp} className="text-[#7A5C4F] leading-[1.95] mb-10 text-base">
-                Today, Hangary Sweet is a multi-award-winning bakery serving over 500 customers daily. But our values haven't changed — the same family recipes, the same locally sourced ingredients, the same dedication to making every single item as perfect as it can be.
+                Today, Hangary? Sweet. is a multi-award-winning bakery serving over 500 customers daily. But our values haven't changed — the same family recipes, the same locally sourced ingredients, the same dedication to making every single item as perfect as it can be.
               </motion.p>
               <motion.div variants={fadeUp} className="flex flex-col gap-3.5 mb-10">
                 {[
@@ -425,7 +425,7 @@ export default function About() {
             <span className="text-[#D4A373] text-xs font-bold tracking-[0.3em] uppercase mb-3 block">The People Behind the Magic</span>
             <h2 className="font-playfair text-5xl md:text-6xl font-bold text-[#3E2723]">Meet Our Team</h2>
             <p className="text-[#8D6E63] mt-4 max-w-xl mx-auto text-lg leading-relaxed">
-              Every great bakery is built on passionate people. These are the talented humans who make Hangary Sweet extraordinary.
+              Every great bakery is built on passionate people. These are the talented humans who make Hangary? Sweet. extraordinary.
             </p>
           </motion.div>
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}
@@ -584,7 +584,7 @@ export default function About() {
                 {[
                   { icon: <MapPin size={22} />, title: "Find Us",  lines: ["12 Market Street", "Old Town District", "City Centre, SW1 4AB"], iconBg: "bg-rose-100 text-rose-600",   border: "border-rose-100"  },
                   { icon: <Clock size={22} />,  title: "Hours",    lines: ["Mon–Fri: 7AM – 7PM", "Saturday: 7AM – 5PM", "Sunday: 8AM – 3PM"], iconBg: "bg-amber-100 text-amber-600", border: "border-amber-100" },
-                  { icon: <Phone size={22} />,  title: "Contact",  lines: ["+1 (555) 123-4567", "hello@Hangary Sweet.com", "@Hangary Sweet"],          iconBg: "bg-blue-100 text-blue-600",   border: "border-blue-100"  },
+                  { icon: <Phone size={22} />,  title: "Contact",  lines: ["+1 (555) 123-4567", "hello@Hangary? Sweet..com", "@Hangary? Sweet."],          iconBg: "bg-blue-100 text-blue-600",   border: "border-blue-100"  },
                 ].map((card) => (
                   <motion.div key={card.title} variants={fadeUp}
                     className={`bg-[#FAF6E6] border-2 ${card.border} rounded-2xl p-6 hover:shadow-lg transition-all duration-300`}
