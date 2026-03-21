@@ -2,10 +2,47 @@ import React, { useEffect, useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, Star } from 'lucide-react';
 import { motion, Variants } from 'framer-motion';
 import axiosInstance from '@/services/api';
+import { api as dashboardApi } from '@/services/api';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 
 export default function ContactSection() {
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+  const [nameValue, setNameValue] = useState<string>('');
+  const [phoneValue, setPhoneValue] = useState<string>('');
+  // when logged in, autofill name and phone from authenticated user
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setNameValue((user as any).name || '');
+      const u: any = user;
+      const tryKeys = ['phone', 'mobile', 'phoneNumber', 'telephone', 'tel', 'contact', 'contactNumber'];
+      let found: string | undefined;
+      for (const k of tryKeys) {
+        const v = u[k];
+        if (v) { found = String(v); break; }
+      }
+      // nested locations
+      if (!found && u.profile && u.profile.phone) found = String(u.profile.phone);
+      if (!found && u.attributes && u.attributes.phone) found = String(u.attributes.phone);
+      // as last resort, check any value that looks like a phone in the object
+      if (!found) {
+        const vals = Object.values(u).filter(v => typeof v === 'string');
+        for (const v of vals) {
+          if (/\d{6,}/.test(v)) { found = v as string; break; }
+        }
+      }
+      if (found) {
+        // normalize: remove non-digit except leading +
+        const normalized = found.replace(/[^+\d]/g, '');
+        setPhoneValue(normalized);
+      } else {
+        setPhoneValue('');
+      }
+    }
+  }, [isAuthenticated, user]);
+
   // profile will be populated from backend; start as null so we don't show dummy data
-  const [profile, setProfile] = useState<{ address?: string; phone?: string; email?: string; hours?: string } | null>(null);
+  const [profile, setProfile] = useState<{ address?: string; phone?: string; email?: string; hours?: string; openingTime?: string; closingTime?: string } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,6 +61,8 @@ export default function ContactSection() {
             phone: p.phone,
             email: p.email,
             hours: p.hours,
+            openingTime: p.openingTime,
+            closingTime: p.closingTime,
           });
           setError(null);
         } else {
@@ -136,7 +175,7 @@ export default function ContactSection() {
                       </span>
                       <div>
                         <strong className="block text-xs font-bold tracking-widest uppercase text-gold mb-1">{c.label}</strong>
-                        <div className="text-bread-dark/80 text-[0.95rem] m-0 leading-relaxed whitespace-pre-line font-medium">{c.val || ''}</div>
+                        <div className="text-bread-dark/80 text-[0.95rem] m-0 leading-relaxed whitespace-pre-line font-medium">{c.val ?? 'Not available'}</div>
                       </div>
                     </motion.div>
                   )) }
@@ -163,24 +202,57 @@ export default function ContactSection() {
           >
             <form
               className="bg-white rounded-3xl p-8 md:p-10 shadow-xl shadow-bread-brown/5 border border-bread-brown/5 flex flex-col gap-6 relative"
-              onSubmit={(e) => { e.preventDefault(); alert("Message sent! We'll get back to you soon. 🧁"); }}
+              onSubmit={async (e) => { 
+                e.preventDefault(); 
+                if (!isAuthenticated) {
+                  alert('Please log in to submit the contact form.');
+                  return;
+                }
+                const form = e.currentTarget as HTMLFormElement;
+                const fd = new FormData(form);
+                const payload = {
+                  name: fd.get('cf-name')?.toString() || '',
+                  phone: fd.get('cf-phone')?.toString() || '',
+                  subject: fd.get('cf-subject')?.toString() || '',
+                  message: fd.get('cf-message')?.toString() || '',
+                };
+                try {
+                  // basic local validation
+                  if (!payload.name || !payload.phone || !payload.message) return alert('Please fill required fields');
+                  // post to backend
+                  const res = await axiosInstance.post('/contacts', payload);
+                  if (res && (res.data?.success || res.status === 201)) {
+                    alert('Message sent — we will reply soon.');
+                    form.reset();
+                  } else {
+                    alert('Failed to send message.');
+                  }
+                } catch (err) {
+                  console.error('Contact form submit failed', err);
+                  alert('Unable to send message. Try again later.');
+                }
+              }} 
             > 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2 group">
                   <label htmlFor="cf-name" className="text-sm font-bold text-bread-dark ml-1 group-focus-within:text-gold transition-colors">Your Name</label>
-                  <input id="cf-name" type="text" placeholder="Jane Doe" required
+                  <input id="cf-name" name="cf-name" type="text" placeholder="Jane Doe" required
+                    value={nameValue}
+                    onChange={(e) => setNameValue(e.target.value)}
                     className="w-full bg-gray-50 border border-transparent rounded-xl px-5 py-4 text-bread-dark outline-none focus:bg-white focus:border-gold/30 focus:ring-4 focus:ring-gold/10 transition-all duration-300 placeholder:text-gray-400" />
                 </div>
                 <div className="flex flex-col gap-2 group">
-                  <label htmlFor="cf-email" className="text-sm font-bold text-bread-dark ml-1 group-focus-within:text-gold transition-colors">Email Address</label>
-                  <input id="cf-email" type="email" placeholder="jane@example.com" required
+                  <label htmlFor="cf-phone" className="text-sm font-bold text-bread-dark ml-1 group-focus-within:text-gold transition-colors">Phone Number</label>
+                  <input id="cf-phone" name="cf-phone" type="tel" placeholder="(123) 456-7890" required
+                    value={phoneValue}
+                    onChange={(e) => setPhoneValue(e.target.value)}
                     className="w-full bg-gray-50 border border-transparent rounded-xl px-5 py-4 text-bread-dark outline-none focus:bg-white focus:border-gold/30 focus:ring-4 focus:ring-gold/10 transition-all duration-300 placeholder:text-gray-400" />
                 </div>
               </div>
 
               <div className="flex flex-col gap-2 group">
                 <label htmlFor="cf-subject" className="text-sm font-bold text-bread-dark ml-1 group-focus-within:text-gold transition-colors">Subject</label>
-                <select id="cf-subject" defaultValue="" 
+                <select id="cf-subject" name="cf-subject" defaultValue="" 
                   className="w-full bg-gray-50 border border-transparent rounded-xl px-5 py-4 text-bread-dark outline-none focus:bg-white focus:border-gold/30 focus:ring-4 focus:ring-gold/10 transition-all duration-300 cursor-pointer appearance-none">
                     <option value="" disabled>Select a topic...</option>
                     <option value="order">Custom Order Inquiry</option>
@@ -192,7 +264,7 @@ export default function ContactSection() {
 
               <div className="flex flex-col gap-2 group">
                 <label htmlFor="cf-message" className="text-sm font-bold text-bread-dark ml-1 group-focus-within:text-gold transition-colors">Message</label>
-                <textarea id="cf-message" rows={5} placeholder="Tell us what you need…" required
+                <textarea id="cf-message" name="cf-message" rows={5} placeholder="Tell us what you need…" required
                   className="w-full bg-gray-50 border border-transparent rounded-xl px-5 py-4 text-bread-dark outline-none focus:bg-white focus:border-gold/30 focus:ring-4 focus:ring-gold/10 transition-all duration-300 resize-y placeholder:text-gray-400 min-h-[150px]" />
               </div>
 

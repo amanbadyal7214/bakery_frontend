@@ -89,6 +89,12 @@ export const api = {
     update: (id: string | number, item: object) => axiosInstance.put(`/gallery/${id}`, item).then(res => normalize(res)),
     delete: (id: string | number) => axiosInstance.delete(`/gallery/${id}`).then(() => undefined),
   },
+  contacts: {
+    create: (payload: object) => axiosInstance.post('/contacts', payload).then(res => normalize(res)),
+    list: () => axiosInstance.get('/contacts').then(res => normalize(res)),
+    markRead: (id: string) => axiosInstance.post(`/contacts/${id}/read`).then(res => normalize(res)),
+    delete: (id: string) => axiosInstance.delete(`/contacts/${id}`).then(() => undefined),
+  },
 };
 
 export default axiosInstance;
