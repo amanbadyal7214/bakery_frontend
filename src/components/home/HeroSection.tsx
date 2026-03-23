@@ -71,7 +71,7 @@ export default function HeroSection() {
             <path id="sc" d="M 60,60 m -45,0 a 45,45 0 1,1 90,0 a 45,45 0 1,1 -90,0" />
           </defs>
           <text fontSize="11" letterSpacing="3.5" fill="#1A2744" fontFamily="Inter,sans-serif">
-            <textPath href="#sc">HANGRY • SWEET • EST.1984 •</textPath>
+            <textPath href="#sc">HANGRY • SWEET • EST.2024 •</textPath>
           </text>
           <text x="60" y="57" textAnchor="middle" fill="#1A2744" fontFamily="Playfair Display,serif" fontWeight="700" fontSize="9" letterSpacing="2">HANGRY?</text>
           <text x="60" y="70" textAnchor="middle" fill="#1A2744" fontFamily="Playfair Display,serif" fontWeight="700" fontSize="9" letterSpacing="2">SWEET.</text>

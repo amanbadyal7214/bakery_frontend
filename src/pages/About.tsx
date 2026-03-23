@@ -1,15 +1,19 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
-import Navbar from "@/components/Navbar";
-import FooterSection from "@/components/home/FooterSection";
-import CartSheet from "@/components/CartSheet";
+import { useRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { api } from "@/services/api";
+import axiosInstance from "@/services/api";
 import {
   Award, Heart, Leaf, Clock, Users, Star, ChefHat, MapPin,
   Phone, ArrowRight, CheckCircle2, Flame, Wheat, Quote,
   Instagram, Twitter, Facebook, Moon, Thermometer, BadgeCheck, DoorOpen,
   Home, Store, Croissant, Trophy, Cake, Smartphone, Tv, Rocket
 } from "lucide-react";
+
+import Navbar from "@/components/Navbar";
+import FooterSection from "@/components/home/FooterSection";
+import CartSheet from "@/components/CartSheet";
+import TestimonialsSection from "../components/home/TestimonialsSection";
 
 /* ─── Framer variants ─── */
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -44,37 +48,37 @@ const stats = [
 
 const values = [
   {
-    icon: <Leaf size={26} />,
+    icon: "🌱",
     title: "100% Natural Ingredients",
     desc: "We source only the finest organic flour, dairy, and seasonal produce from local farms within 50km. No artificial colours, flavours, or preservatives — ever.",
     accent: "#16A34A", bg: "#F0FDF4", border: "#BBF7D0",
   },
   {
-    icon: <Flame size={26} />,
+    icon: "🔥",
     title: "Freshly Baked Every Morning",
     desc: "Our bakers arrive at 3:00 AM every single day. By the time you walk in, everything is fresh out of the oven — still warm, still perfect.",
     accent: "#EA580C", bg: "#FFF7ED", border: "#FED7AA",
   },
   {
-    icon: <Heart size={26} />,
+    icon: "❤️",
     title: "Made with Love",
     desc: "Every croissant is hand-laminated, every cake is hand-decorated. We believe the care put into making something is what makes it truly special.",
     accent: "#E11D48", bg: "#FFF1F2", border: "#FECDD3",
   },
   {
-    icon: <Wheat size={26} />,
+    icon: "🍞",
     title: "Traditional Techniques",
     desc: "We use slow fermentation, stone-milled heritage grains, and time-honoured recipes passed through four generations of our family.",
     accent: "#D97706", bg: "#FFFBEB", border: "#FDE68A",
   },
   {
-    icon: <Users size={26} />,
+    icon: "🤝",
     title: "Community First",
     desc: "We donate unsold goods to local shelters every evening, and hire locally — 95% of our team lives within 5 minutes of the bakery.",
     accent: "#2563EB", bg: "#EFF6FF", border: "#BFDBFE",
   },
   {
-    icon: <Award size={26} />,
+    icon: "🏆",
     title: "Award-Winning Quality",
     desc: "Named 'Best Artisan Bakery' by City Food Awards 5 years running. Our sourdough has been featured in national magazines and food shows.",
     accent: "#7C3AED", bg: "#F5F3FF", border: "#DDD6FE",
@@ -85,7 +89,7 @@ const team = [
   {
     name: "Margaret Howell",
     role: "Founder & Head Baker",
-    since: "Est. 1984",
+    since: "Est. 2024",
     quote: "Baking is not a job. It is how I say 'I love you' to the world.",
     desc: "Margaret started Hangary? Sweet. in her home kitchen with nothing but a wooden spoon and a dream. 40 years later, she still personally oversees every sourdough batch.",
     img: "/about-baker.png",
@@ -125,44 +129,100 @@ const team = [
 ];
 
 const milestones = [
-  { year: "1984", event: "Margaret opens Hangary? Sweet. in her home kitchen on Elm Street.", icon: Home,        iconColor: "#E11D48", iconBg: "#FFF1F2" },
-  { year: "1992", event: "First brick-and-mortar bakery opens. Queues form on opening day and never really stop.", icon: Store,       iconColor: "#D97706", iconBg: "#FFFBEB" },
-  { year: "1998", event: "James returns from Paris and introduces the artisan pastry program.", icon: Croissant,   iconColor: "#EA580C", iconBg: "#FFF7ED" },
-  { year: "2005", event: "Wins first 'Best Bakery' at the City Food Awards — the first of many.", icon: Trophy,      iconColor: "#CA8A04", iconBg: "#FEFCE8" },
-  { year: "2012", event: "Custom cake studio opens. Priya Sharma joins and redefines cake art.", icon: Cake,        iconColor: "#DB2777", iconBg: "#FDF2F8" },
-  { year: "2018", event: "Online ordering launches. 10,000 orders fulfilled in the very first month.", icon: Smartphone,  iconColor: "#2563EB", iconBg: "#EFF6FF" },
-  { year: "2022", event: "50,000 happy customers milestone. Featured on national television.", icon: Tv,          iconColor: "#7C3AED", iconBg: "#F5F3FF" },
-  { year: "2024", event: "Second location opens and Hangary? Sweet. subscription boxes launch nationwide.", icon: Rocket,      iconColor: "#16A34A", iconBg: "#F0FDF4" },
+  { year: "2024", event: "Margaret opens Hangary? Sweet. in her home kitchen on Elm Street.", icon: "🏠",        iconColor: "#E11D48", iconBg: "#FFF1F2" },
+  { year: "1992", event: "First brick-and-mortar bakery opens. Queues form on opening day and never really stop.", icon: "🏬",       iconColor: "#D97706", iconBg: "#FFFBEB" },
+  { year: "1998", event: "James returns from Paris and introduces the artisan pastry program.", icon: "🥐",   iconColor: "#EA580C", iconBg: "#FFF7ED" },
+  { year: "2005", event: "Wins first 'Best Bakery' at the City Food Awards — the first of many.", icon: "🏆",      iconColor: "#CA8A04", iconBg: "#FEFCE8" },
+  { year: "2012", event: "Custom cake studio opens. Priya Sharma joins and redefines cake art.", icon: "🎂",        iconColor: "#DB2777", iconBg: "#FDF2F8" },
+  { year: "2018", event: "Online ordering launches. 10,000 orders fulfilled in the very first month.", icon: "📱",  iconColor: "#2563EB", iconBg: "#EFF6FF" },
+  { year: "2022", event: "50,000 happy customers milestone. Featured on national television.", icon: "📺",          iconColor: "#7C3AED", iconBg: "#F5F3FF" },
+  { year: "2024", event: "Second location opens and Hangary? Sweet. subscription boxes launch nationwide.", icon: "🚀",      iconColor: "#16A34A", iconBg: "#F0FDF4" },
 ];
 
-const testimonials = [
-  {
-    name: "Sophie Martin", role: "Wedding Client", avatar: "S", bg: "bg-rose-100 text-rose-700", stars: 5,
-    text: "Hangary? Sweet. made our wedding cake and it was absolutely perfect. Tasted even better than it looked. Our guests still talk about it!",
-  },
-  {
-    name: "David Okafor", role: "Regular Customer", avatar: "D", bg: "bg-blue-100 text-blue-700", stars: 5,
-    text: "I've been coming here every Saturday morning for 8 years. The sourdough is incomparable. This place is a genuine community treasure.",
-  },
-  {
-    name: "Aisha Rahman", role: "Food Blogger", avatar: "A", bg: "bg-amber-100 text-amber-700", stars: 5,
-    text: "As someone who has reviewed hundreds of bakeries, Hangary? Sweet. is in a league of its own. Authentic, honest, extraordinary food.",
-  },
-];
+type Testimonial = { name?: string; text?: string; stars?: number; role?: string; avatar?: string; bg?: string };
 
-/* ─── Parallax image helper ─── */
-function ParallaxImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
-  return (
-    <div ref={ref} className={`overflow-hidden ${className}`}>
-      <motion.img src={src} alt={alt} style={{ y }} className="w-full h-full object-cover scale-110" />
-    </div>
-  );
-}
+const staticTestimonials: Testimonial[] = [
+  { name: "Sophie Martin", role: "Wedding Client", avatar: "S", bg: "bg-rose-100 text-rose-700", stars: 5, text: "Hangary? Sweet. made our wedding cake and it was absolutely perfect. Tasted even better than it looked. Our guests still talk about it!" },
+  { name: "David Okafor", role: "Regular Customer", avatar: "D", bg: "bg-blue-100 text-blue-700", stars: 5, text: "I've been coming here every Saturday morning for 8 years. The sourdough is incomparable. This place is a genuine community treasure." },
+  { name: "Aisha Rahman", role: "Food Blogger", avatar: "A", bg: "bg-amber-100 text-amber-700", stars: 5, text: "As someone who has reviewed hundreds of bakeries, Hangary? Sweet. is in a league of its own. Authentic, honest, extraordinary food." },
+];
 
 export default function About() {
+  const defaultVisitCards = [
+    { icon: <MapPin size={22} />, title: "Find Us",  lines: ["12 Market Street", "Old Town District", "City Centre, SW1 4AB"], iconBg: "bg-rose-100 text-rose-600",   border: "border-rose-100"  },
+    { icon: <Clock size={22} />,  title: "Hours",    lines: ["Mon–Fri: 7AM – 7PM", "Saturday: 7AM – 5PM", "Sunday: 8AM – 3PM"], iconBg: "bg-amber-100 text-amber-600", border: "border-amber-100" },
+    { icon: <Phone size={22} />,  title: "Contact",  lines: ["+1 (555) 123-4567", "hello@hangary-sweet.com", "@hangary_sweet"],          iconBg: "bg-blue-100 text-blue-600",   border: "border-blue-100"  },
+  ];
+
+  const [visitCards, setVisitCards] = useState(defaultVisitCards);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(staticTestimonials);
+  const [testimonialsLoading, setTestimonialsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let mounted = true;
+    // Use public store profile endpoint (same one used by ContactSection) which is not admin-protected.
+    axiosInstance.get('/store')
+      .then((res) => {
+        if (!mounted) return;
+        const data = res?.data || {};
+        const profile = data.profile || data;
+        if (profile && typeof profile === 'object') {
+          setVisitCards((prev) => prev.map((c) => {
+            if (c.title === 'Find Us') {
+              const addr = typeof (profile as any).address === 'string' ? (profile as any).address : null;
+              const parts = addr ? addr.split(/\r?\n|,\s*/) .filter(Boolean).slice(0, 3) : c.lines;
+              return { ...c, lines: parts };
+            }
+            if (c.title === 'Hours') {
+              if (typeof (profile as any).hours === 'string' && (profile as any).hours.trim()) {
+                const hoursLines = (profile as any).hours.split(/\r?\n/).filter(Boolean).slice(0, 3);
+                return { ...c, lines: hoursLines.length ? hoursLines : c.lines };
+              }
+              if ((profile as any).openingTime || (profile as any).closingTime) {
+                const ot = (profile as any).openingTime || '7AM';
+                const ct = (profile as any).closingTime || '7PM';
+                return { ...c, lines: [`Mon–Fri: ${ot} – ${ct}`] };
+              }
+              return c;
+            }
+            if (c.title === 'Contact') {
+              const phone = typeof (profile as any).phone === 'string' ? (profile as any).phone : c.lines[0];
+              const email = typeof (profile as any).email === 'string' ? (profile as any).email : c.lines[1];
+              return { ...c, lines: [phone, email, c.lines[2]] };
+            }
+            return c;
+          }));
+        }
+      })
+      .catch((err) => {
+        // keep defaults on error (401 or other)
+        console.debug('Failed to load store profile for About page', err?.response?.status || err);
+      });
+    return () => { mounted = false; };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || 'http://localhost:5000';
+    fetch(`${apiBase}/api/contacts/testimonials`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json();
+      })
+      .then((data) => {
+        if (!mounted) return;
+        if (data && data.success && Array.isArray(data.testimonials)) {
+          setTestimonials(data.testimonials as Testimonial[]);
+        }
+      })
+      .catch(() => {
+        // keep static fallback
+      })
+      .finally(() => { if (mounted) setTestimonialsLoading(false); });
+
+    return () => { mounted = false; };
+  }, []);
+
   return (
     <div className="min-h-screen bg-white font-inter text-[#1A2744] overflow-x-hidden">
       <Navbar />
@@ -171,7 +231,7 @@ export default function About() {
       {/* ══ HERO ══ */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <ParallaxImage src="/hero-bg.png" alt="Bakery background" className="absolute inset-0 w-full h-full" />
+          <img src="/hero-bg.png" alt="Bakery background" className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-[#1A0E08]/80 via-[#3E2723]/60 to-[#1A0E08]/88" />
         </div>
         <div className="absolute top-[15%] left-[8%] w-64 h-64 bg-[#D4A373]/15 rounded-full blur-[90px] z-0" />
@@ -199,7 +259,7 @@ export default function About() {
             className="inline-flex items-center gap-2 bg-[#D4A373]/20 backdrop-blur-sm border border-[#D4A373]/40 text-[#F5ECD7] text-xs font-bold tracking-[0.35em] uppercase px-5 py-2 rounded-full mb-8"
           >
             <span className="w-1.5 h-1.5 bg-[#D4A373] rounded-full animate-pulse" />
-            Est. 1984 · Our Story
+            Est. 2024 · Our Story
           </motion.div>
 
           <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.35 }}
@@ -270,7 +330,7 @@ export default function About() {
                 <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#2C1810]/70 to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6">
                   <p className="text-white font-playfair text-lg font-bold">Margaret Howell</p>
-                  <p className="text-[#D4A373] text-xs tracking-widest uppercase font-semibold mt-0.5">Founder, since 1984</p>
+                  <p className="text-[#D4A373] text-xs tracking-widest uppercase font-semibold mt-0.5">Founder, since 2024</p>
                 </div>
               </div>
               {/* Accent cards */}
@@ -312,7 +372,7 @@ export default function About() {
                 </h2>
               </motion.div>
               <motion.p variants={fadeUp} className="text-[#7A5C4F] leading-[1.95] mb-5 text-base">
-                In 1984, Margaret Howell started baking bread in her tiny kitchen on Elm Street. She had no commercial equipment, no business plan — just a passion for honest, wholesome food and a wooden spoon that she still keeps on display in our bakery today.
+                In 2024, Margaret Howell started baking bread in her tiny kitchen on Elm Street. She had no commercial equipment, no business plan — just a passion for honest, wholesome food and a wooden spoon that she still keeps on display in our bakery today.
               </motion.p>
               <motion.p variants={fadeUp} className="text-[#7A5C4F] leading-[1.95] mb-5 text-base">
                 Word spread fast. Neighbours would knock on her door at 7 AM asking for another loaf. Within a year, Margaret quit her office job and opened Hangary? Sweet.'s first proper location on Market Street. The queue on opening day stretched around the block.
@@ -506,7 +566,12 @@ export default function About() {
                       className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300"
                       style={{ backgroundColor: m.iconBg, color: m.iconColor }}
                     >
-                      <m.icon size={26} strokeWidth={1.8} />
+                      {(() => {
+                        const Icon = m.icon as any;
+                        return typeof Icon === 'string'
+                          ? <span className="text-2xl">{Icon}</span>
+                          : <Icon size={26} strokeWidth={1.8} />;
+                      })()}
                     </div>
                   </div>
 
@@ -530,41 +595,8 @@ export default function About() {
         </div>
       </section>
 
-      {/* ══ TESTIMONIALS ══ */}
-      <section className="py-28 bg-[#FAF6E6]">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="text-center mb-16">
-            <span className="text-[#D4A373] text-xs font-bold tracking-[0.3em] uppercase mb-3 block">What Our Customers Say</span>
-            <h2 className="font-playfair text-5xl md:text-6xl font-bold text-[#3E2723]">Loved by Thousands</h2>
-          </motion.div>
-          <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          >
-            {testimonials.map((t) => (
-              <motion.div key={t.name} variants={fadeUp}
-                className="bg-white rounded-3xl p-8 border border-[#E8DDD3] shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative"
-              >
-                <Quote size={40} className="text-[#D4A373]/20 absolute top-6 right-6" />
-                <div className="flex gap-1 mb-5">
-                  {Array.from({ length: t.stars }).map((_, i) => (
-                    <Star key={i} size={16} className="fill-[#D4A373] text-[#D4A373]" />
-                  ))}
-                </div>
-                <p className="text-[#5C4033] text-base leading-[1.9] mb-7 italic">"{t.text}"</p>
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 ${t.bg} rounded-full flex items-center justify-center font-bold text-sm`}>
-                    {t.avatar}
-                  </div>
-                  <div>
-                    <p className="font-bold text-[#3E2723] text-sm">{t.name}</p>
-                    <p className="text-xs text-[#8D6E63]">{t.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+      {/* ══ TESTIMONIALS (shared) ══ */}
+      <TestimonialsSection />
 
       {/* ══ VISIT US ══ */}
       <section className="py-28 bg-white overflow-hidden">
@@ -581,11 +613,7 @@ export default function About() {
               <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}
                 className="grid grid-cols-1 sm:grid-cols-3 gap-5"
               >
-                {[
-                  { icon: <MapPin size={22} />, title: "Find Us",  lines: ["12 Market Street", "Old Town District", "City Centre, SW1 4AB"], iconBg: "bg-rose-100 text-rose-600",   border: "border-rose-100"  },
-                  { icon: <Clock size={22} />,  title: "Hours",    lines: ["Mon–Fri: 7AM – 7PM", "Saturday: 7AM – 5PM", "Sunday: 8AM – 3PM"], iconBg: "bg-amber-100 text-amber-600", border: "border-amber-100" },
-                  { icon: <Phone size={22} />,  title: "Contact",  lines: ["+1 (555) 123-4567", "hello@Hangary? Sweet..com", "@Hangary? Sweet."],          iconBg: "bg-blue-100 text-blue-600",   border: "border-blue-100"  },
-                ].map((card) => (
+                {visitCards.map((card) => (
                   <motion.div key={card.title} variants={fadeUp}
                     className={`bg-[#FAF6E6] border-2 ${card.border} rounded-2xl p-6 hover:shadow-lg transition-all duration-300`}
                   >

@@ -29,7 +29,7 @@ export default function FooterSection() {
                         Taste the <br/>
                         <span className="text-gold italic pr-4">Magic</span>
                         <span className="text-4xl align-middle tracking-normal opacity-50 font-sans font-light block mt-4 max-w-md">
-                           Artisan pastries baked with passion since 1984.
+                           Artisan pastries baked with passion since 2024.
                         </span>
                     </h2>
                 </motion.div>

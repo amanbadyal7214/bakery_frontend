@@ -1,8 +1,12 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/home/FooterSection";
+import axiosInstance from '@/services/api';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { useToast } from '@/hooks/use-toast';
 import {
   MapPin, Phone, Mail, Clock, Send,
   Instagram, Facebook, Twitter, CheckCircle2,
@@ -37,14 +41,114 @@ const quickLinks = [
   { icon: Star,        label: "About Us",             to: "/about" },
 ];
 
+type FormState = { name: string; phone: string; subject: string; message: string };
+
 export default function Contact() {
+  const { toast } = useToast();
+  const { isAuthenticated, user } = useSelector((s: RootState) => s.auth);
+
   const [open, setOpen] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [form, setForm] = useState<FormState>({ name: "", phone: "", subject: "", message: "" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [profile, setProfile] = useState<{ address?: string; phone?: string; email?: string; hours?: string } | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Prefill when authenticated
+  useEffect(() => {
+    if (!isAuthenticated || !user) return;
+    const u = user as unknown as Record<string, unknown>;
+    const nameVal = typeof u['name'] === 'string' ? (u['name'] as string)
+      : typeof u['fullName'] === 'string' ? (u['fullName'] as string)
+      : '';
+
+    // phone detection similar to ContactSection
+    const tryKeys = ['phone', 'mobile', 'phoneNumber', 'telephone', 'tel', 'contact', 'contactNumber'];
+    let found: string | undefined;
+    for (const k of tryKeys) {
+      const v = u[k];
+      if (typeof v === 'string' && v) { found = v; break; }
+      if (typeof v === 'number' && !found) { found = String(v); break; }
+    }
+    // nested locations
+    if (!found && typeof u['profile'] === 'object' && u['profile'] !== null) {
+      const p = u['profile'] as Record<string, unknown>;
+      if (typeof p['phone'] === 'string') found = p['phone'] as string;
+    }
+    if (!found && typeof u['attributes'] === 'object' && u['attributes'] !== null) {
+      const a = u['attributes'] as Record<string, unknown>;
+      if (typeof a['phone'] === 'string') found = a['phone'] as string;
+    }
+    // fallback: any string that looks like phone
+    if (!found) {
+      const vals = Object.values(u).filter(v => typeof v === 'string') as string[];
+      for (const v of vals) {
+        if (/\d{6,}/.test(v)) { found = v; break; }
+      }
+    }
+
+    const normalized = found ? found.replace(/[^+\d]/g, '') : '';
+    setForm(f => ({ ...f, name: nameVal || f.name, phone: normalized || f.phone }));
+  }, [isAuthenticated, user]);
+
+  // Load store profile
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await axiosInstance.get('/store');
+        const data = res?.data || {};
+        const p = data.profile || data;
+        if (!mounted) return;
+        if (p && Object.keys(p).length > 0) {
+          setProfile({
+            address: p.address,
+            phone: p.phone,
+            email: p.email,
+            hours: p.hours,
+          });
+          setError(null);
+        } else {
+          setProfile(null);
+        }
+      } catch (err) {
+        console.debug('Failed to load store profile', err);
+        if (!mounted) return;
+        setError('Unable to load contact information');
+        setProfile(null);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    if (!isAuthenticated) {
+      toast({ title: 'Login required', description: 'Please log in to submit the contact form.' });
+      return;
+    }
+    if (!form.name || !form.phone || !form.message) {
+      toast({ title: 'Please fill required fields', description: 'Name, phone and message are required.' });
+      return;
+    }
+    try {
+      const payload = { name: form.name, phone: form.phone, subject: form.subject, message: form.message };
+      const res = await axiosInstance.post('/contacts', payload);
+      if (res && (res.data?.success || res.status === 201)) {
+        setSubmitted(true);
+        toast({ title: 'Message sent', description: 'We will reply soon.' });
+        setForm({ name: '', phone: '', subject: '', message: '' });
+      } else {
+        toast({ title: 'Failed to send message', description: 'Please try again later.' });
+      }
+    } catch (err) {
+      console.error('Contact form submit failed', err);
+      toast({ title: 'Unable to send message', description: 'Try again later.' });
+    }
   };
 
   return (
@@ -67,7 +171,7 @@ export default function Contact() {
           <svg viewBox="0 0 120 120" className="w-full h-full">
             <defs><path id="cc" d="M 60,60 m -45,0 a 45,45 0 1,1 90,0 a 45,45 0 1,1 -90,0" /></defs>
             <text fontSize="11" letterSpacing="3.5" fill="#1A2744" fontFamily="Inter,sans-serif">
-              <textPath href="#cc">Hangary? Sweet. • ARTISAN • EST.1984 •</textPath>
+              <textPath href="#cc">Hangary? Sweet. • ARTISAN • EST.2024 •</textPath>
             </text>
             <text x="60" y="57" textAnchor="middle" fill="#1A2744" fontFamily="Playfair Display,serif" fontWeight="700" fontSize="9" letterSpacing="2">SWEET</text>
             <text x="60" y="70" textAnchor="middle" fill="#1A2744" fontFamily="Playfair Display,serif" fontWeight="700" fontSize="9" letterSpacing="2">BAKE</text>
@@ -100,19 +204,29 @@ export default function Contact() {
           variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
-          {infoCards.map((c) => (
-            <motion.div
-              key={c.label}
-              variants={fadeUp}
-              className={`bg-white rounded-3xl p-6 shadow-md border ${c.border} hover:shadow-xl transition-all duration-300 group`}
-            >
-              <div className={`w-12 h-12 ${c.bg} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300`}>
-                <c.icon className={`w-5 h-5 ${c.color}`} />
-              </div>
-              <p className="text-[0.65rem] font-bold tracking-widest uppercase text-gold mb-1">{c.label}</p>
-              <p className="text-bread-dark text-sm font-medium leading-relaxed whitespace-pre-line">{c.val}</p>
-            </motion.div>
-          ))}
+          {infoCards.map((c) => {
+            // prefer backend profile values when available
+            let val = c.val;
+            if (profile) {
+              if (c.label === 'Visit Us' && profile.address) val = profile.address;
+              if (c.label === 'Call Us' && profile.phone) val = profile.phone;
+              if (c.label === 'Email Us' && profile.email) val = profile.email;
+              if (c.label === 'Opening Hours' && profile.hours) val = profile.hours;
+            }
+            return (
+              <motion.div
+                key={c.label}
+                variants={fadeUp}
+                className={`bg-white rounded-3xl p-6 shadow-md border ${c.border} hover:shadow-xl transition-all duration-300 group`}
+              >
+                <div className={`w-12 h-12 ${c.bg} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300`}>
+                  <c.icon className={`w-5 h-5 ${c.color}`} />
+                </div>
+                <p className="text-[0.65rem] font-bold tracking-widest uppercase text-gold mb-1">{c.label}</p>
+                <p className="text-bread-dark text-sm font-medium leading-relaxed whitespace-pre-line">{val}</p>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </section>
 
@@ -135,11 +249,11 @@ export default function Contact() {
                 </div>
                 <h3 className="font-playfair text-2xl font-bold text-bread-dark">Message Sent!</h3>
                 <p className="text-[#7A5C4F] text-sm leading-relaxed max-w-sm">
-                  Thank you, <strong>{form.name || "friend"}</strong>! We'll get back to you within 24 hours. In the meantime, why not browse our menu? 🧁
+                  Thank you, <strong>{form.name || 'friend'}</strong>! We'll get back to you within 24 hours.
                 </p>
                 <div className="flex gap-3 mt-2">
                   <button
-                    onClick={() => { setSubmitted(false); setForm({ name:"", email:"", subject:"", message:"" }); }}
+                    onClick={() => { setSubmitted(false); setForm({ name:'', phone:'', subject:'', message:'' }); }}
                     className="px-6 py-2.5 rounded-full border border-gold/30 text-bread-brown text-sm font-bold hover:border-bread-brown transition-colors"
                   >
                     Send Another
@@ -171,12 +285,12 @@ export default function Contact() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5 group">
-                    <label htmlFor="cf-email" className="text-xs font-bold text-bread-dark ml-1 tracking-wide uppercase group-focus-within:text-gold transition-colors">
-                      Email Address
+                    <label htmlFor="cf-phone" className="text-xs font-bold text-bread-dark ml-1 tracking-wide uppercase group-focus-within:text-gold transition-colors">
+                      Phone Number
                     </label>
                     <input
-                      id="cf-email" type="email" placeholder="jane@example.com" required
-                      value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                      id="cf-phone" name="cf-phone" type="tel" placeholder="(123) 456-7890" required
+                      value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
                       className="w-full bg-gray-50 border border-transparent rounded-xl px-5 py-3.5 text-bread-dark text-sm outline-none focus:bg-white focus:border-gold/40 focus:ring-4 focus:ring-gold/10 transition-all placeholder:text-gray-400"
                     />
                   </div>

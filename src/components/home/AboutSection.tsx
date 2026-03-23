@@ -38,7 +38,7 @@ export default function AboutSection() {
           Baked with Heart,<br />Served with Soul
         </h2>
         <p className="text-[#7A5C4F] leading-[1.8] mb-4">
-          What started as a tiny kitchen experiment in 1984 has grown into a beloved neighbourhood institution. We believe great baking is a conversation between tradition and creativity.
+          What started as a tiny kitchen experiment in 2024 has grown into a beloved neighbourhood institution. We believe great baking is a conversation between tradition and creativity.
         </p>
         <p className="text-[#7A5C4F] leading-[1.8] mb-6">
           Every loaf, pastry and cake that leaves our ovens carries the care of our entire team. We never compromise on quality, and we never will.

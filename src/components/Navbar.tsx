@@ -144,7 +144,7 @@ export default function Navbar() {
             </div>
             <div className="hidden md:flex flex-col leading-none">
               <span className="font-playfair text-xl font-bold tracking-wider text-[#1A2744] group-hover:text-[#D4A373] transition-colors">Hangry?Sweet.</span>
-              <span className="text-[0.6rem] tracking-[0.3em] text-[#8D6E63] font-medium uppercase mt-1">Est. 1984</span>
+              <span className="text-[0.6rem] tracking-[0.3em] text-[#8D6E63] font-medium uppercase mt-1">Est. 2024</span>
             </div>
           </Link>
 
