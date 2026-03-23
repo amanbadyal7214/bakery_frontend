@@ -95,6 +95,10 @@ export const api = {
     markRead: (id: string) => axiosInstance.post(`/contacts/${id}/read`).then(res => normalize(res)),
     delete: (id: string) => axiosInstance.delete(`/contacts/${id}`).then(() => undefined),
   },
+  values: {
+    get: (): Promise<any[]> => axiosInstance.get('/values').then(res => normalize<any[]>(res)),
+    update: (values: any[]) => axiosInstance.put('/values', { values }).then(res => normalize<any[]>(res)),
+  },
 };
 
 export default axiosInstance;
