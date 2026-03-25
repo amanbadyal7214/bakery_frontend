@@ -159,6 +159,9 @@ export default function About() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>(staticTestimonials);
   const [testimonialsLoading, setTestimonialsLoading] = useState<boolean>(true);
   const [valuesState, setValuesState] = useState(defaultValues);
+  const [teamState, setTeamState] = useState(team);
+  const [teamLoading, setTeamLoading] = useState(true);
+
   // origin story is now handled by OriginStorySection component
 
   useEffect(() => {
@@ -206,7 +209,7 @@ export default function About() {
 
   useEffect(() => {
     let mounted = true;
-    const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || 'http://localhost:5000';
+    const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || 'https://bakery-bakend.onrender.com';
     fetch(`${apiBase}/api/contacts/testimonials`)
       .then((res) => {
         if (!res.ok) throw new Error('Network response was not ok');
@@ -236,6 +239,39 @@ export default function About() {
       })
       .catch(() => {})
       .finally(() => {});
+    return () => { mounted = false; };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || 'https://bakery-bakend.onrender.com';
+    fetch(`${apiBase}/api/team`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json();
+      })
+      .then((data) => {
+        if (!mounted) return;
+        if (data && data.ok && Array.isArray(data.team) && data.team.length) {
+          // map backend fields to frontend expected shape if necessary
+          setTeamState(data.team.map((m: any) => ({
+            name: m.name || '',
+            role: m.role || '',
+            since: m.since || '',
+            quote: m.quote || '',
+            desc: m.desc || '',
+            img: m.img || '/about-baker.png',
+            badge: m.badge || '',
+            badgeBg: m.badgeBg || 'bg-amber-100 text-amber-800',
+          })));
+        }
+      })
+      .catch((err) => {
+        // keep default team on error
+        console.debug('Failed to load team for About page', err);
+      })
+      .finally(() => { if (mounted) setTeamLoading(false); });
+
     return () => { mounted = false; };
   }, []);
 
@@ -422,7 +458,7 @@ export default function About() {
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
           >
-            {team.map((member) => (
+            {teamState.map((member) => (
               <motion.div key={member.name} variants={fadeUp}
                 className="group bg-white rounded-3xl overflow-hidden shadow-sm border border-[#E8DDD3] hover:shadow-2xl transition-all duration-500 hover:-translate-y-3"
               >

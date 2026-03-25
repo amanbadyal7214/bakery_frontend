@@ -16,7 +16,7 @@ export default function OriginStorySection() {
 
   useEffect(() => {
     let mounted = true;
-    const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || 'http://localhost:5000';
+    const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || 'https://bakery-bakend.onrender.com';
     setOriginLoading(true);
     fetch(`${apiBase}/api/origin-story`)
       .then((res) => res.ok ? res.json() : Promise.reject(new Error('Failed')))
