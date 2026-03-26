@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
     proxy: {
       // proxy /api to backend dev server
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://bakery-bakend.onrender.com',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api'),
