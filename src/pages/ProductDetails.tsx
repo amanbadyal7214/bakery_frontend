@@ -382,6 +382,34 @@ export default function ProductDetails() {
                             )}
                         </AccordionContent>
                     </AccordionItem>
+                    <AccordionItem value="nutrition" className="border-b border-[#E5DACE]">
+                        <AccordionTrigger className="text-[#2C1810] font-playfair font-bold text-lg hover:no-underline hover:text-[#D4A373]">Nutrition</AccordionTrigger>
+                        <AccordionContent className="text-[#7A5C4F] leading-relaxed text-base pt-2">
+                            {product && product.totalNutrition && Object.keys(product.totalNutrition).length > 0 ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {Object.entries(product.totalNutrition).map(([k, v]) => (
+                                        <div key={k} className="flex justify-between items-center p-2 bg-white rounded-lg shadow-sm">
+                                            <div className="text-sm font-medium text-[#2C1810]">{String(k).replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}</div>
+                                            <div className="text-sm text-[#7A5C4F]">
+                                                {(() => {
+                                                    if (v == null) return '';
+                                                    if (typeof v === 'object') {
+                                                        if (Array.isArray(v)) return (v as any).join(', ');
+                                                        const anyV: any = v;
+                                                        if (anyV.value !== undefined && anyV.unit !== undefined) return `${anyV.value}${anyV.unit}`;
+                                                        return Object.entries(anyV).map(([kk, vv]) => `${kk}: ${vv}`).join(', ');
+                                                    }
+                                                    return String(v);
+                                                })()}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p>No nutrition information provided.</p>
+                            )}
+                        </AccordionContent>
+                    </AccordionItem>
                     <AccordionItem value="shipping" className="border-b border-[#E5DACE]">
                         <AccordionTrigger className="text-[#2C1810] font-playfair font-bold text-lg hover:no-underline hover:text-[#D4A373]">Delivery & Shipping</AccordionTrigger>
                         <AccordionContent className="text-[#7A5C4F] leading-relaxed text-base pt-2">
