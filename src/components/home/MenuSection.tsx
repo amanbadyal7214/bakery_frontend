@@ -2,11 +2,15 @@ import type { Product } from "./home-data";
 import { useProductActions } from "./home-data";
 import { Star } from "lucide-react";
 import { motion, Variants } from "framer-motion";
-import { Link } from "react-router-dom"; // Import Link for navigation
+import { Link, useNavigate } from "react-router-dom"; // Import Link for navigation
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 export default function MenuSection() {
   const { handleAddToCart, scrollTo } = useProductActions();
+  const navigate = useNavigate();
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
   // load products from backend (no local fallback)
   const [products, setProducts] = useState<Product[]>([]);
@@ -210,7 +214,12 @@ export default function MenuSection() {
                     <button 
                       onClick={(e) => {
                         e.preventDefault();
-                        handleAddToCart(p);
+                        if (!isAuthenticated) {
+                          alert('Please login first to add items to cart');
+                          navigate('/login');
+                          return;
+                        }
+                        void handleAddToCart(p, 1, isAuthenticated);
                       }}
                       className="w-full bg-white text-[#2C1810] font-bold py-2.5 text-sm rounded-full hover:bg-[#D4A373] hover:text-[#2C1810] transition-colors shadow-lg active:scale-95 duration-200"
                     >

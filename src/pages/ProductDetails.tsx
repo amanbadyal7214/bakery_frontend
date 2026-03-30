@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useProductActions } from "../components/home/home-data";
 import { api } from "@/services/api";
 import Navbar from "@/components/Navbar";
-import CartSheet from "@/components/CartSheet";
 import { ArrowLeft, Star, ShoppingBag, Truck, ShieldCheck, Heart, Share2, Plus, Minus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -18,6 +17,7 @@ export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { handleAddToCart } = useProductActions();
+  const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0); 
   const [product, setProduct] = useState<any | null>(null);
@@ -144,6 +144,12 @@ export default function ProductDetails() {
   };
 
   const onAddToCart = () => {
+    if (!isAuthenticated) {
+      alert('Please login first to add items to cart');
+      navigate('/login');
+      return;
+    }
+
     if (!product) return;
     
     const variantProduct = {
@@ -152,16 +158,12 @@ export default function ProductDetails() {
       price: currentPrice
     };
 
-    // In a real app we'd pass quantity too
-    for(let i=0; i<quantity; i++) {
-        handleAddToCart(variantProduct);
-    }
+    void handleAddToCart(variantProduct, quantity, isAuthenticated);
   };
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] font-inter">
       <Navbar />
-      <CartSheet />
       
       <div className="pt-28 pb-16 px-6 w-full mx-auto">
         <button 

@@ -12,7 +12,6 @@ import {
 
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/home/FooterSection";
-import CartSheet from "@/components/CartSheet";
 import TestimonialsSection from "../components/home/TestimonialsSection";
 import OriginStorySection from "@/components/home/OriginStorySection";
 
@@ -278,7 +277,6 @@ export default function About() {
   return (
     <div className="min-h-screen bg-white font-inter text-[#1A2744] overflow-x-hidden">
       <Navbar />
-      <CartSheet />
 
       {/* ══ HERO ══ */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden">

@@ -1,12 +1,16 @@
 import { useDispatch } from "react-redux";
-import { addToCart } from "@/store/slices/cartSlice";
+import { addToCart, setCartItems } from "@/store/slices/cartSlice";
+import type { Product as CartProduct } from "@/types";
+import { addCartItem } from "@/services/cartApi";
 import cakeJpg from "../../assets/cake.jpg";
 import chocolateJpg from "../../assets/choclate.jpg";
 import pastryJpg from "../../assets/pastery.jpg";
 import doJpg from "../../assets/DO.jpg";
 
+const CART_OPEN_EVENT = "cart:open";
+
 export interface Product {
-  id: number;
+  id: number | string;
   name: string;
   category: string;
   price: number;
@@ -26,15 +30,103 @@ export interface Product {
 export const useProductActions = () => {
   const dispatch = useDispatch();
 
-  const handleAddToCart = (product: Product) => {
-    dispatch(addToCart({
-      id: product.id,
-      name: product.name,
-      category: product.category,
-      price: product.price,
-      stock: 10,
-      image: product.img
-    }));
+  const resolveImage = (record: Record<string, unknown>): string => {
+    const imageCandidates = [
+      record.img,
+      record.imgBase64,
+      record.image,
+    ];
+
+    const images = record.images;
+    if (Array.isArray(images) && images.length > 0) {
+      const first = images[0] as Record<string, unknown>;
+      imageCandidates.push(first?.base64, first?.url);
+    }
+
+    const image = imageCandidates.find((v) => typeof v === "string" && v.trim().length > 0);
+    return (image as string | undefined) ?? "/placeholder.svg";
+  };
+
+  const toCartProduct = (product: Product | Record<string, unknown>): CartProduct | null => {
+    const record = product as Record<string, unknown>;
+    const rawId = record._id ?? record.id;
+    if (rawId === undefined || rawId === null || String(rawId).trim() === "") {
+      return null;
+    }
+
+    const rawPrice = Number(record.price);
+    const safePrice = Number.isFinite(rawPrice) ? rawPrice : 0;
+    const rawStock = Number(record.stock);
+    const safeStock = Number.isFinite(rawStock) && rawStock > 0 ? rawStock : 10;
+
+    return {
+      id: String(rawId),
+      name: String(record.name ?? "Bakery Item"),
+      category: String(record.category ?? "Bakery"),
+      price: safePrice,
+      stock: safeStock,
+      image: resolveImage(record),
+      rating: Number.isFinite(Number(record.rating)) ? Number(record.rating) : undefined,
+      flavor: Array.isArray(record.flavor)
+        ? (record.flavor as string[])
+        : typeof record.flavor === "string"
+          ? [record.flavor]
+          : undefined,
+      ingredients: Array.isArray(record.ingredients)
+        ? (record.ingredients as string[])
+        : undefined,
+      tasteDescription: typeof record.tasteDescription === "string"
+        ? record.tasteDescription
+        : undefined,
+    };
+  };
+
+  const handleAddToCart = async (
+    product: Product | Record<string, unknown>,
+    quantity: number,
+    isAuthenticated: boolean,
+  ) => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      alert('Please login first to add items to cart');
+      window.location.href = '/login';
+      return;
+    }
+
+    const cartProduct = toCartProduct(product);
+    if (!cartProduct) return;
+
+    const token = localStorage.getItem("token");
+    const normalizedQuantity = Math.max(1, Math.floor(Number(quantity) || 1));
+    const isObjectId = /^[a-fA-F0-9]{24}$/.test(String(cartProduct.id));
+
+    if (token && isObjectId) {
+      try {
+        const response = await addCartItem(token, {
+          productId: String(cartProduct.id),
+          quantity: normalizedQuantity,
+        });
+        dispatch(setCartItems(response.cart.items));
+      } catch (error) {
+        console.error("Failed to sync cart with server, using local fallback:", error);
+        dispatch(
+          addToCart({
+            product: cartProduct,
+            quantity: normalizedQuantity,
+          }),
+        );
+      }
+    } else {
+      dispatch(
+        addToCart({
+          product: cartProduct,
+          quantity: normalizedQuantity,
+        }),
+      );
+    }
+
+    // Open cart only for explicit add-to-cart actions.
+    window.dispatchEvent(new Event(CART_OPEN_EVENT));
   };
 
   const scrollTo = (id: string) => {

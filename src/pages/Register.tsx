@@ -35,8 +35,10 @@ export default function Register() {
 
       dispatch(setCredentials({ user: data.customer, token: data.token }));
 
+      // Persist auth state to localStorage for session recovery
       localStorage.setItem("token", data.token);
       localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("user", JSON.stringify(data.customer));
       navigate("/");
     } catch (error: any) {
       alert(error.message);

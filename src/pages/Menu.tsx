@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useProductActions } from "../components/home/home-data";
 import Navbar from "../components/Navbar";
-import CartSheet from "../components/CartSheet";
 import FooterSection from "../components/home/FooterSection";
 import FilterSidebar, { FilterState } from "../components/FilterSidebar";
 import { motion, AnimatePresence, Variants } from "framer-motion";
@@ -31,7 +30,8 @@ export default function Menu() {
   });
   
   const { handleAddToCart } = useProductActions();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated); 
 
   // products loaded from backend API (replace demo import)
   const [products, setProducts] = useState<any[]>([]);
@@ -222,7 +222,6 @@ export default function Menu() {
   return (
     <div className="min-h-screen bg-white font-inter text-[#1A2744] selection:bg-[#D4A373] selection:text-white overflow-x-hidden">
       <Navbar />
-      <CartSheet />
       
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-[#D4A373]/10 rounded-full blur-[100px]" />
@@ -388,12 +387,22 @@ export default function Menu() {
 
                         <button 
                           onClick={(e) => {
-                            e.stopPropagation(); // Prevent navigating to detail page when adding to cart
-                            handleAddToCart(p);
+                            e.stopPropagation();
+                            if (!isAuthenticated) {
+                              alert('Please login first to add items to cart');
+                              navigate('/login');
+                              return;
+                            }
+                            void handleAddToCart(p, 1, isAuthenticated);
                           }}
-                          className="w-full bg-[#D4A373] text-[#2C1810] font-bold py-3 rounded-xl hover:bg-[#F5ECD7] transition-colors text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 group/btn"
+                          disabled={!isAuthenticated}
+                          className={`w-full font-bold py-3 rounded-xl transition-colors text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 group/btn ${
+                            isAuthenticated
+                              ? 'bg-[#D4A373] text-[#2C1810] hover:bg-[#F5ECD7]'
+                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          }`}
                         >
-                          Add to Cart <ShoppingBag size={16} className="group-hover/btn:scale-110 transition-transform" />
+                          {isAuthenticated ? 'Add to Cart' : 'Login to Order'} <ShoppingBag size={16} className="group-hover/btn:scale-110 transition-transform" />
                         </button>
                       </div>
                     </div>

@@ -1,68 +1,124 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { ShoppingBag, X, Plus, Minus } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/store";
-import { removeFromCart, updateQuantity } from "@/store/slices/cartSlice";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ShoppingBag, Plus, Minus, X, MapPin, Phone, User, Home, Truck, LogIn, LogOut } from "lucide-react";
+import { removeFromCart, updateQuantity, clearCart, setCartItems } from "@/store/slices/cartSlice";
+import { logout } from "@/store/slices/authSlice";
+import { clearServerCart, removeCartItem, setCartItemQuantity } from "@/services/cartApi";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { Link } from "react-router-dom";
+import { RootState } from "@/store";
+
+const CART_OPEN_EVENT = "cart:open";
 
 const CartSheet = () => {
-    const dispatch = useDispatch();
-    const cartItems = useSelector((state: RootState) => state.cart.items);
-    
-    const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const count = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-
-    const [receiptId, setReceiptId] = useState("");
-    const [dateStr, setDateStr] = useState("");
-    const [timeStr, setTimeStr] = useState("");
+    const dispatch = useAppDispatch();
+    const cartItems = useAppSelector((state) => state.cart.items);
+    const { user, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
     const [isOpen, setIsOpen] = useState(false);
+    const [billNo] = useState(() => `BL${Math.random().toString(36).substr(2, 9).toUpperCase()}`);
+    const [billDate] = useState(new Date().toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: '2-digit' }));
     
-    // Auto-open logic when items are added (optional, but requested behavior implies "as user keep adding... chart sheet get updates and move upward")
-    // Actually the user probably wants the sheet to be openable and stay open without blocking.
-    // Or maybe auto-open. Let's make it stay openable without modal.
+    // Delivery details
+    const [deliveryType, setDeliveryType] = useState<'pickup' | 'home'>('home');
+    const [customerName, setCustomerName] = useState('');
+    const [customerPhone, setCustomerPhone] = useState('');
+    const [deliveryAddress, setDeliveryAddress] = useState('');
+    const [instructions, setInstructions] = useState('');
     
-    // We need to manage the open state to potentially auto-open or just rely on Trigger. 
-    // Since ShadCN Sheet is controlled or uncontrolled. 
-    // If we want it to "grow" as items are added, that's just content height.
-    
+    // Auto-populate from user data when authenticated
     useEffect(() => {
-        setReceiptId(Math.floor(100000 + Math.random() * 900000).toString());
-        const now = new Date();
-        setDateStr(now.toLocaleDateString());
-        setTimeStr(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-    }, [count]); 
-
-    // Handle auto-opening when items are added
-    useEffect(() => {
-        if (count > 0) {
-            setIsOpen(true);
-        } else {
-            setIsOpen(false);
+        if (isAuthenticated && user) {
+            setCustomerName(user.name || '');
+            setCustomerPhone(user.phone || '');
         }
-    }, [count]);
+    }, [isAuthenticated, user]);
 
-    // If no items, simply return the trigger wrapper (or null if we want to hide perfectly)
-    // The user said: "if cart is empty then dont show chart sheet"
-    // But we still need the trigger button? "only show chart sheet... if cart has item then alwys show cahrt shee and dont hide"
-    // Usually a cart icon is always visible. But maybe the user means the SHEET (receipt) pops up automatically.
-    
-    // User request: "if cart is empty then dont show chart sheet but if cart has item then alwys show cahrt shee and dont hide"
-    // Interpretation: 
-    // 1. Empty cart -> Sheet is closed/hidden.
-    // 2. Has items -> Sheet is OPEN and STAYS OPEN.
-    
-    // To make it "always show" when items > 0, we can control the `open` prop of Sheet.
+    const count = useMemo(
+        () => cartItems.reduce((acc, item) => acc + item.quantity, 0),
+        [cartItems],
+    );
+
+    const subtotal = useMemo(
+        () =>
+            cartItems.reduce((acc, item) => {
+                const price = Number(item.price) || 0;
+                return acc + price * item.quantity;
+            }, 0),
+        [cartItems],
+    );
+
+    const deliveryFee = deliveryType === 'home' && count > 0 ? 49 : 0;
+    const total = subtotal + deliveryFee;
+
+    useEffect(() => {
+        const handleOpenCart = () => setIsOpen(true);
+        window.addEventListener(CART_OPEN_EVENT, handleOpenCart);
+        return () => window.removeEventListener(CART_OPEN_EVENT, handleOpenCart);
+    }, []);
+
+    const updateItemQuantity = async (id: string, nextQuantity: number) => {
+        const token = localStorage.getItem("token");
+
+        if (isAuthenticated && token) {
+            try {
+                if (nextQuantity <= 0) {
+                    const response = await removeCartItem(token, id);
+                    dispatch(setCartItems(response.cart.items));
+                    return;
+                }
+
+                const response = await setCartItemQuantity(token, id, nextQuantity);
+                dispatch(setCartItems(response.cart.items));
+                return;
+            } catch (error) {
+                console.error("Server cart update failed, applying local fallback:", error);
+            }
+        }
+
+        if (nextQuantity <= 0) {
+            dispatch(removeFromCart(id));
+            return;
+        }
+        dispatch(updateQuantity({ id, quantity: nextQuantity }));
+    };
+
+    const removeItem = async (id: string) => {
+        const token = localStorage.getItem("token");
+        if (isAuthenticated && token) {
+            try {
+                const response = await removeCartItem(token, id);
+                dispatch(setCartItems(response.cart.items));
+                return;
+            } catch (error) {
+                console.error("Server remove failed, applying local fallback:", error);
+            }
+        }
+
+        dispatch(removeFromCart(id));
+    };
+
+    const clearAllItems = async () => {
+        const token = localStorage.getItem("token");
+        if (isAuthenticated && token) {
+            try {
+                const response = await clearServerCart(token);
+                dispatch(setCartItems(response.cart.items));
+                return;
+            } catch (error) {
+                console.error("Server clear failed, applying local fallback:", error);
+            }
+        }
+
+        dispatch(clearCart());
+    };
+
+    // Show login prompt if not authenticated and cart has items
+    const showLoginPrompt = !isAuthenticated && cartItems.length > 0;
 
     return (
-        <Sheet modal={false} open={isOpen} onOpenChange={setIsOpen}>
-            {/* We can still keep Trigger if user ever wants to toggle, but per request "always show... dont hide" 
-                Since we control `open`, the trigger might not be needed or would just not close it if we force open.
-                However, if we put `open={count > 0}`, it will force open. 
-                Shadcn Sheet's `open` prop controls the state. 
-                If we want to allow user to close it? "dont hide". So maybe not allow close.
-            */}
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
                 <div className="relative cursor-pointer group">
                     <div className="p-2 rounded-full hover:bg-black/5 transition-colors">
@@ -75,215 +131,317 @@ const CartSheet = () => {
                     )}
                 </div>
             </SheetTrigger>
-            {/* 
-                User Requested:
-                1. From Bottom
-                2. No disable rest of screen (No Overlay)
-                3. "Horizontal upward animation" -> Likely means sliding up from bottom. 
-                4. "chart sheet get updates and moves upward direction as new orders added" -> The height should grow upwards.
-            */}
-            <SheetContent 
-                side="bottom" 
-                disableOverlay={true}
-                className="w-full sm:w-[500px] sm:left-auto sm:right-10 p-0 border-none bg-transparent shadow-none max-h-[100vh] overflow-hidden pointer-events-none"
-                style={{ bottom: 0 }}
-            >
-                {/* Pointer events auto needed for content because container is pointer-events-none to let click through if transparent? 
-                    Actually SheetContent usually has a fixed position. If disableOverlay is true, the content is still a fixed div.
-                    We want it to not block clicks outside.
-                    The custom SheetContent implementation we did removes the Overlay, but the Content itself is `fixed inset-0` or similar?
-                    Wait, `sheetVariants` for `bottom` is `inset-x-0 bottom-0`. It usually spans full width.
-                    For a "receipt printing up", maybe we want it floating right?
-                    User said "horizontal upward animation" which is confusing. Maybe "vertical upward"?
-                    "sheet get move s upward" -> Standard bottom sheet behavior, but maybe width confined?
-                    I'll make it a side sheet but positioned at bottom right, simulating a printer outputting up? 
-                    Or just a standard bottom sheet but narrow?
-                    The user said "bootm of the screen to top".
-                    Let's use `side="bottom"` but constrain width so it looks like a receipt popping up, not a full drawer.
-                 */}
-                <div className="flex flex-col items-end justify-end p-4 pointer-events-auto h-[85vh]">
-                    {/* Receipt Container */}
-                    <div className="w-[350px] bg-white shadow-2xl relative font-mono text-sm text-gray-800 jagged-bottom animate-in slide-in-from-bottom duration-500 overflow-hidden flex flex-col max-h-full">
-                         {/* Close Button styled for receipt - Absolute to container, will stay on top of ScrollArea? No, should be inside or separate overlay?
-                             If we put it here, it overlays the ScrollArea. */}
-                        <div className="absolute top-2 right-2 z-50">
-                            {/* We rely on Sheet's default close, but we can add our own or just let the default one sit on top. 
-                                Shadcn SheetContent usually includes a Close button. We can hide it via CSS if we want custom, 
-                                but standard is fine. Let's ensure contrast. */}
-                            <button 
-                                onClick={() => setIsOpen(false)}
-                                className="bg-gray-200 hover:bg-red-100 hover:text-red-500 rounded-full p-1 transition-colors"
-                            >
-                                <X className="w-4 h-4" />
-                            </button>
+            <SheetContent side="right" className="w-full border-l-2 border-[#2C1810] bg-white p-0 sm:max-w-[420px]">
+                <div className="flex h-full flex-col bg-white">
+                    {/* Close Button */}
+                    <div className="absolute right-4 top-4 z-50">
+                        <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                            <X className="w-5 h-5 text-[#2C1810]" />
+                        </button>
+                    </div>
+
+                    {showLoginPrompt ? (
+                        <div className="flex flex-1 flex-col items-center justify-center px-6 text-center space-y-6">
+                            <div className="rounded-full bg-[#F5ECD7] p-6">
+                                <LogIn className="h-10 w-10 text-[#2C1810]" />
+                            </div>
+                            <div>
+                                <h3 className="font-playfair text-2xl font-bold text-[#2C1810] mb-2">Login Required</h3>
+                                <p className="text-sm text-[#8D6E63]">
+                                    Please log in to your account to place an order and checkout.
+                                </p>
+                            </div>
+                            <div className="space-y-2 w-full">
+                                <Link
+                                    to="/login"
+                                    className="block w-full bg-[#2C1810] text-white hover:bg-[#1f1008] font-bold py-3 px-4 rounded-lg transition-colors text-sm tracking-wider uppercase no-underline text-center"
+                                >
+                                    Login Now
+                                </Link>
+                                <Link
+                                    to="/register"
+                                    className="block w-full bg-[#D4A373] text-[#2C1810] hover:bg-[#c49260] font-bold py-3 px-4 rounded-lg transition-colors text-sm tracking-wider uppercase no-underline text-center"
+                                >
+                                    Create Account
+                                </Link>
+                            </div>
                         </div>
-                        
-                        {/* Top Jagged Edge Decoration (Optional, using CSS gradient) - Absolute or part of flow?
-                            Since we want header to scroll, this should be part of scroll flow.
-                            But if we want a nice "paper coming out" effect, top might look better fixed?
-                            User said "scroll then show paynow bottom". This implies vertical flow.
-                            Let's make everything scrollable.
-                         */}
-                        
-                        <div className="flex flex-col h-full overflow-hidden">
-                            <ScrollArea className="flex-1 w-full bg-white rounded-t-sm">
-                                <div className="flex flex-col">
-                                    <div className="h-4 w-full bg-white relative z-10" 
-                                        style={{
-                                            backgroundImage: `linear-gradient(45deg, transparent 75%, #e5e7eb 75%), linear-gradient(-45deg, transparent 75%, #e5e7eb 75%)`,
-                                            backgroundPosition: '0 0',
-                                            backgroundSize: '20px 20px',
-                                            opacity: 0.1
-                                        }} 
-                                    />
-
-                                    <SheetHeader className="px-8 pt-6 pb-4 text-center border-b-2 border-dashed border-gray-300 space-y-2 bg-white">
-                                        <SheetTitle className="font-mono text-3xl font-bold uppercase tracking-widest text-black">RECEIPT</SheetTitle>
-                                        <div className="flex flex-col items-center space-y-1 text-xs text-gray-500 mt-2">
-                                            <span className="font-bold text-lg text-gray-800">Hangary? Sweet.</span>
-                                            <span>123 Baker Street, Sweet City</span>
-                                            <span>Tel: +1 (555) 123-4567</span>
-                                        </div>
-                                        <div className="w-full flex justify-between text-xs mt-6 pt-2 border-t border-dashed border-gray-200">
-                                            <div className="flex flex-col items-start">
-                                                <span>DATE: {dateStr}</span>
-                                                <span>ORDER #: {receiptId}</span>
+                    ) : cartItems.length === 0 ? (
+                        <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+                            <div className="mb-4 rounded-full bg-[#F5ECD7] p-4">
+                                <ShoppingBag className="h-7 w-7 text-[#8D6E63]" />
+                            </div>
+                            <h3 className="font-playfair text-2xl text-[#3E2723]">Cart is empty</h3>
+                            <p className="mt-2 text-sm text-[#8D6E63]">Pick your favorites and add them to start your order.</p>
+                            <Button
+                                onClick={() => setIsOpen(false)}
+                                variant="outline"
+                                className="mt-5 border-[#D4A373] text-[#3E2723] hover:bg-[#F5ECD7]"
+                            >
+                                Continue Shopping
+                            </Button>
+                        </div>
+                    ) : (
+                        <>
+                            <ScrollArea className="flex-1">
+                                <div className="font-mono text-sm">
+                                    {/* Bill Header */}
+                                    <div className="bg-[#2C1810] text-[#F5ECD7] px-6 py-8 text-center space-y-2">
+                                        <div className="text-xl font-bold tracking-widest">HANGARY? SWEET.</div>
+                                        <div className="text-xs text-[#D4A373] font-semibold tracking-wide">ORDER BILL</div>
+                                        {isAuthenticated && (
+                                            <button
+                                                onClick={() => {
+                                                    dispatch(logout());
+                                                    dispatch(clearCart());
+                                                    setIsOpen(false);
+                                                }}
+                                                className="text-xs text-red-300 hover:text-red-400 transition-colors flex items-center justify-center gap-1 mx-auto mt-2 text-center"
+                                            >
+                                                <LogOut size={12} /> Logout
+                                            </button>
+                                        )}
+                                        <div className="border-t border-b border-[#D4A373]/50 py-3 mt-3 text-xs space-y-1">
+                                            <div className="flex justify-between">
+                                                <span>BILL #</span>
+                                                <span>{billNo}</span>
                                             </div>
-                                            <div className="flex flex-col items-end">
-                                                <span>TIME: {timeStr}</span>
-                                                <span>AUTH: ADMIN</span>
+                                            <div className="flex justify-between">
+                                                <span>DATE</span>
+                                                <span>{billDate}</span>
                                             </div>
-                                        </div>
-                                    </SheetHeader>
-                                    
-                                    {/* Cart Items Table & Footer Combined without inner ScrollArea */}
-                                    <div className="flex-1 bg-[url('/paper-texture.png')] bg-repeat">
-                                        <div className="w-full">
-                                            <div className="px-6 py-4 min-h-[200px]">
-                                                {cartItems.length === 0 ? (
-                                                    <div className="h-full flex flex-col items-center justify-center text-center p-8 text-gray-400 space-y-4">
-                                                        <div className="w-16 h-16 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center">
-                                                            <ShoppingBag className="w-8 h-8 opacity-50" />
-                                                        </div>
-                                                        <p className="font-mono uppercase tracking-widest text-sm">Your receipt is blank</p>
-                                                    </div>
-                                                ) : (
-                                                    <table className="w-full text-sm">
-                                                        <thead>
-                                                            <tr className="border-b-2 border-dashed border-gray-800 text-xs text-gray-500">
-                                                                <th className="text-left pb-2 w-10 pl-4">QTY</th>
-                                                                <th className="text-left pb-2">ITEM</th>
-                                                                <th className="text-right pb-2 pr-4">PRICE</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody className="divide-y divide-dashed divide-gray-200">
-                                                            {cartItems.map((item) => (
-                                                                <tr key={item.id} className="group">
-                                                                    <td className="py-4 align-top font-bold pl-4">
-                                                                        <div className="flex flex-col items-center gap-1">
-                                                                            <span>{item.quantity}</span>
-                                                                            {/* Tiny controls */}
-                                                                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                                <button 
-                                                                                    onClick={() => dispatch(updateQuantity({ id: item.id, quantity: item.quantity - 1 }))}
-                                                                                    disabled={item.quantity <= 1}
-                                                                                    className="text-xs hover:bg-gray-200 w-4 h-4 rounded flex items-center justify-center"
-                                                                                >-</button>
-                                                                                <button 
-                                                                                    onClick={() => dispatch(updateQuantity({ id: item.id, quantity: item.quantity + 1 }))}
-                                                                                    className="text-xs hover:bg-gray-200 w-4 h-4 rounded flex items-center justify-center"
-                                                                                >+</button>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="py-4 align-top px-2">
-                                                                        <div className="uppercase font-bold tracking-tight">{item.name}</div>
-                                                                        <div className="text-xs text-gray-500 truncate max-w-[150px]">{item.category}</div>
-                                                                    </td>
-                                                                    <td className="py-4 text-right align-top pr-4">
-                                                                        <div className="font-bold">${(item.price * item.quantity).toFixed(2)}</div>
-                                                                        <div className="text-xs text-gray-400">@ ${item.price.toFixed(2)}</div>
-                                                                        <button 
-                                                                            onClick={() => dispatch(removeFromCart(item.id))}
-                                                                            className="text-[10px] text-red-400 hover:text-red-600 underline mt-1 block w-full text-right"
-                                                                        >
-                                                                            VOID
-                                                                        </button>
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
-                                                        </tbody>
-                                                    </table>
-                                                )}
+                                            <div className="flex justify-between">
+                                                <span>TYPE</span>
+                                                <span>{deliveryType === 'pickup' ? 'PICKUP' : 'HOME DELIVERY'}</span>
                                             </div>
-
-                                            {/* Receipt Footer - In flow */}
-                                            {cartItems.length > 0 && (
-                                                <div className="px-8 pb-8 pt-4 border-t-2 border-dashed border-gray-800 space-y-4">
-                                                    <div className="space-y-2 text-sm">
-                                                        <div className="flex justify-between">
-                                                            <span>SUBTOTAL</span>
-                                                            <span>${total.toFixed(2)}</span>
-                                                        </div>
-                                                        <div className="flex justify-between">
-                                                            <span>TAX (0%)</span>
-                                                            <span>$0.00</span>
-                                                        </div>
-                                                        <div className="border-b-2 border-dashed border-gray-300 my-2" />
-                                                        <div className="flex justify-between text-xl font-bold tracking-widest">
-                                                            <span>TOTAL</span>
-                                                            <span>${total.toFixed(2)}</span>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div className="text-center space-y-3 pt-4">
-                                                        <div className="border-t border-b border-double border-gray-300 py-2">
-                                                            <p className="text-xs font-bold uppercase">Wait Number: {Math.floor(Math.random() * 50) + 1}</p>
-                                                        </div>
-                                                        <p className="text-[10px] text-gray-400 font-mono">
-                                                            THANK YOU FOR YOUR BUSINESS!<br/>
-                                                            PLEASE COME AGAIN
-                                                        </p>
-                                                        <div className="flex justify-center">
-                                                            <div className="h-8 w-48 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Code_3_of_9.svg/1200px-Code_3_of_9.svg.png')] bg-cover opacity-80 mix-blend-multiply grayscale"></div>
-                                                        </div>
-                                                    </div>
-
-                                                    <Button className="w-full h-12 bg-black hover:bg-gray-800 text-white font-mono uppercase tracking-widest text-lg shadow-lg transform active:scale-95 transition-all">
-                                                        Print & Pay
-                                                    </Button>
-                                                </div>
-                                            )}
                                         </div>
                                     </div>
 
-                                    {/* Jagged Bottom Edge CSS - In flow */}
-                                    <div className="h-4 w-full bg-white relative" 
-                                        style={{
-                                            maskImage: 'linear-gradient(45deg, transparent 50%, black 50%), linear-gradient(-45deg, transparent 50%, black 50%)',
-                                            maskSize: '20px 20px',
-                                            maskRepeat: 'repeat-x',
-                                            maskPosition: 'bottom',
-                                            WebkitMaskImage: 'linear-gradient(45deg, transparent 50%, black 50%), linear-gradient(-45deg, transparent 50%, black 50%)',
-                                            WebkitMaskSize: '20px 20px',
-                                            WebkitMaskRepeat: 'repeat-x',
-                                            WebkitMaskPosition: 'bottom',
-                                            background: 'white',
-                                            height: '20px',
-                                        }}
-                                    >
-                                        <div style={{
-                                            width: '100%', 
-                                            height: '100%', 
-                                            background: 'radial-gradient(circle at 10px 0, transparent 10px, white 11px) repeat-x',
-                                            backgroundSize: '20px 20px',
-                                            transform: 'rotate(180deg)'
-                                        }}></div>
+                                    {/* Customer Info Section */}
+                                    {(customerName || customerPhone || deliveryAddress) && (
+                                        <div className="px-6 py-4 bg-[#F5ECD7] border-b border-dashed border-[#2C1810] text-xs text-[#2C1810] space-y-1">
+                                            {customerName && <div><span className="font-bold">NAME:</span> {customerName}</div>}
+                                            {customerPhone && <div><span className="font-bold">PHONE:</span> {customerPhone}</div>}
+                                            {deliveryType === 'home' && deliveryAddress && (
+                                                <div><span className="font-bold">ADDRESS:</span> {deliveryAddress}</div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Items Section */}
+                                    <div className="px-6 py-6 border-b-2 border-dashed border-[#2C1810]">
+                                        {/* Column Headers */}
+                                        <div className="flex justify-between text-xs font-bold text-[#2C1810] mb-3 pb-2 border-b border-[#2C1810]">
+                                            <div className="w-8">QTY</div>
+                                            <div className="flex-1 px-2">ITEM</div>
+                                            <div className="w-16 text-right">RATE</div>
+                                            <div className="w-16 text-right">AMOUNT</div>
+                                        </div>
+
+                                        {/* Items */}
+                                        <div className="space-y-3">
+                                            {cartItems.map((item) => {
+                                                const price = Number(item.price) || 0;
+                                                const lineTotal = price * item.quantity;
+
+                                                return (
+                                                    <div key={item.id} className="text-xs text-[#2C1810]">
+                                                        {/* Item Row */}
+                                                        <div className="flex justify-between items-start gap-2">
+                                                            <div className="w-8">{item.quantity}</div>
+                                                            <div className="flex-1 px-2">
+                                                                <div className="font-semibold">{item.name}</div>
+                                                                <div className="text-[10px] text-[#666]">{item.category}</div>
+                                                            </div>
+                                                            <div className="w-16 text-right">${price.toFixed(2)}</div>
+                                                            <div className="w-16 text-right font-bold">${lineTotal.toFixed(2)}</div>
+                                                        </div>
+
+                                                        {/* Quantity Controls */}
+                                                        <div className="flex justify-end gap-1 mt-2 items-center">
+                                                            <button
+                                                                onClick={() => void updateItemQuantity(item.id, item.quantity - 1)}
+                                                                className="p-1 hover:bg-[#F5ECD7] rounded transition-colors"
+                                                                title="Decrease"
+                                                            >
+                                                                <Minus className="w-3 h-3" />
+                                                            </button>
+                                                            <span className="w-4 text-center text-xs font-bold">{item.quantity}</span>
+                                                            <button
+                                                                onClick={() => void updateItemQuantity(item.id, item.quantity + 1)}
+                                                                className="p-1 hover:bg-[#F5ECD7] rounded transition-colors"
+                                                                title="Increase"
+                                                            >
+                                                                <Plus className="w-3 h-3" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => void removeItem(item.id)}
+                                                                className="ml-2 px-2 py-1 text-[10px] font-bold text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                            >
+                                                                DEL
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    {/* Delivery & Customer Details Section */}
+                                    <div className="px-6 py-6 bg-[#F5ECD7] border-b-2 border-dashed border-[#2C1810]">
+                                        <div className="space-y-4">
+                                            {/* Delivery Type Selection */}
+                                            <div>
+                                                <div className="text-xs font-bold text-[#2C1810] mb-3 tracking-widest">DELIVERY TYPE</div>
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <button
+                                                        onClick={() => setDeliveryType('pickup')}
+                                                        className={`flex items-center gap-2 p-3 rounded-lg border-2 text-sm font-semibold transition-all ${
+                                                            deliveryType === 'pickup'
+                                                                ? 'border-[#2C1810] bg-white text-[#2C1810]'
+                                                                : 'border-[#D4A373] bg-transparent text-[#666] hover:border-[#2C1810]'
+                                                        }`}
+                                                    >
+                                                        <Home className="w-4 h-4" />
+                                                        <span>PICKUP</span>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setDeliveryType('home')}
+                                                        className={`flex items-center gap-2 p-3 rounded-lg border-2 text-sm font-semibold transition-all ${
+                                                            deliveryType === 'home'
+                                                                ? 'border-[#2C1810] bg-white text-[#2C1810]'
+                                                                : 'border-[#D4A373] bg-transparent text-[#666] hover:border-[#2C1810]'
+                                                        }`}
+                                                    >
+                                                        <Truck className="w-4 h-4" />
+                                                        <span>HOME DELIVERY</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Customer Details */}
+                                            <div>
+                                                <div className="text-xs font-bold text-[#2C1810] mb-2 tracking-widest">YOUR DETAILS</div>
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-[#D4A373]">
+                                                        <User className="w-4 h-4 text-[#8D6E63]" />
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Full Name"
+                                                            value={customerName}
+                                                            onChange={(e) => setCustomerName(e.target.value)}
+                                                            className="flex-1 text-xs bg-white outline-none border-none text-[#2C1810]"
+                                                        />
+                                                    </div>
+                                                    <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-[#D4A373]">
+                                                        <Phone className="w-4 h-4 text-[#8D6E63]" />
+                                                        <input
+                                                            type="tel"
+                                                            placeholder="Phone Number"
+                                                            value={customerPhone}
+                                                            onChange={(e) => setCustomerPhone(e.target.value)}
+                                                            className="flex-1 text-xs bg-white outline-none border-none text-[#2C1810]"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Delivery Address (if home delivery) */}
+                                            {deliveryType === 'home' && (
+                                                <div>
+                                                    <div className="text-xs font-bold text-[#2C1810] mb-2 tracking-widest">DELIVERY ADDRESS</div>
+                                                    <div className="flex items-start gap-2 bg-white rounded-lg px-3 py-2 border border-[#D4A373]">
+                                                        <MapPin className="w-4 h-4 text-[#8D6E63] mt-2 flex-shrink-0" />
+                                                        <textarea
+                                                            placeholder="Enter delivery address, house number, area name..."
+                                                            value={deliveryAddress}
+                                                            onChange={(e) => setDeliveryAddress(e.target.value)}
+                                                            rows={3}
+                                                            className="flex-1 text-xs bg-white outline-none border-none text-[#2C1810] resize-none"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Special Instructions */}
+                                            <div>
+                                                <div className="text-xs font-bold text-[#2C1810] mb-2 tracking-widest">SPECIAL INSTRUCTIONS (OPTIONAL)</div>
+                                                <textarea
+                                                    placeholder="Add any special requests (e.g., no sugar, extra frosting, etc.)"
+                                                    value={instructions}
+                                                    onChange={(e) => setInstructions(e.target.value)}
+                                                    rows={2}
+                                                    className="w-full text-xs bg-white rounded-lg px-3 py-2 border border-[#D4A373] outline-none text-[#2C1810] resize-none"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="px-6 py-6 space-y-2 text-xs text-[#2C1810] border-b-2 border-dashed border-[#2C1810]">
+                                        <div className="flex justify-between">
+                                            <span>SUBTOTAL</span>
+                                            <span>${subtotal.toFixed(2)}</span>
+                                        </div>
+                                        {deliveryType === 'home' && (
+                                            <div className="flex justify-between">
+                                                <span>HOME DELIVERY</span>
+                                                <span>${deliveryFee.toFixed(2)}</span>
+                                            </div>
+                                        )}
+                                        {deliveryType === 'pickup' && (
+                                            <div className="flex justify-between text-[10px] text-[#666]">
+                                                <span>PICKUP (NO DELIVERY CHARGE)</span>
+                                                <span>$0.00</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between font-bold text-lg pt-2 border-t border-dashed border-[#2C1810]">
+                                            <span>TOTAL</span>
+                                            <span>${total.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Footer */}
+                                    {instructions && (
+                                        <div className="px-6 py-4 bg-[#FFF9E6] border-b border-dashed border-[#2C1810] text-xs text-[#2C1810]">
+                                            <div className="font-bold mb-1">SPECIAL INSTRUCTIONS:</div>
+                                            <div className="text-[11px]">{instructions}</div>
+                                        </div>
+                                    )}
+                                    <div className="px-6 py-6 text-center space-y-3 text-xs text-[#666]">
+                                        <div className="text-[#2C1810] font-semibold">THANK YOU FOR YOUR ORDER!</div>
+                                        <div className="text-xs">Please keep this receipt for reference.</div>
                                     </div>
                                 </div>
                             </ScrollArea>
-                        </div>
-                    </div>
+
+                            {/* Action Buttons */}
+                            <div className="border-t-2 border-[#2C1810] bg-[#F5ECD7] px-6 py-4 space-y-3 font-mono text-sm">
+                                <Button 
+                                    onClick={() => {
+                                        alert("Payment flow will continue from here.");
+                                    }}
+                                    className="w-full bg-[#2C1810] text-[#F5ECD7] hover:bg-[#1f1008] font-bold py-3 text-sm tracking-wider uppercase"
+                                >
+                                    Pay Now
+                                </Button>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Button
+                                        variant="outline"
+                                        className="border-[#2C1810] text-[#2C1810] hover:bg-white text-xs"
+                                        onClick={() => void clearAllItems()}
+                                    >
+                                        Clear
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className="border-[#2C1810] text-[#2C1810] hover:bg-white text-xs"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        Close
+                                    </Button>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </SheetContent>
         </Sheet>

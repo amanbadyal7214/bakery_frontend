@@ -1,5 +1,4 @@
 import Navbar from "@/components/Navbar";
-import CartSheet from "@/components/CartSheet"; 
 import HeroSection from "@/components/home/HeroSection";
 import FeatureStrip from "@/components/home/FeatureStrip";
 import MenuSection from "@/components/home/MenuSection";
@@ -16,9 +15,6 @@ export default function Home() {
   return (
     <div className="font-inter text-navy overflow-x-hidden">
       <Navbar /> {/* Ensure Navbar is present if it handles layout, but CartSheet is separate */}
-      
-      {/* Add CartSheet here so it's available on the Home page */}
-      <CartSheet />
 
       <HeroSection />
 
