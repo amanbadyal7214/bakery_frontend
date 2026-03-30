@@ -3,17 +3,19 @@ import { ShoppingBag, Plus, Minus, X, MapPin, Phone, User, Home, Truck, LogIn, L
 import { removeFromCart, updateQuantity, clearCart, setCartItems } from "@/store/slices/cartSlice";
 import { logout } from "@/store/slices/authSlice";
 import { clearServerCart, removeCartItem, setCartItemQuantity } from "@/services/cartApi";
+import { saveCheckoutDraft } from "@/services/checkoutDraft";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { useEffect, useMemo, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RootState } from "@/store";
 
 const CART_OPEN_EVENT = "cart:open";
 
 const CartSheet = () => {
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
     const cartItems = useAppSelector((state) => state.cart.items);
     const { user, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
     const [isOpen, setIsOpen] = useState(false);
@@ -112,6 +114,39 @@ const CartSheet = () => {
         }
 
         dispatch(clearCart());
+    };
+
+    const handlePayNow = () => {
+        if (!isAuthenticated) {
+            alert("Please login first to place order.");
+            return;
+        }
+
+        if (!customerName.trim()) {
+            alert("Please enter your full name.");
+            return;
+        }
+
+        if (!customerPhone.trim()) {
+            alert("Please enter your phone number.");
+            return;
+        }
+
+        if (deliveryType === 'home' && !deliveryAddress.trim()) {
+            alert("Please enter delivery address for home delivery.");
+            return;
+        }
+
+        saveCheckoutDraft({
+            customerName: customerName.trim(),
+            customerPhone: customerPhone.trim(),
+            deliveryType,
+            deliveryAddress: deliveryType === 'home' ? deliveryAddress.trim() : '',
+            instructions: instructions.trim(),
+        });
+
+        setIsOpen(false);
+        navigate('/payment');
     };
 
     // Show login prompt if not authenticated and cart has items
@@ -416,12 +451,11 @@ const CartSheet = () => {
                             {/* Action Buttons */}
                             <div className="border-t-2 border-[#2C1810] bg-[#F5ECD7] px-6 py-4 space-y-3 font-mono text-sm">
                                 <Button 
-                                    onClick={() => {
-                                        alert("Payment flow will continue from here.");
-                                    }}
+                                    onClick={handlePayNow}
+                                    disabled={cartItems.length === 0}
                                     className="w-full bg-[#2C1810] text-[#F5ECD7] hover:bg-[#1f1008] font-bold py-3 text-sm tracking-wider uppercase"
                                 >
-                                    Pay Now
+                                    Proceed to Payment
                                 </Button>
                                 <div className="grid grid-cols-2 gap-2">
                                     <Button
