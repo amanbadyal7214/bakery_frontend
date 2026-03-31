@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useProductActions } from "../components/home/home-data";
 import Navbar from "../components/Navbar";
 import FooterSection from "../components/home/FooterSection";
