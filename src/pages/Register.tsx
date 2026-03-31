@@ -11,11 +11,41 @@ export default function Register() {
   const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const handleSendOtp = async () => {
+    if (!email) {
+      alert("Please enter your email first");
+      return;
+    }
+    setSendingOtp(true);
+    try {
+      const response = await fetch("http://localhost:5000/api/customers/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to send OTP");
+      setOtpSent(true);
+      alert("OTP sent to your email!");
+    } catch (error: any) {
+      alert(error.message);
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!otpSent || !otp) {
+      alert("Please verify your email with OTP first");
+      return;
+    }
     setLoading(true);
 
     try {
@@ -24,7 +54,7 @@ export default function Register() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, phone, address, password }),
+        body: JSON.stringify({ name, email, phone, address, password, otp }),
       });
 
       const data = await response.json();
@@ -102,21 +132,56 @@ export default function Register() {
               <label htmlFor="email" className="text-[0.7rem] font-bold text-[#1A2744] uppercase tracking-widest pl-1">
                 Email Address
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail size={18} className="text-[#BFAA99] group-focus-within:text-[#D4A373] transition-colors" />
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Mail size={18} className="text-[#BFAA99] group-focus-within:text-[#D4A373] transition-colors" />
+                  </div>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    required
+                    disabled={otpSent}
+                    className="w-full pl-11 pr-4 py-3 bg-[#FAFAFA] border border-[#E0E0E0] rounded-xl text-[#1A2744] text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#D4A373]/30 focus:border-[#D4A373] transition-all disabled:opacity-60"
+                  />
                 </div>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  required
-                  className="w-full pl-11 pr-4 py-3 bg-[#FAFAFA] border border-[#E0E0E0] rounded-xl text-[#1A2744] text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#D4A373]/30 focus:border-[#D4A373] transition-all"
-                />
+                <button
+                  type="button"
+                  onClick={handleSendOtp}
+                  disabled={sendingOtp || otpSent || !email}
+                  className="px-4 py-3 bg-[#1A2744] hover:bg-[#2A3754] text-white rounded-xl text-sm font-semibold transition-all disabled:opacity-60 whitespace-nowrap"
+                >
+                  {sendingOtp ? "Sending..." : otpSent ? "Sent" : "Send OTP"}
+                </button>
               </div>
             </div>
+
+            {/* OTP Field */}
+            {otpSent && (
+              <div className="space-y-1.5 group animate-fade-in">
+                <label htmlFor="otp" className="text-[0.7rem] font-bold text-[#1A2744] uppercase tracking-widest pl-1">
+                  Enter OTP
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <CheckCircle2 size={18} className="text-[#BFAA99] group-focus-within:text-[#D4A373] transition-colors" />
+                  </div>
+                  <input
+                    id="otp"
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    placeholder="Enter 6-digit OTP"
+                    required
+                    maxLength={6}
+                    className="w-full pl-11 pr-4 py-3 bg-[#FAFAFA] border border-[#E0E0E0] rounded-xl text-[#1A2744] text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#D4A373]/30 focus:border-[#D4A373] transition-all tracking-widest"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Phone Field */}
             <div className="space-y-1.5 group">
