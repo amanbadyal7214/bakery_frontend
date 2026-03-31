@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, User, Mail, MapPin, Lock, CheckCircle2, Phone } from "lucide-react";
 import { useDispatch } from "react-redux";
+import ReCAPTCHA from "react-google-recaptcha";
 import { setCredentials } from "../store/slices/authSlice";
 
 export default function Register() {
@@ -14,6 +15,8 @@ export default function Register() {
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -46,6 +49,10 @@ export default function Register() {
       alert("Please verify your email with OTP first");
       return;
     }
+    if (!recaptchaToken) {
+      alert("Please complete the reCAPTCHA verification");
+      return;
+    }
     setLoading(true);
 
     try {
@@ -54,7 +61,7 @@ export default function Register() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, phone, address, password, otp }),
+        body: JSON.stringify({ name, email, phone, address, password, otp, recaptchaToken }),
       });
 
       const data = await response.json();
@@ -244,6 +251,16 @@ export default function Register() {
                   className="w-full pl-11 pr-4 py-3 bg-[#FAFAFA] border border-[#E0E0E0] rounded-xl text-[#1A2744] text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#D4A373]/30 focus:border-[#D4A373] transition-all"
                 />
               </div>
+            </div>
+
+            {/* reCAPTCHA */}
+            <div className="flex justify-center py-2">
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                onChange={(token) => setRecaptchaToken(token)}
+                theme="light"
+              />
             </div>
 
             {/* Terms */}
