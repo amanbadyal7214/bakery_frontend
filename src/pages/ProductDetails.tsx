@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useProductActions } from "../components/home/home-data";
 import { api } from "@/services/api";
@@ -12,15 +12,16 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { useSelector } from 'react-redux';
 
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { handleAddToCart } = useProductActions();
-  const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated);
+  const isAuthenticated = useSelector((state: { auth?: { isAuthenticated?: boolean } }) => Boolean(state.auth?.isAuthenticated));
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0); 
-  const [product, setProduct] = useState<any | null>(null);
+  const [product, setProduct] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +37,56 @@ export default function ProductDetails() {
     { label: "500 g", pack: "Pack of 1", multiplier: 1 },
     { label: "1 kg", pack: "Pack of 1", multiplier: 1.8 },
   ]);
+
+  // Helpers to safely extract images from a loosely-typed product object without using `any`.
+  const getFirstImage = (prod: Record<string, unknown> | null): string => {
+    if (!prod) return '/placeholder.svg';
+    const imgBase64 = prod['imgBase64'];
+    if (typeof imgBase64 === 'string' && imgBase64) return imgBase64;
+    const img = prod['img'];
+    if (typeof img === 'string' && img) return img;
+    const images = prod['images'];
+    if (Array.isArray(images) && images.length > 0) {
+      const first = images[0];
+      if (first && typeof first === 'object') {
+        const firstRec = first as Record<string, unknown>;
+        const base64 = firstRec['base64'];
+        if (typeof base64 === 'string' && base64) return base64;
+        const url = firstRec['url'];
+        if (typeof url === 'string' && url) return url;
+      } else if (typeof first === 'string') {
+        return first;
+      }
+    }
+    return '/placeholder.svg';
+  };
+
+  const extractProductImages = (prod: Record<string, unknown> | null): string[] => {
+    const imgs: string[] = [];
+    const first = getFirstImage(prod);
+    if (first) imgs.push(first);
+    const imagesField = prod?.['images'];
+    if (Array.isArray(imagesField)) {
+      imagesField.slice(0, 2).forEach((it) => {
+        if (!it) return;
+        if (typeof it === 'string') {
+          imgs.push(it);
+          return;
+        }
+        if (typeof it === 'object') {
+          const rec = it as Record<string, unknown>;
+          const b64 = rec['base64'];
+          const url = rec['url'];
+          if (typeof b64 === 'string' && b64) imgs.push(b64);
+          else if (typeof url === 'string' && url) imgs.push(url);
+        }
+      });
+    }
+    // dedupe
+    return Array.from(new Set(imgs.filter(Boolean)));
+  };
+
+  const productImages = useMemo(() => extractProductImages(product), [product]);
 
   useEffect(() => {
     // Guard against invalid route params (missing, empty or the literal 'undefined')
@@ -129,14 +180,6 @@ export default function ProductDetails() {
       </div>
     );
   }
-
-  // Build gallery images using common fields from API
-  const productImages = [
-    product.imgBase64 || product.img || (product.images && product.images[0] && (product.images[0].base64 || product.images[0].url)) || '/placeholder.svg',
-    // product.images entries are dynamic objects from the API; allow any for compact mapping
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ...(product.images || []).slice(0,2).map((it: any) => it.base64 || it.url).filter(Boolean),
-  ];
 
   const handleQuantityChange = (type: "inc" | "dec") => {
     if (type === "dec" && quantity > 1) setQuantity(prev => prev - 1);
@@ -389,17 +432,19 @@ export default function ProductDetails() {
                         <AccordionContent className="text-[#7A5C4F] leading-relaxed text-base pt-2">
                             {product && product.totalNutrition && Object.keys(product.totalNutrition).length > 0 ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {Object.entries(product.totalNutrition).map(([k, v]) => (
-                                        <div key={k} className="flex justify-between items-center p-2 bg-white rounded-lg shadow-sm">
+                                    {Object.entries(product.totalNutrition).map(([k, v], idx) => (
+                                        <div key={`${k || 'nutr'}-${idx}`} className="flex justify-between items-center p-2 bg-white rounded-lg shadow-sm">
                                             <div className="text-sm font-medium text-[#2C1810]">{String(k).replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}</div>
                                             <div className="text-sm text-[#7A5C4F]">
                                                 {(() => {
                                                     if (v == null) return '';
                                                     if (typeof v === 'object') {
-                                                        if (Array.isArray(v)) return (v as any).join(', ');
-                                                        const anyV: any = v;
-                                                        if (anyV.value !== undefined && anyV.unit !== undefined) return `${anyV.value}${anyV.unit}`;
-                                                        return Object.entries(anyV).map(([kk, vv]) => `${kk}: ${vv}`).join(', ');
+                                                        if (Array.isArray(v)) return (v as unknown[]).map(i => String(i)).join(', ');
+                                                        const anyV = v as Record<string, unknown> | null;
+                                                        if (anyV && typeof anyV === 'object') {
+                                                            if (anyV['value'] !== undefined && anyV['unit'] !== undefined) return `${String(anyV['value'])}${String(anyV['unit'])}`;
+                                                            return Object.entries(anyV).map(([kk, vv]) => `${kk}: ${String(vv)}`).join(', ');
+                                                        }
                                                     }
                                                     return String(v);
                                                 })()}
