@@ -20,6 +20,22 @@ const navLinks = [
 const trendingSearches = ["Birthday Cake", "Croissant", "Sourdough", "Chocolate Cookies", "Muffins"];
 const categories = ["All", "Cakes", "Pastries", "Breads", "Cookies", "Muffins"];
 
+// Product shape used by suggestions
+type Product = {
+  id?: string | number;
+  _id?: string | number;
+  name?: string;
+  img?: string;
+  image?: string;
+  imgBase64?: string;
+  price?: number;
+  category?: string;
+  rating?: number;
+  badge?: string;
+  flavor?: string | string[];
+  [k: string]: unknown;
+};
+
 export default function Navbar() {
   const [scrolled, setScrolled]           = useState(false);
   const [menuOpen, setMenuOpen]           = useState(false);
@@ -28,6 +44,11 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen]       = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [suggestions, setSuggestions] = useState<Product[]>([]);
+  const [activeIndex, setActiveIndex] = useState<number>(-1);
+  const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem("recentSearches") || "[]"); } catch { return []; }
   });
@@ -76,13 +97,137 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const filteredProducts = searchQuery.trim().length > 0
-    ? products.filter(p =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (p.flavor?.toLowerCase().includes(searchQuery.toLowerCase()))
-      ).slice(0, 5)
-    : [];
+  // Debounce input so suggestions feel dynamic without spamming filtering
+  useEffect(() => {
+    setLoadingSearch(true);
+    const id = setTimeout(() => {
+      setDebouncedQuery(searchQuery.trim());
+      setLoadingSearch(false);
+    }, 250);
+    return () => { clearTimeout(id); };
+  }, [searchQuery]);
+
+  // Fetch suggestions from backend when debouncedQuery or selectedCategory changes
+  useEffect(() => {
+    // If no query, clear suggestions (frontend shows recent/trending in that case)
+    if (!debouncedQuery) {
+      setSuggestions([]);
+      setActiveIndex(-1);
+      setLoadingSearch(false);
+      return;
+    }
+
+    const ac = new AbortController();
+    setLoadingSearch(true);
+
+    const token = localStorage.getItem('token');
+    const headers: Record<string,string> = token ? { Authorization: `Bearer ${token}` } : {};
+
+    // Build param strings
+    const baseParams = new URLSearchParams({ q: debouncedQuery, limit: '6' });
+    if (selectedCategory && selectedCategory !== 'All') baseParams.set('category', selectedCategory);
+
+    const endpoints = [
+      `/api/products/search?${baseParams.toString()}`,
+      `http://localhost:5000/api/products?search=${encodeURIComponent(debouncedQuery)}&limit=6${selectedCategory && selectedCategory !== 'All' ? `&category=${encodeURIComponent(selectedCategory)}` : ''}`,
+      `/api/products?search=${encodeURIComponent(debouncedQuery)}&limit=6${selectedCategory && selectedCategory !== 'All' ? `&category=${encodeURIComponent(selectedCategory)}` : ''}`,
+    ];
+
+    (async () => {
+      for (const url of endpoints) {
+        try {
+          const res = await fetch(url, { signal: ac.signal, headers });
+          if (!res.ok) {
+            if (res.status === 404) continue;
+            throw new Error(`Search failed ${res.status} at ${url}`);
+          }
+          const data: unknown = await res.json();
+          // Normalize response shapes without using `any`
+          let items: unknown[] = [];
+          if (Array.isArray(data)) items = data as unknown[];
+          else if (data && typeof data === 'object') {
+            const obj = data as Record<string, unknown>;
+            if (Array.isArray(obj.data)) items = obj.data as unknown[];
+            else if (Array.isArray(obj.items)) items = obj.items as unknown[];
+            else if (Array.isArray(obj.products)) items = obj.products as unknown[];
+            else if (Array.isArray(obj.results)) items = obj.results as unknown[];
+          }
+ 
+           // Some APIs return objects with pagination: { data: { items: [...] } }
+          if (items.length === 0 && data && typeof data === 'object') {
+            const obj = data as Record<string, unknown>;
+            const maybe = obj.data ?? obj.items ?? obj.products ?? obj.results;
+            if (Array.isArray(maybe)) items = maybe as unknown[];
+          }
+ 
+          // If we found items, normalize and set
+          if (items.length > 0) {
+            const normalized = items.slice(0, 6).map(it => it as Product);
+            setSuggestions(normalized);
+            setActiveIndex(normalized.length > 0 ? 0 : -1);
+            setLoadingSearch(false);
+            return; // success
+          }
+        } catch (err: unknown) {
+          // Abort or other error — continue to fallback attempts
+          if ((err as { name?: string })?.name === 'AbortError') return;
+          console.warn('Search endpoint failed, trying next:', err);
+           // continue to try next endpoint
+         }
+       }
+ 
+      // Try to fetch the full product list (fallback to Menu's source) and filter client-side
+      try {
+        const resAll = await fetch('http://localhost:5000/api/products?limit=100', { signal: ac.signal, headers });
+        if (resAll.ok) {
+          const allData: unknown = await resAll.json();
+          let allItems: unknown[] = [];
+          if (Array.isArray(allData)) allItems = allData as unknown[];
+          else if (allData && typeof allData === 'object') {
+            const obj = allData as Record<string, unknown>;
+            if (Array.isArray(obj.data)) allItems = obj.data as unknown[];
+            else if (Array.isArray(obj.items)) allItems = obj.items as unknown[];
+            else if (Array.isArray(obj.products)) allItems = obj.products as unknown[];
+          }
+ 
+          // Filter locally to match query and category
+          const q = debouncedQuery.toLowerCase();
+          const matched = allItems.filter(it => {
+             if (!it || typeof it !== 'object') return false;
+             const rec = it as Record<string, unknown>;
+             const name = String(rec.name ?? rec.title ?? '');
+             const cat = String(rec.category ?? '');
+             const flavor = (rec.flavor && typeof rec.flavor === 'string') ? String(rec.flavor) : '';
+             const matchesQuery = name.toLowerCase().includes(q) || cat.toLowerCase().includes(q) || flavor.toLowerCase().includes(q);
+             const matchesCategory = selectedCategory === 'All' ? true : (cat === selectedCategory || cat.toLowerCase() === selectedCategory.toLowerCase());
+             return matchesQuery && matchesCategory;
+           }).slice(0,6).map(i => i as Record<string, unknown>);
+ 
+          setSuggestions(matched as Product[]);
+          setActiveIndex(matched.length > 0 ? 0 : -1);
+          setLoadingSearch(false);
+          return;
+        }
+      } catch (e) {
+        if ((e as { name?: string })?.name === 'AbortError') return;
+        console.warn('Full product list fallback failed', e);
+      }
+ 
+      // final fallback: empty
+      setSuggestions([]);
+      setActiveIndex(-1);
+      setLoadingSearch(false);
+     })();
+ 
+     return () => ac.abort();
+   }, [debouncedQuery, selectedCategory]);
+
+  // Reset active refs length when suggestions change
+  useEffect(() => {
+    itemRefs.current = itemRefs.current.slice(0, suggestions.length);
+  }, [suggestions.length]);
+
+  const filteredProducts: Product[] = suggestions;
 
   const handleSearch = (query: string) => {
     if (!query.trim()) return;
@@ -95,8 +240,27 @@ export default function Navbar() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") handleSearch(searchQuery);
+    if (e.key === "Enter") {
+      // If a suggestion is active, pick it; otherwise run a normal search
+      if (activeIndex >= 0 && filteredProducts[activeIndex]) {
+        const p = filteredProducts[activeIndex];
+        const prodId = String(p.id ?? p._id ?? '');
+        if (prodId) navigate(`/product/${prodId}`);
+        setSearchFocused(false);
+        setSearchQuery("");
+        return;
+      }
+      handleSearch(searchQuery);
+    }
     if (e.key === "Escape") { setSearchFocused(false); setSearchQuery(""); }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex(prev => Math.min(prev + 1, filteredProducts.length - 1));
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex(prev => Math.max(prev - 1, 0));
+    }
   };
 
   const clearRecent = (term: string) => {
@@ -104,6 +268,24 @@ export default function Navbar() {
     setRecentSearches(updated);
     localStorage.setItem("recentSearches", JSON.stringify(updated));
   };
+
+  // Helper to render highlighted match in product name
+  const highlightMatch = (text: string) => {
+    if (!debouncedQuery) return text;
+    const q = debouncedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const parts = text.split(new RegExp(`(${q})`, 'ig'));
+    return parts.map((part, i) => (
+      // Using React nodes as strings will be rendered properly in JSX
+      part.toLowerCase() === debouncedQuery.toLowerCase() ? <span key={i} className="bg-[#D4A373]/40 px-0.5 rounded">{part}</span> : <span key={i}>{part}</span>
+    ));
+  };
+
+  // Scroll active suggestion into view when it changes
+  useEffect(() => {
+    if (activeIndex >= 0 && itemRefs.current[activeIndex]) {
+      itemRefs.current[activeIndex]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }, [activeIndex]);
 
   const scrollTo = (link: typeof navLinks[0]) => {
     if (link.path) {
@@ -154,7 +336,7 @@ export default function Navbar() {
               searchFocused ? "shadow-[0_0_0_3px_#D4A373]" : "shadow-md hover:shadow-lg"
             }`}>
               {/* Category Selector */}
-              <div className="relative">
+              {/* <div className="relative">
                 <select
                   value={selectedCategory}
                   onChange={e => setSelectedCategory(e.target.value)}
@@ -163,7 +345,7 @@ export default function Navbar() {
                   {categories.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
                 <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#F5ECD7] pointer-events-none" />
-              </div>
+              </div> */}
               {/* Input */}
               <input
                 ref={inputRef}
@@ -173,7 +355,7 @@ export default function Navbar() {
                 onFocus={() => setSearchFocused(true)}
                 onKeyDown={handleKeyDown}
                 placeholder="Search cakes, pastries, breads..."
-                className="flex-1 px-5 py-3 bg-white text-[#1A2744] text-sm placeholder-[#BFAA99] outline-none border-none font-inter"
+                className="flex-1 px-5 py-3 rounded-lg bg-white text-[#1A2744] text-sm placeholder-[#BFAA99] outline-none border-none font-inter"
               />
               {searchQuery && (
                 <button onClick={() => { setSearchQuery(""); inputRef.current?.focus(); }} className="px-2 bg-white text-[#BFAA99] hover:text-[#3E2723] transition-colors">
@@ -188,31 +370,43 @@ export default function Navbar() {
             {/* ── Search Dropdown ── */}
             {showDropdown && (
               <div className="absolute top-[calc(100%+10px)] left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-[#1A2744]/15 border border-[#F0E6D3] z-50 overflow-hidden">
-                {filteredProducts.length > 0 && (
-                  <div className="p-3">
-                    <p className="text-[0.65rem] font-bold tracking-widest text-[#8D6E63] uppercase px-2 mb-2">Products</p>
-                    {filteredProducts.map(p => (
-                      <button key={p.id} onClick={() => { navigate(`/product/${p.id}`); setSearchFocused(false); setSearchQuery(""); }}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#FAF6E6] transition-colors group text-left"
-                      >
-                        <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-[#F0E6D3]">
-                          <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-[#1A2744] truncate">{p.name}</p>
-                          <p className="text-xs text-[#8D6E63]">{p.category} • ⭐ {p.rating}</p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className="text-sm font-bold text-[#3E2723]">${p.price.toFixed(2)}</p>
-                          {p.badge && <span className="text-[0.6rem] bg-[#D4A373]/20 text-[#8D6E63] px-1.5 py-0.5 rounded-full font-bold">{p.badge}</span>}
-                        </div>
-                      </button>
-                    ))}
-                    <button onClick={() => handleSearch(searchQuery)} className="w-full mt-1 py-2 text-xs font-bold text-[#D4A373] hover:text-[#3E2723] flex items-center justify-center gap-1 transition-colors">
-                      See all results for "{searchQuery}" <ArrowRight size={12} />
-                    </button>
-                  </div>
+                {loadingSearch && debouncedQuery.length > 0 && (
+                  <div className="px-5 py-4 text-sm text-[#8D6E63]">Searching...</div>
                 )}
+                 {filteredProducts.length > 0 && (
+                   <div className="p-3">
+                     <p className="text-[0.65rem] font-bold tracking-widest text-[#8D6E63] uppercase px-2 mb-2">Products</p>
+                     {filteredProducts.map((p, idx) => {
+                       const prodId = String(p.id ?? p._id ?? '');
+                       const imgSrc = p.img ?? p.image ?? p.imgBase64 ?? '';
+                       return (
+                       <button
+                         key={prodId || idx}
+                         ref={(el) => (itemRefs.current[idx] = el)}
+                         onMouseEnter={() => setActiveIndex(idx)}
+                         onClick={() => { if (prodId) navigate(`/product/${prodId}`); setSearchFocused(false); setSearchQuery(""); }}
+                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors group text-left ${activeIndex === idx ? "bg-[#FAF6E6]" : "hover:bg-[#FAF6E6]"}`}
+                         aria-current={activeIndex === idx}
+                       >
+                         <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-[#F0E6D3]">
+                           <img src={imgSrc || '/placeholder.svg'} alt={String(p.name ?? '')} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                         </div>
+                         <div className="flex-1 min-w-0">
+                           <p className="text-sm font-semibold text-[#1A2744] truncate">{highlightMatch(String(p.name ?? ''))}</p>
+                           <p className="text-xs text-[#8D6E63]">{String(p.category ?? '')} • ⭐ {String(p.rating ?? '')}</p>
+                         </div>
+                         <div className="text-right shrink-0">
+                           <p className="text-sm font-bold text-[#3E2723]">${Number(p.price ?? 0).toFixed(2)}</p>
+                           {p.badge && <span className="text-[0.6rem] bg-[#D4A373]/20 text-[#8D6E63] px-1.5 py-0.5 rounded-full font-bold">{p.badge}</span>}
+                         </div>
+                       </button>
+                       );
+                     })}
+                     <button onClick={() => handleSearch(searchQuery)} className="w-full mt-1 py-2 text-xs font-bold text-[#D4A373] hover:text-[#3E2723] flex items-center justify-center gap-1 transition-colors">
+                       See all results for "{searchQuery}" <ArrowRight size={12} />
+                     </button>
+                   </div>
+                 )}
                 {searchQuery.trim().length > 0 && filteredProducts.length === 0 && (
                   <div className="px-5 py-6 text-center">
                     <div className="text-3xl mb-2">🔍</div>
