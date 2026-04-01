@@ -37,6 +37,9 @@ export default function Menu() {
   // products loaded from backend API (replace demo import)
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  // pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 16;
 
   useEffect(() => {
     let mounted = true;
@@ -159,6 +162,8 @@ export default function Menu() {
       // When multiple categories are selected, clear the top tab selection to 'All' to avoid conflict
       setSelectedCategory("All");
     }
+    // whenever filters change, go back to first page
+    setCurrentPage(1);
   };
 
   // helper to compare tags (case-insensitive and tolerant to simple singular/plural mismatch)
@@ -204,6 +209,12 @@ export default function Menu() {
 
     return true;
   });
+
+  // ensure currentPage is valid when filteredProducts changes
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage));
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [filteredProducts.length, currentPage, itemsPerPage]);
 
   const container: Variants = {
     hidden: { opacity: 0 },
@@ -296,6 +307,8 @@ export default function Menu() {
                       setSelectedCategory(cat);
                       // keep sidebar filters in sync: selecting a top category applies it as the sidebar category filter
                       setFilters(prev => ({ ...prev, category: cat === 'All' ? [] : [cat] }));
+                      // reset pagination when switching top category
+                      setCurrentPage(1);
                     }}
                     className={`whitespace-nowrap px-6 py-2.5 rounded-2xl text-sm font-bold tracking-wide transition-all duration-300 border-2 select-none ${
                       selectedCategory === cat
@@ -317,15 +330,20 @@ export default function Menu() {
               className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8"
             >
               <AnimatePresence mode="popLayout">
-              {filteredProducts.map((p) => (
-                <motion.article key={p.id}
-                  layout
-                  variants={item}
-                  initial="hidden"
-                  animate="show"
-                   exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                  className="group relative h-[450px] w-full rounded-3xl overflow-hidden shadow-xl cursor-pointer" // Add cursor-pointer
-                >
+              {/* paginate filteredProducts */}
+              {(() => {
+                const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage));
+                const start = (currentPage - 1) * itemsPerPage;
+                const pagedProducts = filteredProducts.slice(start, start + itemsPerPage);
+                return pagedProducts.map((p) => (
+                   <motion.article key={p.id}
+                     layout
+                     variants={item}
+                     initial="hidden"
+                     animate="show"
+                      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                     className="group relative h-[450px] w-full rounded-3xl overflow-hidden shadow-xl cursor-pointer" // Add cursor-pointer
+                   >
                   <div onClick={() => {
                     const prodId = (p && (p._id ?? p.id ?? '')) || '';
                     if (!prodId) {
@@ -409,12 +427,43 @@ export default function Menu() {
                     </div>
                   </div>
                 </motion.article>
-              ))}
+                ));
+              })()}
               </AnimatePresence>
             </motion.div>
+            
+            {/* pagination controls */}
+            {filteredProducts.length > itemsPerPage && (
+              <div className="flex items-center justify-center gap-4 mt-8">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className={`px-3 py-2 rounded-md font-semibold ${currentPage === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white border border-[#D4A373] text-[#3E2723]'}`}>
+                  Previous
+                </button>
 
-            {filteredProducts.length === 0 && (
-              <div className="text-center py-20 flex flex-col items-center">
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage)) }, (_, i) => i + 1).map(page => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-3 py-2 rounded-md ${currentPage === page ? 'bg-[#3E2723] text-[#F5ECD7]' : 'bg-white border border-[#E8E2D8] text-[#3E2723]'}`}>
+                      {page}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(Math.ceil(filteredProducts.length / itemsPerPage), prev + 1))}
+                  disabled={currentPage === Math.ceil(filteredProducts.length / itemsPerPage)}
+                  className={`px-3 py-2 rounded-md font-semibold ${currentPage === Math.ceil(filteredProducts.length / itemsPerPage) ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white border border-[#D4A373] text-[#3E2723]'}`}>
+                  Next
+                </button>
+              </div>
+            )}
+
+             {filteredProducts.length === 0 && (
+               <div className="text-center py-20 flex flex-col items-center">
                 <div className="w-24 h-24 bg-[#F5ECD7] rounded-full flex items-center justify-center mb-4 text-4xl">🍪</div>
                 <h3 className="text-2xl font-playfair font-bold text-[#1A2744] mb-2">No items match your taste</h3>
                 <p className="text-[#8D6E63]">Try adjusting your filters or search for something else.</p>
