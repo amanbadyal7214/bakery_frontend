@@ -17,6 +17,8 @@ export interface FilterState {
   flavor: string[];
   type: string[];
   occasion: string[];
+  suboccasion: string[];
+  subtheme: string[];
   priceRange: [number, number];
   weight: string[];
   delivery: string[];
@@ -31,6 +33,8 @@ const initialFilters: FilterState = {
   flavor: [],
   type: [],
   occasion: [],
+  suboccasion: [],
+  subtheme: [],
   priceRange: [0, 2000],
   weight: [],
   delivery: [],
@@ -56,6 +60,8 @@ const defaultFilterOptions = {
 // dynamic options state
 const useDynamicOptions = () => {
   const [options, setOptions] = useState<typeof defaultFilterOptions>(defaultFilterOptions);
+  const [subOccMap, setSubOccMap] = useState<Record<string, string[]>>({});
+  const [subThemeMap, setSubThemeMap] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
     let mounted = true;
@@ -75,19 +81,20 @@ const useDynamicOptions = () => {
 
         if (!mounted) return;
 
-        const normalizeResp = (r: any) => {
-          if (!r) return [] as any[];
+        const normalizeResp = (r: unknown): unknown[] => {
+          if (!r) return [];
           if (Array.isArray(r)) return r;
           // handle { data: [...] } or { data: { ... } }
-          if (r && typeof r === 'object' && r.data !== undefined) {
-            return Array.isArray(r.data) ? r.data : [r.data];
+          if (r && typeof r === 'object' && (r as Record<string, unknown>).data !== undefined) {
+            const d = (r as Record<string, unknown>).data;
+            return Array.isArray(d) ? d : [d];
           }
           // single object -> wrap
           if (typeof r === 'object') return [r];
-          return [] as any[];
+          return [];
         };
 
-        const toStrings = (arr: any[]) => (arr || []).map((it) => {
+        const toStrings = (arr: unknown[]): string[] => (arr || []).map((it) => {
           if (typeof it === 'string') return it;
           if (it && typeof it === 'object') {
             const obj = it as Record<string, unknown>;
@@ -103,15 +110,55 @@ const useDynamicOptions = () => {
 
         const [cats, flvs, wts, types, occ, shp, thm] = results.map(normalizeResp);
 
-        let built = {
+        let built: Record<string, string[]> = {
           category: toStrings(cats),
           flavor: toStrings(flvs),
           type: toStrings(types),
           occasion: toStrings(occ),
           weight: toStrings(wts),
+          delivery: [],
+          dietary: [],
           shape: toStrings(shp),
           theme: toStrings(thm),
-        } as Record<string, string[]>;
+        };
+
+        // build subOccMap from occasions response if objects provided
+        const occMap: Record<string, string[]> = {};
+        for (const o of occ) {
+          if (!o) continue;
+          const obj = typeof o === 'string' ? { name: o } : (o as Record<string, unknown>);
+          const idVal = (obj as Record<string, unknown>)['_id'];
+          const name = (typeof obj.name === 'string' && obj.name) || (typeof obj.title === 'string' && obj.title) || (typeof idVal === 'string' ? idVal : String(obj.name || obj.title || ''));
+          const candidateKeys = ['suboccasions', 'subOccasions', 'sub_occasions'];
+          let subs: string[] = [];
+          for (const k of candidateKeys) {
+            const val = (obj as Record<string, unknown>)[k];
+            if (Array.isArray(val)) {
+              subs = (val as unknown[]).map(s => String(s ?? '').trim()).filter(Boolean);
+              break;
+            }
+          }
+          if (name) occMap[name] = subs;
+        }
+
+        // build subThemeMap from themes response
+        const thMap: Record<string, string[]> = {};
+        for (const t of thm) {
+          if (!t) continue;
+          const obj = typeof t === 'string' ? { name: t } : (t as Record<string, unknown>);
+          const idVal2 = (obj as Record<string, unknown>)['_id'];
+          const name = (typeof obj.name === 'string' && obj.name) || (typeof obj.title === 'string' && obj.title) || (typeof idVal2 === 'string' ? idVal2 : String(obj.name || obj.title || ''));
+          const candidateKeys = ['subthemes', 'subThemes', 'sub_themes'];
+          let subs: string[] = [];
+          for (const k of candidateKeys) {
+            const val = (obj as Record<string, unknown>)[k];
+            if (Array.isArray(val)) {
+              subs = (val as unknown[]).map(s => String(s ?? '').trim()).filter(Boolean);
+              break;
+            }
+          }
+          if (name) thMap[name] = subs;
+        }
 
         // If backend endpoints returned unexpected shapes (empty), fall back to scanning products to build filter lists
         const allEmpty = Object.values(built).every(arr => !arr || arr.length === 0);
@@ -122,8 +169,8 @@ const useDynamicOptions = () => {
             const extract = (key: string) => {
               const set = new Set<string>();
               for (const p of prods) {
-                const val = p?.[key];
-                if (Array.isArray(val)) val.forEach((v: any) => v && set.add(String(v)));
+                const val = (p as Record<string, unknown>)?.[key];
+                if (Array.isArray(val)) (val as unknown[]).forEach((v) => v && set.add(String(v)));
                 else if (typeof val === 'string' && val) set.add(val);
               }
               return Array.from(set);
@@ -134,9 +181,41 @@ const useDynamicOptions = () => {
               type: extract('type'),
               occasion: extract('occasion'),
               weight: extract('weight'),
+              delivery: extract('delivery'),
+              dietary: extract('dietary'),
               shape: extract('shape'),
               theme: extract('theme'),
             };
+
+            // also attempt to derive suboccasions and subthemes from products grouped by occasion/theme
+            const subOccMapFallback: Record<string, Set<string>> = {};
+            const subThemeMapFallback: Record<string, Set<string>> = {};
+            for (const p of prods) {
+              const occVal = (p as Record<string, unknown>)?.occasion;
+              const occNames = Array.isArray(occVal) ? occVal as unknown[] : (typeof occVal === 'string' ? (occVal as string).split(',').map((s:string)=>s.trim()) : []);
+              const subOccVal = (p as Record<string, unknown>)?.suboccasions;
+              const subOccNames = Array.isArray(subOccVal) ? subOccVal as unknown[] : (typeof subOccVal === 'string' ? (subOccVal as string).split(',').map((s:string)=>s.trim()) : []);
+
+              const themeVal = (p as Record<string, unknown>)?.theme;
+              const themeNames = Array.isArray(themeVal) ? themeVal as unknown[] : (typeof themeVal === 'string' ? (themeVal as string).split(',').map((s:string)=>s.trim()) : []);
+              const subThemeVal = (p as Record<string, unknown>)?.subthemes;
+              const subThemeNames = Array.isArray(subThemeVal) ? subThemeVal as unknown[] : (typeof subThemeVal === 'string' ? (subThemeVal as string).split(',').map((s:string)=>s.trim()) : []);
+
+              for (const oName of occNames as string[]) {
+                if (!oName) continue;
+                if (!subOccMapFallback[oName]) subOccMapFallback[oName] = new Set();
+                for (const sName of subOccNames as string[]) if (sName) subOccMapFallback[oName].add(sName);
+              }
+
+              for (const tName of themeNames as string[]) {
+                if (!tName) continue;
+                if (!subThemeMapFallback[tName]) subThemeMapFallback[tName] = new Set();
+                for (const sName of subThemeNames as string[]) if (sName) subThemeMapFallback[tName].add(sName);
+              }
+            }
+            for (const k of Object.keys(subOccMapFallback)) occMap[k] = Array.from(subOccMapFallback[k]);
+            for (const k of Object.keys(subThemeMapFallback)) thMap[k] = Array.from(subThemeMapFallback[k]);
+
           } catch (e) {
             // ignore fallback errors
           }
@@ -149,9 +228,14 @@ const useDynamicOptions = () => {
           type: built.type.length ? built.type : defaultFilterOptions.type,
           occasion: built.occasion.length ? built.occasion : defaultFilterOptions.occasion,
           weight: built.weight.length ? built.weight : defaultFilterOptions.weight,
+          delivery: built.delivery && built.delivery.length ? built.delivery : defaultFilterOptions.delivery,
+          dietary: built.dietary && built.dietary.length ? built.dietary : defaultFilterOptions.delivery,
           shape: built.shape.length ? built.shape : defaultFilterOptions.shape,
           theme: built.theme.length ? built.theme : defaultFilterOptions.theme,
         });
+
+        setSubOccMap(occMap);
+        setSubThemeMap(thMap);
       } catch (e) {
         // noop
       } finally {
@@ -162,7 +246,7 @@ const useDynamicOptions = () => {
     return () => { mounted = false; };
   }, []);
 
-  return options;
+  return { options, subOccMap, subThemeMap };
 };
 
 interface FilterSidebarProps {
@@ -174,7 +258,7 @@ interface FilterSidebarProps {
 
 export default function FilterSidebar({ onFilterChange, className, isOpen, onClose }: FilterSidebarProps) {
   const [filters, setFilters] = useState<FilterState>(initialFilters);
-  const options = useDynamicOptions();
+  const { options, subOccMap, subThemeMap } = useDynamicOptions();
 
   const handleCheckboxChange = (section: keyof FilterState, value: string) => {
     setFilters((prev) => {
@@ -190,10 +274,6 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
   };
 
   const handlePriceChange = (value: number[]) => {
-    // In Slider component, value is number[]. Here we need [number, number].
-    // Since we initialized as [200, 2000], and slider is dual thumb, it should be fine.
-    // However, if the slider returns less than 2 items, we need to be careful.
-    // Assuming shadcn slider with 2 values works as expected.
     const newFilters = { ...filters, priceRange: value as [number, number] };
     setFilters(newFilters);
     onFilterChange?.(newFilters);
@@ -202,6 +282,37 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
   const clearFilters = () => {
     setFilters(initialFilters);
     onFilterChange?.(initialFilters);
+  };
+
+  // compute sub-occasion list to show based on selected occasion(s)
+  const computeSubOccOptions = () => {
+    const sel = filters.occasion || [];
+    const set = new Set<string>();
+    if (sel.length === 0) {
+      // union of all
+      Object.values(subOccMap).flat().forEach(s => s && set.add(s));
+    } else {
+      for (const s of sel) {
+        const list = subOccMap[s] || [];
+        list.forEach(it => it && set.add(it));
+      }
+    }
+    return Array.from(set);
+  };
+
+  // compute sub-theme list to show based on selected theme(s)
+  const computeSubThemeOptions = () => {
+    const sel = filters.theme || [];
+    const set = new Set<string>();
+    if (sel.length === 0) {
+      Object.values(subThemeMap).flat().forEach(s => s && set.add(s));
+    } else {
+      for (const t of sel) {
+        const list = subThemeMap[t] || [];
+        list.forEach(it => it && set.add(it));
+      }
+    }
+    return Array.from(set);
   };
 
   return (
@@ -284,6 +395,74 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
               </AccordionContent>
             </AccordionItem>
           ))}
+
+          {/* Sub-Occasions (dependent on selected Occasion) */}
+          <AccordionItem value="suboccasions" className="border-b border-[#D4A373]/20">
+            <AccordionTrigger className="text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">Sub-Occasions</AccordionTrigger>
+            <AccordionContent>
+              <div className="grid grid-cols-1 gap-1.5 pt-1">
+                {computeSubOccOptions().length === 0 ? (
+                  <div className="text-sm text-[#8D6E63] italic">Select an occasion to see sub-occasions</div>
+                ) : computeSubOccOptions().map((option) => (
+                  <div
+                    key={option}
+                    className={`flex items-center space-x-2 px-2 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      (filters.suboccasion as string[]).includes(option)
+                        ? "bg-[#3E2723]/8 "
+                        : "hover:bg-[#D4A373]/10"
+                    }`}
+                  >
+                    <Checkbox 
+                      id={`subocc-${option}`} 
+                      checked={(filters.suboccasion as string[]).includes(option)}
+                      onCheckedChange={() => handleCheckboxChange('suboccasion', option as string)}
+                      className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723]"
+                    />
+                    <label
+                      htmlFor={`subocc-${option}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full"
+                    >
+                      {option}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Sub-Themes (dependent on selected Theme) */}
+          <AccordionItem value="subthemes" className="border-b border-[#D4A373]/20">
+            <AccordionTrigger className="text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">Sub-Themes</AccordionTrigger>
+            <AccordionContent>
+              <div className="grid grid-cols-1 gap-1.5 pt-1">
+                {computeSubThemeOptions().length === 0 ? (
+                  <div className="text-sm text-[#8D6E63] italic">Select a theme to see sub-themes</div>
+                ) : computeSubThemeOptions().map((option) => (
+                  <div
+                    key={option}
+                    className={`flex items-center space-x-2 px-2 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      (filters.subtheme as string[]).includes(option)
+                        ? "bg-[#3E2723]/8 "
+                        : "hover:bg-[#D4A373]/10"
+                    }`}
+                  >
+                    <Checkbox 
+                      id={`subtheme-${option}`} 
+                      checked={(filters.subtheme as string[]).includes(option)}
+                      onCheckedChange={() => handleCheckboxChange('subtheme', option as string)}
+                      className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723]"
+                    />
+                    <label
+                      htmlFor={`subtheme-${option}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full"
+                    >
+                      {option}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
 
           {/* Ratings */}
           <AccordionItem value="ratings" className="border-b-0">

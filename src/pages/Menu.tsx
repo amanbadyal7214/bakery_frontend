@@ -128,9 +128,10 @@ export default function Menu() {
     const matchedType = filters.type?.filter(t => prodType.includes(t)) || [];
     pushIf(matchedType);
 
-    // occasion
+    // occasion (also consider sub-occasions on product)
     const prodOcc = Array.isArray(p.occasion) ? p.occasion : (typeof p.occasion === 'string' ? p.occasion.split(',').map((s:string)=>s.trim()) : []);
-    const matchedOcc = filters.occasion?.filter(o => prodOcc.includes(o)) || [];
+    const prodSubOcc = Array.isArray(p.suboccasions) ? p.suboccasions : (typeof p.suboccasions === 'string' ? p.suboccasions.split(',').map((s:string)=>s.trim()) : []);
+    const matchedOcc = filters.occasion?.filter(o => prodOcc.includes(o) || prodSubOcc.includes(o)) || [];
     pushIf(matchedOcc);
 
     // weight
@@ -138,17 +139,23 @@ export default function Menu() {
     const matchedWeight = filters.weight?.filter(w => prodWeight.includes(w)) || [];
     pushIf(matchedWeight);
 
-    // delivery, dietary, shape, theme
+    // delivery, dietary, shape, theme (also consider subthemes)
     const prodDelivery = Array.isArray(p.delivery) ? p.delivery : (p.delivery ? [p.delivery] : []);
     pushIf(filters.delivery?.filter(d => prodDelivery.includes(d)));
 
     const prodDietary = Array.isArray(p.dietary) ? p.dietary : (p.dietary ? [p.dietary] : []);
     pushIf(filters.dietary?.filter(d => prodDietary.includes(d)));
 
+    const prodSubthemes = Array.isArray(p.subthemes) ? p.subthemes : (typeof p.subthemes === 'string' ? p.subthemes.split(',').map((s:string)=>s.trim()) : []);
     if (filters.shape && filters.shape.length > 0 && p.shape && filters.shape.includes(p.shape)) pushIf([p.shape]);
-    if (filters.theme && filters.theme.length > 0 && p.theme && filters.theme.includes(p.theme)) pushIf([p.theme]);
+    const matchedTheme = (filters.theme?.filter(t => (p.theme && matches(p.theme, t)) || prodSubthemes.includes(t))) || [];
+    pushIf(matchedTheme);
 
-    return tags.slice(0, 6);
+    // also always surface any available subtheme/suboccasion labels (not filter-driven)
+    pushIf(prodSubthemes);
+    pushIf(prodSubOcc);
+
+    return tags.slice(0, 8);
   };
 
   const handleFilterChange = (newFilters: FilterState) => {
@@ -176,12 +183,12 @@ export default function Menu() {
     return false;
   };
 
-  const fieldMatchesAny = (fieldValue: any, filtersArr: string[]) => {
+  const fieldMatchesAny = (fieldValue: unknown, filtersArr: string[]) => {
     if (!filtersArr || filtersArr.length === 0) return true;
     if (Array.isArray(fieldValue)) {
-      return filtersArr.some(f => fieldValue.some((v: any) => matches(v, f)));
+      return filtersArr.some(f => (fieldValue as unknown[]).some((v) => matches(String(v), f)));
     }
-    return filtersArr.some(f => matches(fieldValue, f));
+    return filtersArr.some(f => matches(String(fieldValue), f));
   };
 
   const filteredProducts = products.filter(p => {
@@ -200,12 +207,29 @@ export default function Menu() {
     // 5. Dynamic Filters (Flavor, Type, Occasion, etc.)
     if (filters.flavor.length > 0 && !fieldMatchesAny(p.flavor, filters.flavor)) return false;
     if (filters.type.length > 0 && !fieldMatchesAny(p.type, filters.type)) return false;
-    if (filters.occasion.length > 0 && !fieldMatchesAny(p.occasion, filters.occasion)) return false;
+
+    // occasion: check both main occasion field and suboccasions
+    if (filters.occasion.length > 0) {
+      const prodOcc = Array.isArray(p.occasion) ? p.occasion : (typeof p.occasion === 'string' ? p.occasion.split(',').map((s:string)=>s.trim()) : []);
+      const prodSubOcc = Array.isArray(p.suboccasions) ? p.suboccasions : (typeof p.suboccasions === 'string' ? p.suboccasions.split(',').map((s:string)=>s.trim()) : []);
+      const occMatch = filters.occasion.some(o => prodOcc.some((v:string)=>matches(v,o)) || prodSubOcc.some((v:string)=>matches(v,o)));
+      if (!occMatch) return false;
+    }
+
     if (filters.weight.length > 0 && !fieldMatchesAny(p.weight, filters.weight)) return false;
     if (filters.delivery.length > 0 && !fieldMatchesAny(p.delivery, filters.delivery)) return false;
     if (filters.dietary.length > 0 && !fieldMatchesAny(p.dietary, filters.dietary)) return false;
+
+    // shape
     if (filters.shape.length > 0 && !filters.shape.some(s => matches(p.shape, s))) return false;
-    if (filters.theme.length > 0 && !filters.theme.some(t => matches(p.theme, t))) return false;
+
+    // theme: check main theme and subthemes
+    if (filters.theme.length > 0) {
+      const prodTheme = p.theme;
+      const prodSubthemes = Array.isArray(p.subthemes) ? p.subthemes : (typeof p.subthemes === 'string' ? p.subthemes.split(',').map((s:string)=>s.trim()) : []);
+      const themeMatch = filters.theme.some(t => (prodTheme && matches(prodTheme, t)) || prodSubthemes.some((v:string)=>matches(v,t)));
+      if (!themeMatch) return false;
+    }
 
     return true;
   });
@@ -393,6 +417,56 @@ export default function Menu() {
                         <p className="text-white/80 text-sm mb-4 line-clamp-2 opacity-0 h-0 group-hover:h-auto group-hover:opacity-100 transition-all duration-300 delay-75">
                           Experience the taste of our premium {p.category.toLowerCase()}, baked fresh every morning with organic ingredients.
                         </p>
+
+                        {/* Grouped: show Occasion -> Sub-Occasions, and Theme -> Sub-Themes */}
+                        {(() => {
+                          const prodOcc = Array.isArray(p.occasion) ? p.occasion : (typeof p.occasion === 'string' ? p.occasion.split(',').map((s:string)=>s.trim()) : []);
+                          const prodSubOcc = Array.isArray(p.suboccasions) ? p.suboccasions : (typeof p.suboccasions === 'string' ? p.suboccasions.split(',').map((s:string)=>s.trim()) : []);
+                          const prodTheme = Array.isArray(p.theme) ? p.theme : (typeof p.theme === 'string' ? p.theme.split(',').map((s:string)=>s.trim()) : (p.theme ? [p.theme] : []));
+                          const prodSubthemes = Array.isArray(p.subthemes) ? p.subthemes : (typeof p.subthemes === 'string' ? p.subthemes.split(',').map((s:string)=>s.trim()) : []);
+
+                          if (prodOcc.length === 0 && prodSubOcc.length === 0 && prodTheme.length === 0 && prodSubthemes.length === 0) return null;
+
+                          return (
+                            <div className="mt-3 text-sm text-white/90">
+                              {prodOcc.length > 0 && (
+                                <div className="mb-2">
+                                  <div className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">Occasion</div>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    {prodOcc.map((o: unknown, idx: number) => (
+                                      <span key={idx} className="text-xs bg-white/10 px-2 py-0.5 rounded-full border border-white/20">{String(o)}</span>
+                                    ))}
+                                  </div>
+                                  {prodSubOcc.length > 0 && (
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                      {prodSubOcc.map((s: unknown, i: number) => (
+                                        <span key={i} className="text-[11px] bg-[#F7E9E6] text-[#8D4B3B] px-2 py-1 rounded-full font-semibold">{String(s)}</span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {prodTheme.length > 0 && (
+                                <div className="mb-2">
+                                  <div className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">Theme</div>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    {prodTheme.map((t: unknown, idx: number) => (
+                                      <span key={idx} className="text-xs bg-white/10 px-2 py-0.5 rounded-full border border-white/20">{String(t)}</span>
+                                    ))}
+                                  </div>
+                                  {prodSubthemes.length > 0 && (
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                      {prodSubthemes.map((s: unknown, i: number) => (
+                                        <span key={i} className="text-[11px] bg-[#EAF6EA] text-[#2C6B2C] px-2 py-1 rounded-full font-semibold">{String(s)}</span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
 
                         <div className="flex items-center justify-between mb-5">
                           <div className="flex items-center gap-1.5">
