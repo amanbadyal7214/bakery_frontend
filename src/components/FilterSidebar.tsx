@@ -138,7 +138,9 @@ const useDynamicOptions = () => {
               break;
             }
           }
+          // store subs under both name and id (if available) so matching works when options are ids or names
           if (name) occMap[name] = subs;
+          if (typeof idVal === 'string' && idVal) occMap[String(idVal)] = subs;
         }
 
         // build subThemeMap from themes response
@@ -157,7 +159,9 @@ const useDynamicOptions = () => {
               break;
             }
           }
+          // store subs under both name and id to handle different option formats
           if (name) thMap[name] = subs;
+          if (typeof idVal2 === 'string' && idVal2) thMap[String(idVal2)] = subs;
         }
 
         // If backend endpoints returned unexpected shapes (empty), fall back to scanning products to build filter lists
@@ -259,6 +263,8 @@ interface FilterSidebarProps {
 export default function FilterSidebar({ onFilterChange, className, isOpen, onClose }: FilterSidebarProps) {
   const [filters, setFilters] = useState<FilterState>(initialFilters);
   const { options, subOccMap, subThemeMap } = useDynamicOptions();
+  // control which accordion panels are open so we can auto-open sub-sections
+  const [openPanels, setOpenPanels] = useState<string[]>(["category", "price", "flavor"]);
 
   const handleCheckboxChange = (section: keyof FilterState, value: string) => {
     setFilters((prev) => {
@@ -269,6 +275,35 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
       
       const newFilters = { ...prev, [section]: updated };
       onFilterChange?.(newFilters);
+
+      // Auto-open dependent sub-section when parent selection made/cleared
+      if (section === 'occasion') {
+        const subs = computeSubOccOptions(updated);
+        if (updated.length > 0 && subs.length > 0) {
+          setOpenPanels((prevPanels) => prevPanels.includes('suboccasions') ? prevPanels : [...prevPanels, 'suboccasions']);
+        } else {
+          setOpenPanels((prevPanels) => prevPanels.filter(p => p !== 'suboccasions'));
+          // clear suboccasion filters when parent cleared
+          if (updated.length === 0) {
+            newFilters.suboccasion = [];
+            onFilterChange?.(newFilters);
+          }
+        }
+      }
+      
+      if (section === 'theme') {
+        const subs = computeSubThemeOptions(updated);
+        if (updated.length > 0 && subs.length > 0) {
+          setOpenPanels((prevPanels) => prevPanels.includes('subthemes') ? prevPanels : [...prevPanels, 'subthemes']);
+        } else {
+          setOpenPanels((prevPanels) => prevPanels.filter(p => p !== 'subthemes'));
+          if (updated.length === 0) {
+            newFilters.subtheme = [];
+            onFilterChange?.(newFilters);
+          }
+        }
+      }
+
       return newFilters;
     });
   };
@@ -285,31 +320,40 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
   };
 
   // compute sub-occasion list to show based on selected occasion(s)
-  const computeSubOccOptions = () => {
-    const sel = filters.occasion || [];
-    const set = new Set<string>();
-    if (sel.length === 0) {
+  const computeSubOccOptions = (sel?: string[]) => {
+    const selArr = (typeof sel !== 'undefined') ? (sel || []) : (filters.occasion || []);
+     const set = new Set<string>();
+    if (selArr.length === 0) {
       // union of all
       Object.values(subOccMap).flat().forEach(s => s && set.add(s));
     } else {
-      for (const s of sel) {
-        const list = subOccMap[s] || [];
-        list.forEach(it => it && set.add(it));
+      // match keys case-insensitively and by simple plural rules
+      const normalize = (s: string) => String(s).toLowerCase().trim();
+      const selNorm = selArr.map(normalize);
+      for (const [key, list] of Object.entries(subOccMap)) {
+        if (!key) continue;
+        const kn = normalize(key);
+        const matched = selNorm.some(sn => sn === kn || kn === sn + 's' || sn === kn + 's');
+        if (matched) list.forEach(it => it && set.add(it));
       }
     }
     return Array.from(set);
   };
 
   // compute sub-theme list to show based on selected theme(s)
-  const computeSubThemeOptions = () => {
-    const sel = filters.theme || [];
+  const computeSubThemeOptions = (sel?: string[]) => {
+    const selArr = (typeof sel !== 'undefined') ? (sel || []) : (filters.theme || []);
     const set = new Set<string>();
-    if (sel.length === 0) {
+    if (selArr.length === 0) {
       Object.values(subThemeMap).flat().forEach(s => s && set.add(s));
     } else {
-      for (const t of sel) {
-        const list = subThemeMap[t] || [];
-        list.forEach(it => it && set.add(it));
+      const normalize = (s: string) => String(s).toLowerCase().trim();
+      const selNorm = selArr.map(normalize);
+      for (const [key, list] of Object.entries(subThemeMap)) {
+        if (!key) continue;
+        const kn = normalize(key);
+        const matched = selNorm.some(sn => sn === kn || kn === sn + 's' || sn === kn + 's');
+        if (matched) list.forEach(it => it && set.add(it));
       }
     }
     return Array.from(set);
@@ -338,7 +382,7 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
       </div>
 
       <div className="p-4 space-y-2">
-        <Accordion type="multiple" defaultValue={["category", "price", "flavor"]} className="w-full">
+        <Accordion type="multiple" value={openPanels} onValueChange={(vals) => setOpenPanels(vals as string[])} className="w-full">
           
           {/* Price Range */}
           <AccordionItem value="price" className="border-b border-[#D4A373]/20">
