@@ -39,7 +39,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       // Validate token with backend in background
       if (token) {
         try {
-          const response = await fetch("http://localhost:5000/api/customers/me", {
+          const response = await fetch("https://bakery-bakend.onrender.com/api/customers/me", {
             headers: {
               Authorization: `Bearer ${token}`
             }
