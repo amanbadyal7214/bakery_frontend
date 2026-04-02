@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useProductActions } from "../components/home/home-data";
 import { api } from "@/services/api";
-import Navbar from "@/components/Navbaimport { 
+import Navbar from "@/components/Navbar";
+import { 
   ArrowLeft, Star, ShoppingBag, Truck, ShieldCheck, Heart, 
   Share2, Plus, Minus, Info, ClipboardList, Zap, Package,
   ChefHat, Clock, Award, CheckCircle2, ChevronRight
@@ -179,6 +180,27 @@ export default function ProductDetails() {
     void handleAddToCart(variantProduct, quantity, isAuthenticated);
   };
 
+  const onBuyNow = async () => {
+    if (!isAuthenticated) {
+      alert('Please login to proceed to checkout');
+      navigate('/login');
+      return;
+    }
+    if (!product) return;
+    const variantProduct = {
+      ...product,
+      name: `${product.name} (${selectedFlavor || 'Original'}, ${weightOptions[selectedWeightIndex]?.label || 'Standard'})`,
+      price: currentPrice
+    };
+    // ensure item added then go to checkout
+    try {
+      await Promise.resolve(handleAddToCart(variantProduct, quantity, isAuthenticated));
+    } catch (e) {
+      console.error(e);
+    }
+    navigate('/checkout');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
@@ -307,7 +329,7 @@ export default function ProductDetails() {
                         </div>
                     </div>
 
-                    <h1 className="font-playfair text-5xl md:text-6xl font-black text-[#2C1810] leading-tight">
+                    <h1 className="font-playfair text-2xl md:text-3xl font-black text-[#2C1810] leading-tight">
                         {product.name}
                     </h1>
 
@@ -424,6 +446,60 @@ export default function ProductDetails() {
           </div>
         </div>
 
+        {/* Desktop sticky purchase panel (right side) */}
+        <div className="hidden lg:block fixed top-28 right-8 z-50 w-80">
+          <div className="bg-white border rounded-2xl shadow-2xl p-5">
+            <div className="text-sm text-gray-500">One-time purchase</div>
+            <div className="mt-2 flex items-baseline gap-2">
+              <div className="text-2xl font-playfair font-black text-[#2C1810]">{formatCurrency(currentPrice)}</div>
+              <div className="text-xs text-[#7A5C4F]">{product.unit || ''}</div>
+            </div>
+            <div className="text-xs text-[#7A5C4F] mt-2">FREE delivery where available — fastest delivery at checkout</div>
+
+            <div className="mt-4">
+              <div className="text-sm font-bold text-[#2C1810] mb-2">Size</div>
+              <div className="grid grid-cols-3 gap-2">
+                {weightOptions.map((opt, idx) => {
+                  const optionPrice = Array.isArray(product.pricesByWeight) && product.pricesByWeight[idx] !== undefined
+                    ? product.pricesByWeight[idx]
+                    : product.price;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedWeightIndex(idx)}
+                      className={`p-2 rounded-md text-sm border ${selectedWeightIndex === idx ? 'border-[#2C1810] bg-[#f8f3ea]' : 'border-gray-200 bg-white'}`}
+                    >
+                      <div className="font-bold">{opt.label}</div>
+                      <div className="text-xs text-[#7A5C4F]">{formatCurrency(optionPrice)}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between">
+              <div className="flex items-center bg-[#faf7f2] rounded-md p-1">
+                <button onClick={() => handleQuantityChange('dec')} className="px-3 py-2 text-lg" disabled={quantity <= 1}>-</button>
+                <div className="px-4 font-bold">{quantity}</div>
+                <button onClick={() => handleQuantityChange('inc')} className="px-3 py-2 text-lg" disabled={quantity >= 20}>+</button>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-[#16a34a] font-bold">In Stock</div>
+              </div>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <Button onClick={onAddToCart} className="w-full bg-[#D4A373] text-[#2C1810] font-bold">Add to cart</Button>
+            </div>
+
+            <div className="mt-4 text-xs text-[#7A5C4F]">
+              <div>Ships from: <span className="font-semibold">Bakery</span></div>
+              <div>Sold by: <span className="font-semibold">Bakery Direct</span></div>
+              <div className="mt-2">Returns: Eligible for return within 7 days.</div>
+            </div>
+          </div>
+        </div>
+
         {/* BOTTOM SECTION: Tabs & Details */}
         <div className="mt-24 space-y-24">
             
@@ -504,7 +580,7 @@ export default function ProductDetails() {
                                     </div>
 
                                     <div className="p-8 bg-[#fff8e7] rounded-3xl border border-[#f5e6d3] space-y-3">
-                                        <p className="text-sm font-bold text-[#8D6E63] flex items-center gap-2">
+                                        <p className="text-sm font-bold text-[#8D6E63] flex items-center gap-2 mb-2">
                                             <ShieldCheck size={18} /> ALLERGEN ADVISORY
                                         </p>
                                         <p className="text-sm text-[#7A5C4F] leading-relaxed font-medium">
@@ -673,45 +749,6 @@ export default function ProductDetails() {
             scrollbar-width: none;
         }
       `}} />
-Name="flex items-start gap-4">
-                <div className="p-3 bg-white rounded-xl text-[#D4A373] shadow-sm">
-                  <ShieldCheck size={24} />
-                </div>
-                <div>
-                  <h4 className="font-bold text-[#2C1810] font-playfair">Fresh Guarantee</h4>
-                  <p className="text-xs text-[#7A5C4F] mt-1">Baked fresh daily</p>
-                </div>
-              </div>
-            </div>
-
-          </motion.div>
-        </div>
-      </div>
-    </div>
-  );
-}
-ollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-      `}} />
-Name="flex items-start gap-4">
-                <div className="p-3 bg-white rounded-xl text-[#D4A373] shadow-sm">
-                  <ShieldCheck size={24} />
-                </div>
-                <div>
-                  <h4 className="font-bold text-[#2C1810] font-playfair">Fresh Guarantee</h4>
-                  <p className="text-xs text-[#7A5C4F] mt-1">Baked fresh daily</p>
-                </div>
-              </div>
-            </div>
-
-          </motion.div>
-        </div>
-      </div>
     </div>
   );
 }
