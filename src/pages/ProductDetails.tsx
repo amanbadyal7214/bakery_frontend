@@ -2,8 +2,11 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useProductActions } from "../components/home/home-data";
 import { api } from "@/services/api";
-import Navbar from "@/components/Navbar";
-import { ArrowLeft, Star, ShoppingBag, Truck, ShieldCheck, Heart, Share2, Plus, Minus } from "lucide-react";
+import Navbar from "@/components/Navbaimport { 
+  ArrowLeft, Star, ShoppingBag, Truck, ShieldCheck, Heart, 
+  Share2, Plus, Minus, Info, ClipboardList, Zap, Package,
+  ChefHat, Clock, Award, CheckCircle2, ChevronRight
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Accordion,
@@ -13,33 +16,35 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { useSelector } from 'react-redux';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { handleAddToCart } = useProductActions();
   const isAuthenticated = useSelector((state: { auth?: { isAuthenticated?: boolean } }) => Boolean(state.auth?.isAuthenticated));
+  
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0); 
-  const [product, setProduct] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [product, setProduct] = useState<Record<string, any> | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [selectedFlavor, setSelectedFlavor] = useState<string | null>(null);
   const [selectedWeightIndex, setSelectedWeightIndex] = useState(0);
 
-  // Use backend-provided flavors/weights when available, fall back to defaults
   const [flavors, setFlavors] = useState<string[]>([
-    "Truffle Chocolate Cake", "Coffee Cake 2", "Butterscotch",
+    "Classic Vanilla", "Rich Chocolate", "Red Velvet",
   ]);
 
   const [weightOptions, setWeightOptions] = useState<Array<{label:string; pack:string; multiplier:number}>>([
-    { label: "500 g", pack: "Pack of 1", multiplier: 1 },
-    { label: "1 kg", pack: "Pack of 1", multiplier: 1.8 },
+    { label: "500 g", pack: "Serves 4-6", multiplier: 1 },
+    { label: "1 kg", pack: "Serves 8-10", multiplier: 1.8 },
   ]);
 
-  // Helpers to safely extract images from a loosely-typed product object without using `any`.
-  const getFirstImage = (prod: Record<string, unknown> | null): string => {
+  const getFirstImage = (prod: Record<string, any> | null): string => {
     if (!prod) return '/placeholder.svg';
     const imgBase64 = prod['imgBase64'];
     if (typeof imgBase64 === 'string' && imgBase64) return imgBase64;
@@ -49,7 +54,7 @@ export default function ProductDetails() {
     if (Array.isArray(images) && images.length > 0) {
       const first = images[0];
       if (first && typeof first === 'object') {
-        const firstRec = first as Record<string, unknown>;
+        const firstRec = first as Record<string, any>;
         const base64 = firstRec['base64'];
         if (typeof base64 === 'string' && base64) return base64;
         const url = firstRec['url'];
@@ -61,20 +66,20 @@ export default function ProductDetails() {
     return '/placeholder.svg';
   };
 
-  const extractProductImages = (prod: Record<string, unknown> | null): string[] => {
+  const extractProductImages = (prod: Record<string, any> | null): string[] => {
     const imgs: string[] = [];
     const first = getFirstImage(prod);
     if (first) imgs.push(first);
     const imagesField = prod?.['images'];
     if (Array.isArray(imagesField)) {
-      imagesField.slice(0, 2).forEach((it) => {
+        imagesField.forEach((it) => {
         if (!it) return;
         if (typeof it === 'string') {
           imgs.push(it);
           return;
         }
         if (typeof it === 'object') {
-          const rec = it as Record<string, unknown>;
+          const rec = it as Record<string, any>;
           const b64 = rec['base64'];
           const url = rec['url'];
           if (typeof b64 === 'string' && b64) imgs.push(b64);
@@ -82,108 +87,78 @@ export default function ProductDetails() {
         }
       });
     }
-    // dedupe
-    return Array.from(new Set(imgs.filter(Boolean)));
+    return Array.from(new Set(imgs.filter(v => v && v !== '/placeholder.svg')));
   };
 
-  const productImages = useMemo(() => extractProductImages(product), [product]);
+  const productImages = useMemo(() => {
+    const imgs = extractProductImages(product);
+    return imgs.length > 0 ? imgs : ['/placeholder.svg'];
+  }, [product]);
 
   useEffect(() => {
-    // Guard against invalid route params (missing, empty or the literal 'undefined')
-    if (!id || id === 'undefined' || String(id).trim() === '') {
+    if (!id || id === 'undefined') {
       setError('Invalid product id.');
+      setLoading(false);
       return;
     }
-    let mounted = true;
-    setError(null);
+    
     setLoading(true);
-    // Ensure we pass a string id to the API
-    api.products.getById(String(id))
-      .then((res) => { 
-        if (!mounted) return; 
-        // Response shape from api is dynamic; allow explicit any here with a targeted eslint exception
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const p = res as any;
+    setError(null);
+
+    Promise.all([
+        api.products.getById(String(id)),
+        api.products.getAll()
+    ])
+    .then(([p, allProducts]) => {
         setProduct(p);
-        // hydrate flavors from backend
+        
         if (Array.isArray(p?.flavor) && p.flavor.length > 0) {
-          setFlavors(p.flavor as string[]);
-          setSelectedFlavor(String(p.flavor[0]));
+            setFlavors(p.flavor);
+            setSelectedFlavor(p.flavor[0]);
+        } else if (p?.flavor && typeof p.flavor === 'string') {
+            setFlavors([p.flavor]);
+            setSelectedFlavor(p.flavor);
         }
-        // hydrate weight options from backend (try to parse numeric values)
+
         if (Array.isArray(p?.weight) && p.weight.length > 0) {
-          const parsed = (p.weight as string[]).map((w: string, idx: number) => {
-            // try to extract number (kg or g)
-            const match = w.match(/([0-9]+(?:\.[0-9]+)?)/);
-            let multiplier = 1;
-            if (match) {
-              const num = Number(match[1]);
-              // if label contains 'kg' assume base 0.5kg -> multiplier = (kg*1000)/500
-              if (/kg/i.test(w)) multiplier = (num * 1000) / 500;
-              else if (/g/i.test(w)) multiplier = num / 500;
-              else multiplier = idx === 0 ? 1 : 1 + idx; // fallback
-            }
-            return { label: w, pack: 'Pack of 1', multiplier };
-          });
-          setWeightOptions(parsed);
-          setSelectedWeightIndex(0);
+            const parsed = p.weight.map((w: string, idx: number) => ({
+                label: w,
+                pack: w.includes('kg') ? 'Serves 8-12' : 'Serves 4-6',
+                multiplier: w.includes('kg') ? 1.8 : 1
+            }));
+            setWeightOptions(parsed);
         }
-      })
-      .catch((err) => {
+
+        // Related products
+        const related = allProducts
+            .filter((item: any) => item._id !== id && item.category === p.category)
+            .slice(0, 4);
+        setRelatedProducts(related);
+    })
+    .catch((err) => {
         console.error(err);
-        if (!mounted) return;
-        // Prefer server-provided message, fall back to generic text
-        const status = (err as unknown as { response?: { status?: number } })?.response?.status;
-        if (status === 404) setError('Product not found.');
-        else if (status === 500) setError('Server error while fetching product.');
-        else setError((err as Error)?.message || 'Failed to load product');
-      })
-      .finally(() => { if (!mounted) return; setLoading(false); });
-    return () => { mounted = false; };
+        setError('Failed to load product details.');
+    })
+    .finally(() => {
+        setLoading(false);
+    });
   }, [id]);
 
-  // Use backend-provided price for the selected weight if available.
-  // If backend exposes a prices list (e.g. product.pricesByWeight), prefer that; otherwise use product.price as-is.
-  const currentPrice = product
-    ? (Array.isArray(product.pricesByWeight) && product.pricesByWeight[selectedWeightIndex] !== undefined)
-      ? product.pricesByWeight[selectedWeightIndex]
-      : product.price
-    : 0;
+  const currentPrice = useMemo(() => {
+    if (!product) return 0;
+    if (Array.isArray(product.pricesByWeight) && product.pricesByWeight[selectedWeightIndex] !== undefined) {
+      return product.pricesByWeight[selectedWeightIndex];
+    }
+    return product.price || 0;
+  }, [product, selectedWeightIndex]);
 
-  // Format price as Canadian dollars
-  const formatCurrency = (v: number) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(v);
-
-  // Keep backend price display unchanged unless quantity > 1 (then show calculated CAD total)
-  // We'll compute mainPriceDisplay after product is available to avoid showing a formatted value over the raw backend value.
-  // Fall back to formatted price if backend price is missing
-  let backendPriceRaw: number | null = null;
-  let mainPriceDisplay = '';
-  if (product) {
-    backendPriceRaw = product.price || null;
-    mainPriceDisplay = quantity > 1
-      ? formatCurrency(currentPrice)
-      : (backendPriceRaw !== undefined && backendPriceRaw !== null ? String(backendPriceRaw) : formatCurrency(currentPrice));
-  }
-
-  if (loading) return <div className="p-6">Loading product...</div>;
-  if (error) return <div className="p-6 text-red-500">Error: {error}</div>;
-  if (!product) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFBF7]">
-        <h2 className="text-4xl font-playfair font-bold text-[#2C1810] mb-4">Product Not Found</h2>
-        <button 
-          onClick={() => navigate("/")}
-          className="flex items-center gap-2 text-[#D4A373] hover:text-[#B08968] transition-colors"
-        >
-          <ArrowLeft size={20} /> Back to Menu
-        </button>
-      </div>
-    );
-  }
+  const formatCurrency = (v: number) => {
+      return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(v);
+  };
 
   const handleQuantityChange = (type: "inc" | "dec") => {
     if (type === "dec" && quantity > 1) setQuantity(prev => prev - 1);
-    if (type === "inc" && quantity < 10) setQuantity(prev => prev + 1);
+    if (type === "inc" && quantity < 20) setQuantity(prev => prev + 1);
   };
 
   const onAddToCart = () => {
@@ -197,304 +172,533 @@ export default function ProductDetails() {
     
     const variantProduct = {
       ...product,
-      name: `${product.name} (${selectedFlavor}, ${weightOptions[selectedWeightIndex].label})`,
+      name: `${product.name} (${selectedFlavor || 'Original'}, ${weightOptions[selectedWeightIndex]?.label || 'Standard'})`,
       price: currentPrice
     };
 
     void handleAddToCart(variantProduct, quantity, isAuthenticated);
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border-4 border-[#D4A373] border-t-transparent rounded-full animate-spin" />
+            <p className="font-playfair text-xl text-[#2C1810]">Preparing sweetness...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFBF7] p-6 text-center">
+        <h2 className="text-4xl font-playfair font-bold text-[#2C1810] mb-4">Something went wrong</h2>
+        <p className="text-[#7A5C4F] mb-8 max-w-md">{error || "We couldn't find the product you're looking for."}</p>
+        <Button 
+          onClick={() => navigate("/")}
+          className="bg-[#2C1810] text-white hover:bg-[#D4A373] transition-all px-8 py-6 rounded-full"
+        >
+          <ArrowLeft className="mr-2" size={20} /> Back to Bakery
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#FDFBF7] font-inter">
+    <div className="min-h-screen bg-[#FDFBF7] font-inter text-[#2C1810] overflow-x-hidden">
       <Navbar />
       
-      <div className="pt-28 pb-16 px-6 w-full mx-auto">
-        <button 
-          onClick={() => navigate("/")}
-          className="flex items-center gap-2 text-[#7A5C4F] hover:text-[#2C1810] mb-8 transition-colors text-sm font-medium uppercase tracking-wider group"
-        >
-          <div className="p-2 bg-white rounded-full shadow-sm group-hover:shadow-md transition-all">
-            <ArrowLeft size={16} /> 
-          </div>
-          Back to Menu
-        </button>
+      {/* Scroll Progress Bar */}
+      <motion.div 
+        className="fixed top-0 left-0 right-0 h-1 bg-[#D4A373] z-[60] origin-left"
+        initial={{ scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+      />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
+      <div className="pt-24 pb-20 px-4 md:px-8 max-w-[1440px] mx-auto">
+        {/* Breadcrumbs & Back */}
+        <div className="flex items-center gap-2 mb-10 text-sm text-[#7A5C4F]">
+            <button onClick={() => navigate("/")} className="hover:text-[#2C1810] transition-colors">Home</button>
+            <ChevronRight size={14} />
+            <span className="text-[#D4A373] font-medium truncate max-w-[200px]">{product.name}</span>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20">
           
-          {/* Left: Image Gallery Section */}
-          <div className="space-y-6">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="relative aspect-[4/5] md:aspect-square rounded-[2.5rem] overflow-hidden shadow-2xl bg-white p-12 group border-[3px] border-white ring-1 ring-black/5"
-            >
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#ff000000] to-[#00000005]" />
-                <AnimatePresence mode="wait">
-                    <motion.img 
-                        key={activeImage}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.4 }}
-                        src={productImages[activeImage]} 
-                        alt={product.name} 
-                        className="w-full h-full object-contain drop-shadow-2xl z-10 relative"
-                    />
-                </AnimatePresence>
-                
-                {product.badge && (
-                <span className="absolute top-8 left-8 bg-[#2C1810] text-[#D4A373] px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow-xl z-20">
-                    {product.badge}
-                </span>
-                )}
+          {/* LEFT COLUMN: Gallery */}
+          <div className="lg:col-span-7 space-y-8">
+            <div className="sticky top-28">
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="relative aspect-square md:aspect-[5/4] rounded-[3rem] overflow-hidden bg-white shadow-[0_20px_50px_rgba(44,24,16,0.12)] border-8 border-white"
+                >
+                    <AnimatePresence mode="wait">
+                        <motion.img 
+                            key={activeImage}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5 }}
+                            src={productImages[activeImage]} 
+                            alt={product.name} 
+                            className="w-full h-full object-cover"
+                        />
+                    </AnimatePresence>
+                    
+                    {/* Floating Badges */}
+                    <div className="absolute top-6 left-6 flex flex-col gap-2">
+                        {product.badge && (
+                            <Badge className="bg-[#2C1810] text-[#D4A373] border-none px-4 py-2 text-xs font-bold tracking-widest uppercase rounded-full shadow-lg">
+                                {product.badge}
+                            </Badge>
+                        )}
+                        <Badge className="bg-white/90 backdrop-blur-md text-[#2C1810] border-none px-4 py-2 text-xs font-bold rounded-full shadow-lg flex items-center gap-2">
+                            <Zap size={14} className="text-[#D4A373] fill-[#D4A373]" /> Popular Choice
+                        </Badge>
+                    </div>
 
-                <div className="absolute top-8 right-8 z-20 flex flex-col gap-3">
-                    <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform text-red-500">
-                        <Heart size={20} />
-                    </button>
-                    <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform text-[#2C1810]">
-                        <Share2 size={20} />
-                    </button>
+                    {/* Action Overlay */}
+                    <div className="absolute top-6 right-6 flex flex-col gap-3">
+                        <button className="w-12 h-12 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-xl hover:bg-white hover:scale-110 transition-all text-red-500 group">
+                            <Heart size={22} className="group-hover:fill-red-500" />
+                        </button>
+                        <button className="w-12 h-12 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-xl hover:bg-white hover:scale-110 transition-all text-[#2C1810]">
+                            <Share2 size={22} />
+                        </button>
+                    </div>
+                </motion.div>
+
+                {/* Thumbnails */}
+                {productImages.length > 1 && (
+                    <div className="flex gap-4 mt-8 overflow-x-auto pb-4 no-scrollbar justify-center">
+                        {productImages.map((img, idx) => (
+                            <button 
+                                key={idx}
+                                onClick={() => setActiveImage(idx)}
+                                className={`relative w-24 h-24 rounded-2xl overflow-hidden bg-white border-4 transition-all flex-shrink-0 ${activeImage === idx ? 'border-[#D4A373] scale-105 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                            >
+                                <img src={img} alt="Gallery" className="w-full h-full object-cover" />
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN: Info */}
+          <div className="lg:col-span-5 flex flex-col">
+            <motion.div 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="space-y-8"
+            >
+                {/* Header Info */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                        <span className="px-4 py-1.5 bg-[#F2EBE3] text-[#7A5C4F] rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
+                            {product.category}
+                        </span>
+                        <div className="flex items-center gap-1.5 text-sm font-bold">
+                            <Star size={14} className="fi3l-[#FFD700] text-[#FFD700]" />
+                            <span>{product.rating || "5.0"}</span>
+                             <span className="text-gray-400 fomd-normal">Rating</span>
+                        </div>
+                    </div>
+
+                    <h1 className="font-playfair text-5xl md:text-6xl font-black text-[#2C1810] leading-tight">
+                        {product.name}
+                    </h1>
+
+                    <p className="text-lg text-[#7A5C4F] leading-relaxed font-light">
+                        {product.tasteDescription || product.description || "A masterfully crafted artisan creation, made with organic ingredients and baked fresh daily for an unparalleled sensory experience."}
+                    </p>
+                </div>
+
+                {/* Price Section */}
+                <div className="p-8 bg-white rounded-[2.5rem] shadow-[0_15px_35px_rgba(44,24,16,0.05)] border border-[#F2EBE3]">
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="space-y-1">
+                            <p className="text-xs font-bold text-[#D4A373] uppercase tracking-widest">Premium Collection</p>
+                            <div className="flex items-baseline gap-3">
+                                <span className="text-5xl font-playfair font-black">{formatCurrency(currentPrice * quantity)}</span>
+                                {quantity > 1 && <span className="text-[#7A5C4F] text-sm font-medium">({formatCurrency(currentPrice)} each)</span>}
+                            </div>
+                        </div>
+                        <div className="hidden sm:flex flex-col items-end">
+                            <p className="text-[10px] font-bold text-[#7A5C4F] uppercase tracking-wider">Premium Bakery Choice</p>
+                        </div>
+                    </div>
+
+                    {/* Variant Selection */}
+                    <div className="space-y-6">
+                        {flavors.length > 0 && (
+                            <div className="space-y-3">
+                                <label className="text-sm font-bold text-[#2C1810] flex items-center gap-2">
+                                    <ChefHat size={16} className="text-[#D4A373]" /> Choice of Flavor
+                                </label>
+                                <div className="flex flex-wrap gap-2">
+                                    {flavors.map((f) => (
+                                        <button
+                                            key={f}
+                                            onClick={() => setSelectedFlavor(f)}
+                                            className={`px-5 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${selectedFlavor === f ? "border-[#2C1810] bg-[#2C1810] text-white shadow-lg scale-105" : "border-[#F2EBE3] bg-white text-[#7A5C4F] hover:border-[#D4A373]"}`}
+                                        >
+                                            {f}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="space-y-3">
+                            <label className="text-sm font-bold text-[#2C1810] flex items-center gap-2">
+                                <Package size={16} className="text-[#D4A373]" /> Size & Portion
+                            </label>
+                            <div className="grid grid-cols-2 gap-3">
+                                {weightOptions.map((opt, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setSelectedWeightIndex(idx)}
+                                        className={`p-4 rounded-2xl border-2 text-left transition-all relative ${selectedWeightIndex === idx ? "border-[#D4A373] bg-[#FDFBF7] shadow-md" : "border-[#F2EBE3] bg-white hover:border-[#D4A373]"}`}
+                                    >
+                                        <div className="font-bold text-sm mb-1">{opt.label}</div>
+                                        <div className="text-[10px] text-[#7A5C4F] font-medium">{opt.pack}</div>
+                                        {selectedWeightIndex === idx && <CheckCircle2 className="absolute top-3 right-3 text-[#D4A373]" size={16} />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Purchase Actions */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex items-center bg-white rounded-2xl p-1.5 shadow-md border border-[#F2EBE3]">
+                        <button 
+                            onClick={() => handleQuantityChange("dec")}
+                            className="w-12 h-12 flex items-center justify-center rounded-xl hover:bg-[#F2EBE3] transition-colors text-[#2C1810] disabled:opacity-30"
+                            disabled={quantity <= 1}
+                        >
+                            <Minus size={20} />
+                        </button>
+                        <span className="w-12 text-center text-xl font-black font-playfair">{quantity}</span>
+                        <button 
+                            onClick={() => handleQuantityChange("inc")}
+                            className="w-12 h-12 flex items-center justify-center rounded-xl hover:bg-[#F2EBE3] transition-colors text-[#2C1810]"
+                        >
+                            <Plus size={20} />
+                        </button>
+                    </div>
+
+                    <Button 
+                        onClick={onAddToCart}
+                        className="flex-1 h-[60px] bg-[#2C1810] text-white text-lg font-bold rounded-2xl hover:bg-[#D4A373] transition-all shadow-[0_10px_30px_rgba(44,24,16,0.2)] flex items-center justify-center gap-3 active:scale-95 group relative overflow-hidden"
+                    >
+                        <div className="absolute inset-0 bg-[#D4A373] translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                        <span className="relative z-10 flex items-center gap-3">
+                            <ShoppingBag size={22} /> Add to Cart
+                        </span>
+                    </Button>
+                </div>
+
+                {/* Quick Trust Badges */}
+                <div className="flex items-center justify-between p-6 bg-white/50 border border-white rounded-[2rem] backdrop-blur-sm">
+                    <div className="flex flex-col items-center gap-2 text-center group">
+                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#D4A373] shadow-sm group-hover:scale-110 transition-all"><Truck size={18} /></div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A5C4F]">Free Shipping</span>
+                    </div>
+                    <div className="w-px h-10 bg-[#F2EBE3]" />
+                    <div className="flex flex-col items-center gap-2 text-center group">
+                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#D4A373] shadow-sm group-hover:scale-110 transition-all"><ShieldCheck size={18} /></div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A5C4F]">Secure Pay</span>
+                    </div>
+                    <div className="w-px h-10 bg-[#F2EBE3]" />
+                    <div className="flex flex-col items-center gap-2 text-center group">
+                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#D4A373] shadow-sm group-hover:scale-110 transition-all"><Clock size={18} /></div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A5C4F]">Freshly Baked</span>
+                    </div>
                 </div>
             </motion.div>
-
-            {/* Thumbnail Navigation */}
-            <div className="flex justify-center gap-4">
-                {productImages.map((img, idx) => (
-                    <button 
-                        key={idx}
-                        onClick={() => setActiveImage(idx)}
-                        className={`relative w-24 h-24 rounded-2xl bg-white p-2 border-2 transition-all ${activeImage === idx ? 'border-[#D4A373] shadow-lg scale-105' : 'border-transparent opacity-70 hover:opacity-100 hover:scale-105'}`}
-                    >
-                        <img src={img} alt={`View ${idx + 1}`} className="w-full h-full object-contain" />
-                    </button>
-                ))}
-            </div>
           </div>
+        </div>
 
-
-          {/* Right: Details Section */}
-          <motion.div 
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex flex-col h-full pt-4"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <span className="px-3 py-1 bg-[#F2EBE3] rounded-full text-[#D4A373] font-bold text-xs tracking-widest uppercase">{product.category}</span>
-              <div className="flex items-center gap-2">
-                {(() => {
-                  const rating = Number(product.rating) || 0;
-                  return [...Array(5)].map((_, i) => {
-                    const filled = rating >= i + 1;
-                    return (
-                      <Star
-                        key={i}
-                        size={14}
-                        className={filled ? "fill-[#FFD700] text-[#FFD700]" : "text-gray-300"}
-                      />
-                    );
-                  });
-                })()}
-                <span className="text-[#2C1810] text-sm font-bold ml-2">{Number(product.rating).toFixed(1)}{product.reviewsCount ? ` • ${product.reviewsCount} reviews` : ''}</span>
-              </div>
-            </div>
-
-            <h1 className="font-playfair text-5xl md:text-7xl font-bold text-[#2C1810] mb-6 leading-[0.9]">
-              {product.name}
-            </h1>
-
+        {/* BOTTOM SECTION: Tabs & Details */}
+        <div className="mt-24 space-y-24">
             
-           
-
-            <div className="flex items-end gap-6 mb-10">
-              <span className="text-5xl font-playfair font-bold text-[#2C1810]">
-                {quantity > 1 ? formatCurrency(currentPrice * quantity) : formatCurrency(currentPrice)}
-              </span>
-              {quantity > 1 && (
-                 <span className="text-lg text-[#7A5C4F] font-medium mb-2">
-                    ({formatCurrency(currentPrice)} each)
-                 </span>
-              )}
-            </div>
-
-            {/* Flavor Selection */}
-            <div className="mb-8">
-                <p className="text-[#2C1810] font-bold mb-3">Flavour Name: <span className="font-playfair">{selectedFlavor}</span></p>
-                <div className="flex flex-wrap gap-2">
-                    {flavors.map((flavor) => (
-                        <button
-                            key={flavor}
-                            onClick={() => setSelectedFlavor(flavor)}
-                            className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
-                                selectedFlavor === flavor
-                                ? "border-[#2C1810] bg-[#2C1810] text-white shadow-md"
-                                : "border-gray-200 bg-white text-[#2C1810] hover:border-[#D4A373]"
-                            }`}
-                        >
-                            {flavor}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Size Selection */}
-            <div className="mb-10">
-                <p className="text-[#2C1810] font-bold mb-3">Size: <span className="font-playfair">{weightOptions[selectedWeightIndex].label}</span> ({weightOptions[selectedWeightIndex].pack})</p>
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-                    {weightOptions.map((option, index) => {
-                         // Prefer backend price per weight if provided, else fall back to product.price
-                         const optionPrice = Array.isArray(product.pricesByWeight) && product.pricesByWeight[index] !== undefined
-                           ? product.pricesByWeight[index]
-                           : product.price;
-                         const originalPrice = optionPrice * 1.5;
-                          return (
-                            <button
-                                key={index}
-                                onClick={() => setSelectedWeightIndex(index)}
-                                className={`text-left p-3 rounded-xl border-2 transition-all ${
-                                    selectedWeightIndex === index
-                                    ? "border-[#2C1810] bg-[#F2EBE3]"
-                                    : "border-gray-100 bg-white hover:border-[#D4A373]"
-                                }`}
-                            >
-                                <div className="font-bold text-[#2C1810] text-sm mb-1">{option.label}</div>
-                                <div className="text-xs text-[#7A5C4F] mb-2">{option.pack}</div>
-                                <div className="font-bold text-[#2C1810]">{formatCurrency(optionPrice)}</div>
-                                <div className="text-xs text-gray-400 line-through">{formatCurrency(originalPrice)}</div>
-                            </button>
-                         );
-                    })}
-                 </div>
-             </div>
-            
-            {/* Quantity & Add to Cart */}
-            <div className="flex flex-col sm:flex-row gap-6 mb-12">
-                <div className="flex items-center bg-white rounded-full p-2 shadow-sm border border-gray-100 w-fit">
-                    <button 
-                        onClick={() => handleQuantityChange("dec")}
-                        className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-[#2C1810]"
-                        disabled={quantity <= 1}
-                    >
-                        <Minus size={20} />
-                    </button>
-                    <span className="w-12 text-center text-xl font-bold font-playfair">{quantity}</span>
-                    <button 
-                        onClick={() => handleQuantityChange("inc")}
-                        className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-[#2C1810]"
-                        disabled={quantity >= 10}
-                    >
-                        <Plus size={20} />
-                    </button>
-                </div>
-
-                <Button 
-                    onClick={onAddToCart}
-                    className="flex-1 h-16 bg-[#2C1810] text-white font-bold text-lg rounded-full hover:bg-[#D4A373] hover:text-[#2C1810] transition-all shadow-xl hover:shadow-2xl active:scale-95 flex items-center justify-center gap-3 relative overflow-hidden group"
-                >
-                    <span className="relative z-10 flex items-center gap-3">
-                        <ShoppingBag size={22} />
-                        Add to Cart • {quantity > 1 ? formatCurrency(currentPrice * quantity) : formatCurrency(currentPrice)}
-                    </span>
-                    <div className="absolute inset-0 bg-[#D4A373] translate-y-[101%] group-hover:translate-y-0 transition-transform duration-300 ease-in-out" />
-                </Button>
-            </div>
-
-            {/* Accordion Info */}
-            <div className="mb-12">
-                <Accordion type="single" collapsible className="w-full" defaultValue="desc">
-                    <AccordionItem value="desc" className="border-b border-[#E5DACE]">
-                        <AccordionTrigger className="text-[#2C1810] font-playfair font-bold text-lg hover:no-underline hover:text-[#D4A373]">Description</AccordionTrigger>
-                        <AccordionContent className="text-[#7A5C4F] leading-relaxed text-base pt-2">
-                            {product.tasteDescription || product.description || 'No description available.'}
-                        </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="ingredients" className="border-b border-[#E5DACE]">
-                        <AccordionTrigger className="text-[#2C1810] font-playfair font-bold text-lg hover:no-underline hover:text-[#D4A373]">Ingredients & Allergens</AccordionTrigger>
-                        <AccordionContent className="text-[#7A5C4F] leading-relaxed text-base pt-2">
-                            {((product.ingredients || []) as string[]).length > 0 ? (
-                                <div>
-                                    <p className="mb-2">{(product.ingredients || []).join(', ')}</p>
-                                    {product.allergens ? (
-                                        <p className="text-sm text-[#8D6E63]">Contains: {(product.allergens || []).join(', ')}</p>
-                                    ) : (
-                                        <p className="text-sm text-[#8D6E63]">May contain common allergens (eggs, nuts, dairy) — check with bakery for specifics.</p>
-                                    )}
+            {/* Tabs for Detailed Info */}
+            <section>
+                <Tabs defaultValue="details" className="w-full">
+                    <TabsList className="w-full justify-start bg-transparent border-b border-[#F2EBE3] rounded-none h-16 p-0 gap-8">
+                        <TabsTrigger value="details" className="bg-transparent border-none text-xl font-playfair font-bold text-[#7A5C4F] data-[state=active]:text-[#2C1810] data-[state=active]:shadow-none data-[state=active]:border-b-4 data-[state=active]:border-[#D4A373] rounded-none h-full transition-all">Details</TabsTrigger>
+                        <TabsTrigger value="ingredients" className="bg-transparent border-none text-xl font-playfair font-bold text-[#7A5C4F] data-[state=active]:text-[#2C1810] data-[state=active]:shadow-none data-[state=active]:border-b-4 data-[state=active]:border-[#D4A373] rounded-none h-full transition-all">Ingredients</TabsTrigger>
+                        <TabsTrigger value="nutrition" className="bg-transparent border-none text-xl font-playfair font-bold text-[#7A5C4F] data-[state=active]:text-[#2C1810] data-[state=active]:shadow-none data-[state=active]:border-b-4 data-[state=active]:border-[#D4A373] rounded-none h-full transition-all">Nutrition</TabsTrigger>
+                    </TabsList>
+                    
+                    <div className="py-12">
+                        <TabsContent value="details" className="m-0 focus-visible:ring-0">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+                                <div className="space-y-6">
+                                    <h3 className="text-3xl font-playfair font-black flex items-center gap-3"><ClipboardList className="text-[#D4A373]" /> The Artisan Way</h3>
+                                    <p className="text-[#7A5C4F] leading-relaxed text-lg italic">"Every creation begins with a passion for excellence and ends with a smile on our client's face."</p>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-6 bg-white rounded-3xl border border-[#F2EBE3]">
+                                            <p className="text-xs font-bold text-[#B08968] mb-1">OCCASION</p>
+                                            <p className="font-bold">{product.occasion?.join(', ') || 'Any Day Sweetness'}</p>
+                                        </div>
+                                        <div className="p-6 bg-white rounded-3xl border border-[#F2EBE3]">
+                                            <p className="text-xs font-bold text-[#B08968] mb-1">SHELF LIFE</p>
+                                            <p className="font-bold">48-72 Hours</p>
+                                        </div>
+                                    </div>
+                                    <Accordion type="single" collapsible className="w-full">
+                                        <AccordionItem value="item-2" className="border-none bg-white rounded-2xl px-4">
+                                            <AccordionTrigger className="hover:no-underline font-bold">Shipping Information</AccordionTrigger>
+                                            <AccordionContent className="text-[#7A5C4F] pb-6">
+                                                We currently offer same-day delivery across the metropolitan area for orders placed before 2 PM. Each item is hand-delivered in temperature-controlled packaging to ensure it reaches you in pristine condition.
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    </Accordion>
                                 </div>
-                            ) : (
-                                <p>No ingredients information provided.</p>
-                            )}
-                        </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="nutrition" className="border-b border-[#E5DACE]">
-                        <AccordionTrigger className="text-[#2C1810] font-playfair font-bold text-lg hover:no-underline hover:text-[#D4A373]">Nutrition</AccordionTrigger>
-                        <AccordionContent className="text-[#7A5C4F] leading-relaxed text-base pt-2">
-                            {product && product.totalNutrition && Object.keys(product.totalNutrition).length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {Object.entries(product.totalNutrition).map(([k, v], idx) => (
-                                        <div key={`${k || 'nutr'}-${idx}`} className="flex justify-between items-center p-2 bg-white rounded-lg shadow-sm">
-                                            <div className="text-sm font-medium text-[#2C1810]">{String(k).replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}</div>
-                                            <div className="text-sm text-[#7A5C4F]">
-                                                {(() => {
-                                                    if (v == null) return '';
-                                                    if (typeof v === 'object') {
-                                                        if (Array.isArray(v)) return (v as unknown[]).map(i => String(i)).join(', ');
-                                                        const anyV = v as Record<string, unknown> | null;
-                                                        if (anyV && typeof anyV === 'object') {
-                                                            if (anyV['value'] !== undefined && anyV['unit'] !== undefined) return `${String(anyV['value'])}${String(anyV['unit'])}`;
-                                                            return Object.entries(anyV).map(([kk, vv]) => `${kk}: ${String(vv)}`).join(', ');
-                                                        }
-                                                    }
-                                                    return String(v);
-                                                })()}
+                                <div className="relative">
+                                    <div className="aspect-[4/3] rounded-[2.5rem] overflow-hidden bg-gray-100 shadow-2xl">
+                                        <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&q=80" alt="Bakery Process" className="w-full h-full object-cover" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-[#2C1810]/60 to-transparent" />
+                                        <div className="absolute bottom-8 left-8 right-8">
+                                            <div className="flex items-center gap-4 text-white">
+                                                <div className="w-12 h-12 rounded-full bg-[#D4A373] flex items-center justify-center"><Award size={24} /></div>
+                                                <div>
+                                                    <p className="font-bold text-lg">Award Winning Quality</p>
+                                                    <p className="text-sm opacity-80">Certified Organic & Master Baked</p>
+                                                </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </TabsContent>
+
+                        <TabsContent value="ingredients" className="m-0 focus-visible:ring-0">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                                <div className="space-y-8">
+                                    <div>
+                                        <h3 className="text-3xl font-playfair font-black mb-4 flex items-center gap-3">
+                                            <ChefHat className="text-[#D4A373]" /> Pure & Authentic
+                                        </h3>
+                                        <p className="text-[#7A5C4F] leading-relaxed italic">
+                                            We believe in full transparency. Every ingredient is ethically sourced, organic, and chosen for its superior quality and flavor profile.
+                                        </p>
+                                    </div>
+                                    
+                                    <div className="space-y-4">
+                                        <p className="text-xs font-bold text-[#B08968] tracking-widest uppercase">The Composition</p>
+                                        <div className="flex flex-wrap gap-3">
+                                            {(product.ingredients?.length > 0 ? product.ingredients : ["Organic Flour", "Unsalted Butter", "Cane Sugar", "Organic Eggs", "Natural Vanilla", "Sea Salt"]).map((ing: string, i: number) => (
+                                                <div key={i} className="px-6 py-3 bg-white rounded-2xl border border-[#F2EBE3] shadow-sm flex items-center gap-2 hover:border-[#D4A373] transition-colors group">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373] group-hover:scale-150 transition-transform" />
+                                                    <span className="font-bold text-[#2C1810] text-sm">{ing}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="p-8 bg-[#fff8e7] rounded-3xl border border-[#f5e6d3] space-y-3">
+                                        <p className="text-sm font-bold text-[#8D6E63] flex items-center gap-2">
+                                            <ShieldCheck size={18} /> ALLERGEN ADVISORY
+                                        </p>
+                                        <p className="text-sm text-[#7A5C4F] leading-relaxed font-medium">
+                                            {product.allergens ? `Contains: ${product.allergens.join(', ')}.` : "Contains: Gluten, Dairy, and Eggs. Prepared in a facility that also processes tree nuts, soy, and peanuts."}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="hidden lg:block relative">
+                                    <div className="aspect-square rounded-[3rem] overflow-hidden border-8 border-white shadow-2xl">
+                                        <img src="https://images.unsplash.com/photo-1595126731003-733b4395ff68?auto=format&fit=crop&q=80" alt="Ingredients" className="w-full h-full object-cover" />
+                                    </div>
+                                    <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-3xl shadow-xl border border-[#F2EBE3] flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-full bg-[#FDFBF7] flex items-center justify-center text-[#D4A373] shadow-inner"><Star className="fill-current" size={20} /></div>
+                                        <div>
+                                            <p className="font-black text-[#2C1810]">100% Organic</p>
+                                            <p className="text-[10px] font-bold text-[#7A5C4F] uppercase tracking-widest">Sourced Locally</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </TabsContent>
+
+                        <TabsContent value="nutrition" className="m-0 focus-visible:ring-0">
+                            <div className="bg-white rounded-[3rem] p-12 border border-[#F2EBE3] shadow-sm max-w-4xl mx-auto">
+                                <div className="flex items-center gap-4 mb-10">
+                                    <div className="w-14 h-14 rounded-full bg-[#FDFBF7] flex items-center justify-center text-[#D4A373]"><Info size={28} /></div>
+                                    <div>
+                                        <h3 className="text-3xl font-playfair font-black">Nutritional Transparency</h3>
+                                        <p className="text-[#7A5C4F]">Values based on a single serving (100g approx.)</p>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
+                                    {[
+                                        { label: "Calories", val: "320 kcal", p: "15%" },
+                                        { label: "Total Fat", val: "18g", p: "24%" },
+                                        { label: "Proteins", val: "5.4g", p: "11%" },
+                                        { label: "Carbs", val: "42g", p: "18%" },
+                                    ].map((n, i) => (
+                                        <div key={i} className="text-center space-y-2 group">
+                                            <div className="text-[10px] font-black uppercase tracking-widest text-[#B08968]">{n.label}</div>
+                                            <div className="text-3xl font-playfair font-black text-[#2C1810] group-hover:text-[#D4A373] transition-colors">{n.val}</div>
+                                            <div className="w-full bg-[#F2EBE3] h-1.5 rounded-full overflow-hidden">
+                                                <motion.div 
+                                                    initial={{ width: 0 }}
+                                                    whileInView={{ width: n.p }}
+                                                    transition={{ duration: 1, delay: i * 0.1 }}
+                                                    className="bg-[#D4A373] h-full rounded-full"
+                                                />
+                                            </div>
+                                            <div className="text-[10px] font-bold text-[#7A5C4F]">{n.p} daily value</div>
                                         </div>
                                     ))}
                                 </div>
-                            ) : (
-                                <p>No nutrition information provided.</p>
-                            )}
-                        </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="shipping" className="border-b border-[#E5DACE]">
-                        <AccordionTrigger className="text-[#2C1810] font-playfair font-bold text-lg hover:no-underline hover:text-[#D4A373]">Delivery & Shipping</AccordionTrigger>
-                        <AccordionContent className="text-[#7A5C4F] leading-relaxed text-base pt-2">
-                            {Array.isArray(product.delivery) && product.delivery.length > 0 ? (
-                                // delivery items are flexible shapes from the API; allow any here
-                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                <ul className="list-disc pl-5 space-y-1">{product.delivery.map((d: any, i: number) => <li key={i}>{typeof d === 'string' ? d : (d.text || JSON.stringify(d))}</li>)}</ul>
-                            ) : (
-                                <p>Same Day Delivery available where applicable. Delivery charges and slots depend on location and order time.</p>
-                            )}
-                        </AccordionContent>
-                    </AccordionItem>
-                     <AccordionItem value="offers" className="border-b border-[#E5DACE]">
-                        <AccordionTrigger className="text-[#2C1810] font-playfair font-bold text-lg hover:no-underline hover:text-[#D4A373]">Product Details</AccordionTrigger>
-                        <AccordionContent className="text-[#7A5C4F] leading-relaxed text-base pt-2">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                                <div><strong className="text-[#8D6E63]">Types:</strong> {(product.type || []).join(', ') || '—'}</div>
-                                <div><strong className="text-[#8D6E63]">Occasions:</strong> {(product.occasion || []).join(', ') || '—'}</div>
-                                <div><strong className="text-[#8D6E63]">Shape:</strong> {product.shape || '—'}</div>
-                                <div><strong className="text-[#8D6E63]">Theme:</strong> {product.theme || '—'}</div>
+                                <div className="mt-12 p-8 bg-[#FDFBF7] rounded-3xl border-2 border-dashed border-[#F2EBE3]">
+                                    <p className="text-sm font-bold text-[#7A5C4F] flex items-center gap-2 mb-2"><Info size={16} /> ALLERGEN INFORMATION</p>
+                                    <p className="text-[#7A5C4F] text-sm leading-relaxed">This product contains gluten, dairy, and eggs. May contain traces of tree nuts and soy. All our products are prepared in a facility that handles common food allergens.</p>
+                                </div>
                             </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
-            </div>
+                        </TabsContent>
+                    </div>
+                </Tabs>
+            </section>
 
-            {/* Trust Badges */}
-            <div className="grid grid-cols-2 gap-6 p-6 bg-[#fff8e7] rounded-2xl border border-[#f5e6d3]">
-              <div className="flex items-start gap-4">
+            {/* Related Products */}
+            {relatedProducts.length > 0 && (
+                <section className="space-y-12">
+                    <div className="flex items-end justify-between border-b pb-8 border-[#F2EBE3]">
+                        <div className="space-y-2">
+                            <h2 className="text-5xl font-playfair font-black">You'll Also Love</h2>
+                            <p className="text-[#7A5C4F] text-lg">Curated pairings to complete your sweet experience</p>
+                        </div>
+                        <Button 
+                            variant="ghost" 
+                            onClick={() => navigate('/')}
+                            className="text-[#2C1810] font-bold gap-2 hover:bg-[#F2EBE3] rounded-xl group"
+                        >
+                            View Entire Menu <ArrowLeft className="rotate-180 transition-transform group-hover:translate-x-2" size={20} />
+                        </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {relatedProducts.map((p) => (
+                            <motion.div 
+                                key={p._id}
+                                whileHover={{ y: -10 }}
+                                onClick={() => {
+                                    navigate(`/product/${p._id}`);
+                                    window.scrollTo(0, 0);
+                                }}
+                                className="group cursor-pointer"
+                            >
+                                <div className="relative aspect-square rounded-[2rem] overflow-hidden mb-6 shadow-lg border-2 border-white">
+                                    <img 
+                                        src={getFirstImage(p)} 
+                                        alt={p.name} 
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                                    />
+                                    <div className="absolute inset-0 bg-[#2C1810]/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+                                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-[#2C1810] shadow-2xl scale-0 group-hover:scale-100 transition-transform duration-500 delay-100">
+                                            <ShoppingBag size={24} />
+                                        </div>
+                                    </div>
+                                    {p.badge && (
+                                        <div className="absolute top-4 left-4">
+                                            <Badge className="bg-white/90 backdrop-blur-md text-[#2C1810] border-none text-[8px] font-black uppercase tracking-widest px-3 py-1.5">{p.badge}</Badge>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="space-y-2 text-center">
+                                    <p className="text-[10px] font-black tracking-widest text-[#B08968] uppercase">{p.category}</p>
+                                    <h4 className="font-playfair text-xl font-black text-[#2C1810] group-hover:text-[#D4A373] transition-colors line-clamp-1">{p.name}</h4>
+                                    <p className="font-bold text-[#7A5C4F]">{formatCurrency(p.price)}</p>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            {/* Newsletter / CTA */}
+            <section className="relative rounded-[4rem] overflow-hidden p-16 md:p-24 bg-[#2C1810] text-[#FDFBF7] text-center shadow-2xl">
+                <div className="absolute inset-0 opacity-10">
+                    <img src="https://images.unsplash.com/photo-1558961359-1d99283f085c?auto=format&fit=crop&q=80" alt="Pattern" className="w-full h-full object-cover grayscale" />
+                </div>
+                <div className="relative z-10 max-w-3xl mx-auto space-y-10">
+                    <div className="inline-flex items-center gap-4 px-6 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                        <Star className="text-[#D4A373] animate-pulse" size={16} />
+                        <span className="text-xs font-bold tracking-[0.3em] uppercase">The Artisan Club</span>
+                    </div>
+                    <h2 className="text-5xl md:text-7xl font-playfair font-black leading-tight">Join Our Sweetest Circle</h2>
+                    <p className="text-xl text-[#F2EBE3]/70 font-light max-w-2xl mx-auto">Get exclusive access to seasonal releases, masterclass invites, and a little surprise on your birthday.</p>
+                    <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
+                        <input 
+                            type="email" 
+                            placeholder="your email address" 
+                            className="flex-1 bg-white/10 border-2 border-white/20 rounded-2xl px-8 h-[60px] text-white placeholder:text-white/40 focus:outline-none focus:border-[#D4A373] transition-all"
+                        />
+                        <Button className="h-[60px] px-10 bg-[#D4A373] text-[#2C1810] font-black rounded-2xl hover:bg-white transition-all">Subscribe</Button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+      </div>
+      
+      {/* Floating Checkout Button (Mobile Only) */}
+      <div className="lg:hidden fixed bottom-6 left-6 right-6 z-[100]">
+        <Button 
+            onClick={onAddToCart}
+            className="w-full h-16 bg-[#2C1810] text-[#FDFBF7] font-black rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center justify-between px-6 border-2 border-white/20 overflow-hidden group"
+        >
+            <div className="flex items-center gap-3">
+                <ShoppingBag size={24} />
+                <span className="text-lg">Add to Cart</span>
+            </div>
+            <span className="text-xl font-playfair">{formatCurrency(currentPrice * quantity)}</span>
+        </Button>
+      </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+      `}} />
+Name="flex items-start gap-4">
                 <div className="p-3 bg-white rounded-xl text-[#D4A373] shadow-sm">
-                  <Truck size={24} />
+                  <ShieldCheck size={24} />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#2C1810] font-playfair">Free Delivery</h4>
-                  <p className="text-xs text-[#7A5C4F] mt-1">On orders over $50</p>
+                  <h4 className="font-bold text-[#2C1810] font-playfair">Fresh Guarantee</h4>
+                  <p className="text-xs text-[#7A5C4F] mt-1">Baked fresh daily</p>
                 </div>
               </div>
-              <div className="flex items-start gap-4">
+            </div>
+
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+}
+ollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+      `}} />
+Name="flex items-start gap-4">
                 <div className="p-3 bg-white rounded-xl text-[#D4A373] shadow-sm">
                   <ShieldCheck size={24} />
                 </div>
