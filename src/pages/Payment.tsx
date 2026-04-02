@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -14,7 +14,13 @@ const Payment = () => {
   const cartItems = useAppSelector((state) => state.cart.items);
   const { isAuthenticated } = useAppSelector((state: RootState) => state.auth);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"upi" | "card" | "netbanking" | "cod">("upi");
+  // allow dynamic payment mode names from API
+  const [paymentMethod, setPaymentMethod] = useState<string>("");
+
+  // fetched payment modes
+  type PaymentMode = { id?: string; name: string; isActive?: boolean };
+  const [paymentModes, setPaymentModes] = useState<PaymentMode[]>([]);
+  const [loadingPaymentModes, setLoadingPaymentModes] = useState(false);
 
   const draft = getCheckoutDraft();
 
@@ -60,7 +66,8 @@ const Payment = () => {
         deliveryType: draft.deliveryType,
         deliveryAddress: draft.deliveryAddress,
         instructions: draft.instructions,
-        paymentMethod: paymentMethod,
+        // backend expects specific payment method value; cast to any to allow dynamic values
+        paymentMethod: paymentMethod as any,
       });
 
       dispatch(clearCart());
@@ -74,6 +81,32 @@ const Payment = () => {
       setIsProcessing(false);
     }
   };
+
+  useEffect(() => {
+    let mounted = true;
+    setLoadingPaymentModes(true);
+    fetch('/api/payment-modes')
+      .then(async (res) => {
+        const json = await res.json();
+        const raw = Array.isArray(json) ? json : (json && (json.data || json)) ? (json.data || json) : [];
+        const normalized = (raw || []).map((m: unknown) => {
+          const mm = m as { _id?: string; id?: string; name?: string; isActive?: boolean };
+          return { id: mm._id || mm.id, name: mm.name || '', isActive: mm.isActive !== false };
+        });
+        const active = normalized.filter((m) => m.isActive);
+        if (!mounted) return;
+        setPaymentModes(active);
+        // default to first active mode if none selected
+        if (active.length) setPaymentMethod((prev) => prev || active[0].name);
+      })
+      .catch((err) => {
+        console.error('Failed to load payment modes', err);
+      })
+      .finally(() => {
+        if (mounted) setLoadingPaymentModes(false);
+      });
+    return () => { mounted = false; };
+  }, []);
 
   if (!draft) {
     return (
@@ -100,30 +133,19 @@ const Payment = () => {
           <p className="text-sm text-[#8D6E63]">Choose payment method and confirm. Order will be placed only after payment.</p>
 
           <div className="space-y-3">
-            <button
-              onClick={() => setPaymentMethod("upi")}
-              className={`w-full text-left border rounded-xl px-4 py-3 ${paymentMethod === "upi" ? "border-[#2C1810] bg-[#F5ECD7]" : "border-[#D4A373]"}`}
-            >
-              UPI
-            </button>
-            <button
-              onClick={() => setPaymentMethod("card")}
-              className={`w-full text-left border rounded-xl px-4 py-3 ${paymentMethod === "card" ? "border-[#2C1810] bg-[#F5ECD7]" : "border-[#D4A373]"}`}
-            >
-              Card
-            </button>
-            <button
-              onClick={() => setPaymentMethod("netbanking")}
-              className={`w-full text-left border rounded-xl px-4 py-3 ${paymentMethod === "netbanking" ? "border-[#2C1810] bg-[#F5ECD7]" : "border-[#D4A373]"}`}
-            >
-              Net Banking
-            </button>
-            <button
-              onClick={() => setPaymentMethod("cod")}
-              className={`w-full text-left border rounded-xl px-4 py-3 ${paymentMethod === "cod" ? "border-[#2C1810] bg-[#F5ECD7]" : "border-[#D4A373]"}`}
-            >
-              Cash on Delivery
-            </button>
+            {loadingPaymentModes && <div className="text-sm text-[#8D6E63]">Loading payment options…</div>}
+            {!loadingPaymentModes && paymentModes.length === 0 && (
+              <div className="text-sm text-[#8D6E63]">No payment options available.</div>
+            )}
+            {!loadingPaymentModes && paymentModes.map((pm) => (
+              <button
+                key={pm.id || pm.name}
+                onClick={() => setPaymentMethod(pm.name)}
+                className={`w-full text-left border rounded-xl px-4 py-3 ${paymentMethod === pm.name ? "border-[#2C1810] bg-[#F5ECD7]" : "border-[#D4A373]"}`}
+              >
+                {pm.name}
+              </button>
+            ))}
           </div>
 
           <div className="text-sm text-[#2C1810] space-y-1 border-t border-dashed border-[#D4A373] pt-4">

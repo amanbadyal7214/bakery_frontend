@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Mail, Lock, CheckCircle2 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../store/slices/authSlice";
+import { useToast } from '@/hooks/use-toast';
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -10,6 +11,15 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { toast } = useToast();
+
+  // Forgot-password modal state
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [fpEmail, setFpEmail] = useState("");
+  const [fpOtp, setFpOtp] = useState("");
+  const [fpNewPassword, setFpNewPassword] = useState("");
+  const [fpStage, setFpStage] = useState<'request' | 'verify' | 'reset'>('request');
+  const [fpLoading, setFpLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,10 +47,80 @@ export default function Login() {
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("user", JSON.stringify(data.customer));
       navigate("/");
-    } catch (error: any) {
-      alert(error.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({ title: 'Sign in failed', description: message });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // --- Forgot password modal actions ---
+  const openForgotModal = () => {
+    setFpEmail("");
+    setFpOtp("");
+    setFpNewPassword("");
+    setFpStage('request');
+    setShowForgotModal(true);
+  };
+
+  const sendResetOtp = async () => {
+    setFpLoading(true);
+    try {
+      const res = await fetch('https://bakery-bakend.onrender.com/api/customers/send-reset-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: fpEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed to send OTP');
+      setFpStage('verify');
+      toast({ title: 'OTP sent', description: 'Check your email for the one-time code.' });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast({ title: 'Failed to send OTP', description: message });
+    } finally {
+      setFpLoading(false);
+    }
+  };
+
+  const verifyResetOtp = async () => {
+    setFpLoading(true);
+    try {
+      const res = await fetch('https://bakery-bakend.onrender.com/api/customers/verify-reset-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: fpEmail, otp: fpOtp }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed to verify OTP');
+      setFpStage('reset');
+      toast({ title: 'OTP verified', description: 'You may now set a new password.' });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast({ title: 'OTP verification failed', description: message });
+    } finally {
+      setFpLoading(false);
+    }
+  };
+
+  const resetPassword = async () => {
+    setFpLoading(true);
+    try {
+      const res = await fetch('https://bakery-bakend.onrender.com/api/customers/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: fpEmail, otp: fpOtp, newPassword: fpNewPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed to reset password');
+      toast({ title: 'Password reset', description: 'Password updated. You can sign in with the new password.' });
+      setShowForgotModal(false);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast({ title: 'Password reset failed', description: message });
+    } finally {
+      setFpLoading(false);
     }
   };
 
@@ -179,6 +259,7 @@ export default function Login() {
               <button 
                 type="button" 
                 className="text-sm font-semibold text-[#1A2744] hover:text-[#D4A373] transition-colors"
+                onClick={openForgotModal}
               >
                 Forgot password?
               </button>
@@ -211,6 +292,52 @@ export default function Login() {
 
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowForgotModal(false)} />
+          <div className="relative bg-white w-full max-w-md mx-4 rounded-2xl p-6 z-10 shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Reset password</h3>
+              <button onClick={() => setShowForgotModal(false)} className="text-sm text-gray-500">Close</button>
+            </div>
+
+            {fpStage === 'request' && (
+              <>
+                <p className="text-sm text-gray-600 mb-3">Enter your email to receive a reset OTP.</p>
+                <input type="email" value={fpEmail} onChange={(e) => setFpEmail(e.target.value)} placeholder="Email" className="w-full mb-3 px-3 py-2 border rounded" />
+                <div className="flex gap-2">
+                  <button onClick={sendResetOtp} disabled={fpLoading || !fpEmail} className="flex-1 bg-[#1A2744] text-white py-2 rounded">{fpLoading ? 'Sending...' : 'Send OTP'}</button>
+                  <button onClick={() => setShowForgotModal(false)} className="flex-1 border rounded">Cancel</button>
+                </div>
+              </>
+            )}
+
+            {fpStage === 'verify' && (
+              <>
+                <p className="text-sm text-gray-600 mb-3">Enter the OTP sent to your email.</p>
+                <input type="text" value={fpOtp} onChange={(e) => setFpOtp(e.target.value)} placeholder="6-digit OTP" className="w-full mb-3 px-3 py-2 border rounded" />
+                <div className="flex gap-2">
+                  <button onClick={verifyResetOtp} disabled={fpLoading || !fpOtp} className="flex-1 bg-[#1A2744] text-white py-2 rounded">{fpLoading ? 'Verifying...' : 'Verify OTP'}</button>
+                  <button onClick={sendResetOtp} disabled={fpLoading} className="flex-1 border rounded">Resend</button>
+                </div>
+              </>
+            )}
+
+            {fpStage === 'reset' && (
+              <>
+                <p className="text-sm text-gray-600 mb-3">Set a new password for your account.</p>
+                <input type="password" value={fpNewPassword} onChange={(e) => setFpNewPassword(e.target.value)} placeholder="New password" className="w-full mb-3 px-3 py-2 border rounded" />
+                <div className="flex gap-2">
+                  <button onClick={resetPassword} disabled={fpLoading || !fpNewPassword} className="flex-1 bg-[#1A2744] text-white py-2 rounded">{fpLoading ? 'Saving...' : 'Save password'}</button>
+                  <button onClick={() => setShowForgotModal(false)} className="flex-1 border rounded">Close</button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

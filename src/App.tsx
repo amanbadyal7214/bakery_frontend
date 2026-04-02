@@ -17,8 +17,6 @@ const CustomizeOrder = lazy(() => import("./pages/CustomizeOrder"));
 const Payment = lazy(() => import("./pages/Payment"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
-
-
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();

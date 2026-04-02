@@ -8,6 +8,7 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import { ShoppingBag, Star, Filter, X, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom"; 
+import { useToast } from '@/hooks/use-toast';
 
 // derive categories dynamically from loaded products; include 'All' as first option
 // default fallback to common categories until products load
@@ -33,6 +34,7 @@ export default function Menu() {
   const { handleAddToCart } = useProductActions();
   const navigate = useNavigate();
   const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated); 
+  const { toast } = useToast();
 
   // products loaded from backend API (replace demo import)
   const [products, setProducts] = useState<any[]>([]);
@@ -359,7 +361,20 @@ export default function Menu() {
                 const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage));
                 const start = (currentPage - 1) * itemsPerPage;
                 const pagedProducts = filteredProducts.slice(start, start + itemsPerPage);
-                return pagedProducts.map((p) => (
+                return pagedProducts.map((p) => {
+                  // determine stock availability from common field names
+                  const inStock = (() => {
+                    if (!p) return false;
+                    if (typeof p.stock === 'number') return p.stock > 0;
+                    if (typeof p.quantity === 'number') return p.quantity > 0;
+                    if (typeof p.available === 'boolean') return p.available === true;
+                    // fallback: if there's an inventory field
+                    if (typeof p.inventory === 'number') return p.inventory > 0;
+                    // if no clear field, assume available
+                    return true;
+                  })();
+
+                   return (
                    <motion.article key={p.id}
                      layout
                      variants={item}
@@ -482,27 +497,34 @@ export default function Menu() {
                           onClick={(e) => {
                             e.stopPropagation();
                             if (!isAuthenticated) {
-                              alert('Please login first to add items to cart');
+                              toast({ title: 'Login required', description: 'Please sign in to add items to cart.' });
                               navigate('/login');
+                              return;
+                            }
+                            if (!inStock) {
+                              toast({ title: 'Out of stock', description: 'This item is currently unavailable.' });
                               return;
                             }
                             void handleAddToCart(p, 1, isAuthenticated);
                           }}
-                          disabled={!isAuthenticated}
+                          disabled={!isAuthenticated || !inStock}
                           className={`w-full font-bold py-3 rounded-xl transition-colors text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 group/btn ${
-                            isAuthenticated
-                              ? 'bg-[#D4A373] text-[#2C1810] hover:bg-[#F5ECD7]'
-                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            !isAuthenticated
+                              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                              : !inStock
+                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                : 'bg-[#D4A373] text-[#2C1810] hover:bg-[#F5ECD7]'
                           }`}
                         >
-                          {isAuthenticated ? 'Add to Cart' : 'Login to Order'} <ShoppingBag size={16} className="group-hover/btn:scale-110 transition-transform" />
+                          { !inStock ? 'Out of stock' : (isAuthenticated ? 'Add to Cart' : 'Login to Order') } <ShoppingBag size={16} className="group-hover/btn:scale-110 transition-transform" />
                         </button>
                       </div>
                     </div>
                   </div>
                 </motion.article>
-                ));
-              })()}
+                );
+              });
+            })()}
               </AnimatePresence>
             </motion.div>
             
