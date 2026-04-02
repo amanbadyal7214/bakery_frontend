@@ -27,7 +27,7 @@ export default function Register() {
     }
     setSendingOtp(true);
     try {
-      const response = await fetch("https://bakery-bakend.onrender.com/api/customers/send-otp", {
+      const response = await fetch("http://localhost:5000/api/customers/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -56,7 +56,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://bakery-bakend.onrender.com/api/customers/register", {
+      const response = await fetch("http://localhost:5000/api/customers/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

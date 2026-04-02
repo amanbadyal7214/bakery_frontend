@@ -8,7 +8,7 @@ export default function TestimonialsSection() {
 
   useEffect(() => {
     let mounted = true;
-    const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || 'https://bakery-bakend.onrender.com';
+    const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || 'http://localhost:5000';
     fetch(`${apiBase}/api/contacts/testimonials`)
       .then((res) => {
         if (!res.ok) throw new Error('Network response was not ok');

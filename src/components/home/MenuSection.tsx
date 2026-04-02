@@ -23,7 +23,7 @@ export default function MenuSection() {
     const load = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`https://bakery-bakend.onrender.com/api/products?limit=8`, { signal: controller.signal });
+        const res = await fetch(`http://localhost:5000/api/products?limit=8`, { signal: controller.signal });
         if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
         const json = await res.json();
         console.log('MenuSection API response:', json);
@@ -211,20 +211,34 @@ export default function MenuSection() {
                       </span>
                     </div>
 
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (!isAuthenticated) {
-                          alert('Please login first to add items to cart');
-                          navigate('/login');
-                          return;
-                        }
-                        void handleAddToCart(p, 1, isAuthenticated);
-                      }}
-                      className="w-full bg-white text-[#2C1810] font-bold py-2.5 text-sm rounded-full hover:bg-[#D4A373] hover:text-[#2C1810] transition-colors shadow-lg active:scale-95 duration-200"
-                    >
-                      Add to Order
-                    </button>
+                    {/* Add / Out of Stock button */}
+                    {(() => {
+                      const outOfStock = typeof (p as any).stock === 'number' ? Number((p as any).stock) <= 0 : false;
+                      const disabled = outOfStock || !isAuthenticated;
+                      const label = outOfStock ? 'Out of Stock' : (isAuthenticated ? 'Add to Order' : 'Login to Order');
+                      const btnClass = disabled
+                        ? 'w-full bg-gray-300 text-gray-600 font-bold py-2.5 text-sm rounded-full transition-colors shadow-none cursor-not-allowed'
+                        : 'w-full bg-white text-[#2C1810] font-bold py-2.5 text-sm rounded-full hover:bg-[#D4A373] hover:text-[#2C1810] transition-colors shadow-lg active:scale-95 duration-200';
+
+                      return (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (!isAuthenticated) {
+                              alert('Please login first to add items to cart');
+                              navigate('/login');
+                              return;
+                            }
+                            if (outOfStock) return;
+                            void handleAddToCart(p, 1, isAuthenticated);
+                          }}
+                          disabled={disabled}
+                          className={btnClass}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })()}
                   </div>
                 </div>
               </Link>

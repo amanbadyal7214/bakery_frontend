@@ -57,7 +57,8 @@ export const useProductActions = () => {
     const rawPrice = Number(record.price);
     const safePrice = Number.isFinite(rawPrice) ? rawPrice : 0;
     const rawStock = Number(record.stock);
-    const safeStock = Number.isFinite(rawStock) && rawStock > 0 ? rawStock : 10;
+    // Preserve actual numeric stock including zero so frontend can render out-of-stock state
+    const safeStock = Number.isFinite(rawStock) ? rawStock : 10;
 
     return {
       id: String(rawId),
@@ -95,6 +96,12 @@ export const useProductActions = () => {
 
     const cartProduct = toCartProduct(product);
     if (!cartProduct) return;
+
+    // Prevent adding out-of-stock items on client
+    if (Number(cartProduct.stock) <= 0) {
+      alert(`Product "${cartProduct.name}" is currently out of stock`);
+      return;
+    }
 
     const token = localStorage.getItem("token");
     const normalizedQuantity = Math.max(1, Math.floor(Number(quantity) || 1));

@@ -117,6 +117,13 @@ const CartSheet = () => {
     };
 
     const handlePayNow = () => {
+        // Prevent checkout if any item is out of stock or quantity exceeds available stock
+        const stockProblem = cartItems.some(it => typeof it.stock === 'number' && (it.stock <= 0 || it.quantity > it.stock));
+        if (stockProblem) {
+            alert('Some items are out of stock or exceed available quantity. Please update your cart before placing the order.');
+            return;
+        }
+
         if (!isAuthenticated) {
             alert("Please login first to place order.");
             return;
@@ -279,6 +286,10 @@ const CartSheet = () => {
                                                 const price = Number(item.price) || 0;
                                                 const lineTotal = price * item.quantity;
 
+                                                const availableStock = typeof item.stock === 'number' ? Number(item.stock) : Infinity;
+                                                const outOfStock = typeof item.stock === 'number' ? availableStock <= 0 : false;
+                                                const canIncrease = !outOfStock && item.quantity < availableStock;
+
                                                 return (
                                                     <div key={item.id} className="text-xs text-[#2C1810]">
                                                         {/* Item Row */}
@@ -286,7 +297,7 @@ const CartSheet = () => {
                                                             <div className="w-8">{item.quantity}</div>
                                                             <div className="flex-1 px-2">
                                                                 <div className="font-semibold">{item.name}</div>
-                                                                <div className="text-[10px] text-[#666]">{item.category}</div>
+                                                                <div className="text-[10px] text-[#666]">{item.category} {typeof item.stock === 'number' && (<span className="ml-2 text-[10px] font-medium">• Stock: {availableStock}</span>)}</div>
                                                             </div>
                                                             <div className="w-16 text-right">${price.toFixed(2)}</div>
                                                             <div className="w-16 text-right font-bold">${lineTotal.toFixed(2)}</div>
@@ -303,9 +314,17 @@ const CartSheet = () => {
                                                             </button>
                                                             <span className="w-4 text-center text-xs font-bold">{item.quantity}</span>
                                                             <button
-                                                                onClick={() => void updateItemQuantity(item.id, item.quantity + 1)}
-                                                                className="p-1 hover:bg-[#F5ECD7] rounded transition-colors"
-                                                                title="Increase"
+                                                                onClick={() => {
+                                                                    if (!canIncrease) {
+                                                                        if (outOfStock) alert(`Product "${item.name}" is out of stock`);
+                                                                        else alert(`Only ${availableStock} unit(s) available for "${item.name}"`);
+                                                                        return;
+                                                                    }
+                                                                    void updateItemQuantity(item.id, item.quantity + 1);
+                                                                }}
+                                                                disabled={!canIncrease}
+                                                                className={`p-1 rounded transition-colors ${!canIncrease ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#F5ECD7]'}`}
+                                                                title={canIncrease ? 'Increase' : 'Cannot increase'}
                                                             >
                                                                 <Plus className="w-3 h-3" />
                                                             </button>
@@ -452,7 +471,7 @@ const CartSheet = () => {
                             <div className="border-t-2 border-[#2C1810] bg-[#F5ECD7] px-6 py-4 space-y-3 font-mono text-sm">
                                 <Button 
                                     onClick={handlePayNow}
-                                    disabled={cartItems.length === 0}
+                                    disabled={cartItems.length === 0 || cartItems.some(it => typeof it.stock === 'number' && (it.stock <= 0 || it.quantity > it.stock))}
                                     className="w-full bg-[#2C1810] text-[#F5ECD7] hover:bg-[#1f1008] font-bold py-3 text-sm tracking-wider uppercase"
                                 >
                                     Proceed to Payment
