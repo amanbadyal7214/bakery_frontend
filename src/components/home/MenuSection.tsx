@@ -34,7 +34,7 @@ export default function MenuSection() {
           console.warn('MenuSection unexpected API format — not using local fallback');
           setProducts([]);
         }
-        
+
       } catch (err) {
         console.warn('MenuSection fetch error:', err);
         if (mounted) setProducts([]);
@@ -137,7 +137,7 @@ export default function MenuSection() {
   return (
     <section id="menu" className="py-24 px-6">
       <div className="max-w-6xl mx-auto">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -151,7 +151,7 @@ export default function MenuSection() {
           </p>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           variants={container}
           initial="hidden"
           animate={loading ? "hidden" : "show"}
@@ -169,7 +169,7 @@ export default function MenuSection() {
               className="group relative h-[320px] rounded-2xl overflow-hidden shadow-xl cursor-pointer"
             >
               {/* Wrap the product card content with Link */}
-              <Link to={`/product/${getProdId(p)}`} className="block h-full w-full"> 
+              <Link to={`/product/${getProdId(p)}`} className="block h-full w-full">
                 {/* Full Background Image */}
                 <div className="absolute inset-0 w-full h-full">
                   <img
@@ -178,7 +178,7 @@ export default function MenuSection() {
                     src={imgMap[getProdId(p)] ?? p.img}
                   />
                 </div>
-                
+
                 {/* Gradient Overlay: Dark Bottom to Transparent Top */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a0f0a] via-[#3E2723]/60 to-transparent opacity-90" />
 
@@ -246,7 +246,7 @@ export default function MenuSection() {
           ))}
         </motion.div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}

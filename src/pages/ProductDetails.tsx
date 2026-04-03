@@ -344,7 +344,7 @@ export default function ProductDetails() {
                             <div className="space-y-1">
                                 <p className="text-[10px] font-black text-[#B08968] uppercase tracking-[0.3em]">Premium Collection</p>
                                 <div className="flex items-baseline gap-3">
-                                    <span className="text-6xl font-playfair font-black text-[#2C1810]">{formatCurrency(currentPrice)}</span>
+                                    <span className="text-2xl font-playfair font-black text-[#2C1810]">{formatCurrency(currentPrice)}</span>
                                 </div>
                             </div>
                         </div>
@@ -441,7 +441,7 @@ export default function ProductDetails() {
                 <div>
                   <p className="text-[10px] font-black text-[#7A5C4F] uppercase tracking-[0.3em] mb-4">One-time purchase</p>
                   <div className="flex items-baseline gap-4">
-                    <span className="text-5xl font-playfair font-black text-[#2C1810]">{formatCurrency(currentPrice)}</span>
+                    <span className="text-2xl font-playfair font-black text-[#2C1810]">{formatCurrency(currentPrice)}</span>
                   </div>
                   <p className="text-[11px] text-[#7A5C4F] mt-4 font-medium leading-relaxed">
                     FREE delivery where available — fastest delivery at checkout

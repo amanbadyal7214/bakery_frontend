@@ -44,7 +44,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
               Authorization: `Bearer ${token}`
             }
           });
-          
+
           if (response.ok) {
             const data = await response.json();
             // Update with fresh data from backend

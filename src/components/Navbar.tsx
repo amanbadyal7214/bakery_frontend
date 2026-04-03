@@ -9,12 +9,12 @@ import { products } from "./home/home-data";
 import logo from "../assets/logo.jpg";
 
 const navLinks = [
-  { label: "HOME",      id: "home",    path: null },
-  { label: "MENU",      id: "menu",    path: "/menu" },
-  { label: "ABOUT",     id: null,      path: "/about" },
-  { label: "CUSTOMIZE", id: null,      path: "/customize-order" },
-  { label: "GALLERY",   id: null,      path: "/gallery", section: "gallery" },
-  { label: "CONTACT",   id: null,      path: "/contact" },
+  { label: "HOME", id: "home", path: null },
+  { label: "MENU", id: "menu", path: "/menu" },
+  { label: "ABOUT", id: null, path: "/about" },
+  { label: "CUSTOMIZE", id: null, path: "/customize-order" },
+  { label: "GALLERY", id: null, path: "/gallery", section: "gallery" },
+  { label: "CONTACT", id: null, path: "/contact" },
 ];
 
 const trendingSearches = ["Birthday Cake", "Croissant", "Sourdough", "Chocolate Cookies", "Muffins"];
@@ -37,11 +37,11 @@ type Product = {
 };
 
 export default function Navbar() {
-  const [scrolled, setScrolled]           = useState(false);
-  const [menuOpen, setMenuOpen]           = useState(false);
-  const [active, setActive]               = useState("HOME");
-  const [searchQuery, setSearchQuery]     = useState("");
-  const [searchOpen, setSearchOpen]       = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [active, setActive] = useState("HOME");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -53,12 +53,12 @@ export default function Navbar() {
     try { return JSON.parse(localStorage.getItem("recentSearches") || "[]"); } catch { return []; }
   });
 
-  const searchRef  = useRef<HTMLDivElement>(null);
-  const inputRef   = useRef<HTMLInputElement>(null);
-  const navigate   = useNavigate();
-  const location   = useLocation();
+  const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const cartItems     = useSelector((state: RootState) => state.cart.items);
+  const cartItems = useSelector((state: RootState) => state.cart.items);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
 
@@ -121,7 +121,7 @@ export default function Navbar() {
     setLoadingSearch(true);
 
     const token = localStorage.getItem('token');
-    const headers: Record<string,string> = token ? { Authorization: `Bearer ${token}` } : {};
+    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
     // Build param strings
     const baseParams = new URLSearchParams({ q: debouncedQuery, limit: '6' });
@@ -152,14 +152,14 @@ export default function Navbar() {
             else if (Array.isArray(obj.products)) items = obj.products as unknown[];
             else if (Array.isArray(obj.results)) items = obj.results as unknown[];
           }
- 
-           // Some APIs return objects with pagination: { data: { items: [...] } }
+
+          // Some APIs return objects with pagination: { data: { items: [...] } }
           if (items.length === 0 && data && typeof data === 'object') {
             const obj = data as Record<string, unknown>;
             const maybe = obj.data ?? obj.items ?? obj.products ?? obj.results;
             if (Array.isArray(maybe)) items = maybe as unknown[];
           }
- 
+
           // If we found items, normalize and set
           if (items.length > 0) {
             const normalized = items.slice(0, 6).map(it => it as Product);
@@ -172,10 +172,10 @@ export default function Navbar() {
           // Abort or other error — continue to fallback attempts
           if ((err as { name?: string })?.name === 'AbortError') return;
           console.warn('Search endpoint failed, trying next:', err);
-           // continue to try next endpoint
-         }
-       }
- 
+          // continue to try next endpoint
+        }
+      }
+
       // Try to fetch the full product list (fallback to Menu's source) and filter client-side
       try {
         const resAll = await fetch('https://bakery-bakend.onrender.com/api/products?limit=100', { signal: ac.signal, headers });
@@ -189,20 +189,20 @@ export default function Navbar() {
             else if (Array.isArray(obj.items)) allItems = obj.items as unknown[];
             else if (Array.isArray(obj.products)) allItems = obj.products as unknown[];
           }
- 
+
           // Filter locally to match query and category
           const q = debouncedQuery.toLowerCase();
           const matched = allItems.filter(it => {
-             if (!it || typeof it !== 'object') return false;
-             const rec = it as Record<string, unknown>;
-             const name = String(rec.name ?? rec.title ?? '');
-             const cat = String(rec.category ?? '');
-             const flavor = (rec.flavor && typeof rec.flavor === 'string') ? String(rec.flavor) : '';
-             const matchesQuery = name.toLowerCase().includes(q) || cat.toLowerCase().includes(q) || flavor.toLowerCase().includes(q);
-             const matchesCategory = selectedCategory === 'All' ? true : (cat === selectedCategory || cat.toLowerCase() === selectedCategory.toLowerCase());
-             return matchesQuery && matchesCategory;
-           }).slice(0,6).map(i => i as Record<string, unknown>);
- 
+            if (!it || typeof it !== 'object') return false;
+            const rec = it as Record<string, unknown>;
+            const name = String(rec.name ?? rec.title ?? '');
+            const cat = String(rec.category ?? '');
+            const flavor = (rec.flavor && typeof rec.flavor === 'string') ? String(rec.flavor) : '';
+            const matchesQuery = name.toLowerCase().includes(q) || cat.toLowerCase().includes(q) || flavor.toLowerCase().includes(q);
+            const matchesCategory = selectedCategory === 'All' ? true : (cat === selectedCategory || cat.toLowerCase() === selectedCategory.toLowerCase());
+            return matchesQuery && matchesCategory;
+          }).slice(0, 6).map(i => i as Record<string, unknown>);
+
           setSuggestions(matched as Product[]);
           setActiveIndex(matched.length > 0 ? 0 : -1);
           setLoadingSearch(false);
@@ -212,15 +212,15 @@ export default function Navbar() {
         if ((e as { name?: string })?.name === 'AbortError') return;
         console.warn('Full product list fallback failed', e);
       }
- 
+
       // final fallback: empty
       setSuggestions([]);
       setActiveIndex(-1);
       setLoadingSearch(false);
-     })();
- 
-     return () => ac.abort();
-   }, [debouncedQuery, selectedCategory]);
+    })();
+
+    return () => ac.abort();
+  }, [debouncedQuery, selectedCategory]);
 
   // Reset active refs length when suggestions change
   useEffect(() => {
@@ -311,9 +311,8 @@ export default function Navbar() {
   const showDropdown = searchFocused;
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 font-hepta transition-all duration-500 ${
-      scrolled ? "shadow-md shadow-[#1A2744]/10" : ""
-    }`}>
+    <header className={`fixed top-0 left-0 right-0 z-50 font-hepta transition-all duration-500 ${scrolled ? "shadow-md shadow-[#1A2744]/10" : ""
+      }`}>
 
       {/* ═══ ROW 1: Logo + Search + Actions ═══ */}
       <div className={`bg-[#F5ECD7] transition-all duration-300 ${scrolled ? "py-2" : "py-3"} border-b border-[#D4A373]/20`}>
@@ -332,9 +331,8 @@ export default function Navbar() {
 
           {/* ── Search Bar ── */}
           <div ref={searchRef} className="flex-1 max-w-2xl relative hidden lg:block">
-            <div className={`flex items-stretch rounded-2xl overflow-visible transition-all duration-300 ${
-              searchFocused ? "shadow-[0_0_0_3px_#D4A373]" : "shadow-md hover:shadow-lg"
-            }`}>
+            <div className={`flex items-stretch rounded-2xl overflow-visible transition-all duration-300 ${searchFocused ? "shadow-[0_0_0_3px_#D4A373]" : "shadow-md hover:shadow-lg"
+              }`}>
               {/* Category Selector */}
               {/* <div className="relative">
                 <select
@@ -373,40 +371,40 @@ export default function Navbar() {
                 {loadingSearch && debouncedQuery.length > 0 && (
                   <div className="px-5 py-4 text-sm text-[#8D6E63]">Searching...</div>
                 )}
-                 {filteredProducts.length > 0 && (
-                   <div className="p-3">
-                     <p className="text-[0.65rem] font-bold tracking-widest text-[#8D6E63] uppercase px-2 mb-2">Products</p>
-                     {filteredProducts.map((p, idx) => {
-                       const prodId = String(p.id ?? p._id ?? '');
-                       const imgSrc = p.img ?? p.image ?? p.imgBase64 ?? '';
-                       return (
-                       <button
-                         key={prodId || idx}
-                         ref={(el) => (itemRefs.current[idx] = el)}
-                         onMouseEnter={() => setActiveIndex(idx)}
-                         onClick={() => { if (prodId) navigate(`/product/${prodId}`); setSearchFocused(false); setSearchQuery(""); }}
-                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors group text-left ${activeIndex === idx ? "bg-[#FAF6E6]" : "hover:bg-[#FAF6E6]"}`}
-                         aria-current={activeIndex === idx}
-                       >
-                         <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-[#F0E6D3]">
-                           <img src={imgSrc || '/placeholder.svg'} alt={String(p.name ?? '')} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
-                         </div>
-                         <div className="flex-1 min-w-0">
-                           <p className="text-sm font-semibold text-[#1A2744] truncate">{highlightMatch(String(p.name ?? ''))}</p>
-                           <p className="text-xs text-[#8D6E63]">{String(p.category ?? '')} • ⭐ {String(p.rating ?? '')}</p>
-                         </div>
-                         <div className="text-right shrink-0">
-                           <p className="text-sm font-bold text-[#3E2723]">${Number(p.price ?? 0).toFixed(2)}</p>
-                           {p.badge && <span className="text-[0.6rem] bg-[#D4A373]/20 text-[#8D6E63] px-1.5 py-0.5 rounded-full font-bold">{p.badge}</span>}
-                         </div>
-                       </button>
-                       );
-                     })}
-                     <button onClick={() => handleSearch(searchQuery)} className="w-full mt-1 py-2 text-xs font-bold text-[#D4A373] hover:text-[#3E2723] flex items-center justify-center gap-1 transition-colors">
-                       See all results for "{searchQuery}" <ArrowRight size={12} />
-                     </button>
-                   </div>
-                 )}
+                {filteredProducts.length > 0 && (
+                  <div className="p-3">
+                    <p className="text-[0.65rem] font-bold tracking-widest text-[#8D6E63] uppercase px-2 mb-2">Products</p>
+                    {filteredProducts.map((p, idx) => {
+                      const prodId = String(p.id ?? p._id ?? '');
+                      const imgSrc = p.img ?? p.image ?? p.imgBase64 ?? '';
+                      return (
+                        <button
+                          key={prodId || idx}
+                          ref={(el) => (itemRefs.current[idx] = el)}
+                          onMouseEnter={() => setActiveIndex(idx)}
+                          onClick={() => { if (prodId) navigate(`/product/${prodId}`); setSearchFocused(false); setSearchQuery(""); }}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors group text-left ${activeIndex === idx ? "bg-[#FAF6E6]" : "hover:bg-[#FAF6E6]"}`}
+                          aria-current={activeIndex === idx}
+                        >
+                          <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-[#F0E6D3]">
+                            <img src={imgSrc || '/placeholder.svg'} alt={String(p.name ?? '')} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-[#1A2744] truncate">{highlightMatch(String(p.name ?? ''))}</p>
+                            <p className="text-xs text-[#8D6E63]">{String(p.category ?? '')} • ⭐ {String(p.rating ?? '')}</p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="text-sm font-bold text-[#3E2723]">${Number(p.price ?? 0).toFixed(2)}</p>
+                            {p.badge && <span className="text-[0.6rem] bg-[#D4A373]/20 text-[#8D6E63] px-1.5 py-0.5 rounded-full font-bold">{p.badge}</span>}
+                          </div>
+                        </button>
+                      );
+                    })}
+                    <button onClick={() => handleSearch(searchQuery)} className="w-full mt-1 py-2 text-xs font-bold text-[#D4A373] hover:text-[#3E2723] flex items-center justify-center gap-1 transition-colors">
+                      See all results for "{searchQuery}" <ArrowRight size={12} />
+                    </button>
+                  </div>
+                )}
                 {searchQuery.trim().length > 0 && filteredProducts.length === 0 && (
                   <div className="px-5 py-6 text-center">
                     <div className="text-3xl mb-2">🔍</div>
@@ -504,11 +502,10 @@ export default function Navbar() {
           <nav className="flex items-center justify-center gap-1">
             {navLinks.map((link) => (
               <button key={link.label} onClick={() => scrollTo(link)}
-                className={`text-xs font-bold tracking-widest px-5 py-3.5 transition-all duration-200 border-b-2 whitespace-nowrap ${
-                  active === link.label
+                className={`text-xs font-bold tracking-widest px-5 py-3.5 transition-all duration-200 border-b-2 whitespace-nowrap ${active === link.label
                     ? "text-[#D4A373] border-[#D4A373] bg-white/10"
                     : "text-[#F5ECD7]/90 border-transparent hover:text-[#D4A373] hover:bg-white/10 hover:border-[#D4A373]/50"
-                }`}
+                  }`}
               >
                 {link.label}
               </button>
@@ -518,9 +515,8 @@ export default function Navbar() {
       </div>
 
       {/* ── Mobile Menu Overlay ── */}
-      <div className={`fixed inset-0 bg-[#F5ECD7] z-40 flex flex-col items-center justify-center transition-all duration-500 ${
-        menuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
-      }`}>
+      <div className={`fixed inset-0 bg-[#F5ECD7] z-40 flex flex-col items-center justify-center transition-all duration-500 ${menuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+        }`}>
         <nav className="flex flex-col items-center gap-8 text-center">
           {navLinks.map((link) => (
             <button key={link.label} onClick={() => scrollTo(link)}

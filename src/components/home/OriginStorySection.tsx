@@ -24,7 +24,7 @@ export default function OriginStorySection() {
         if (!mounted) return;
         if (data && data.ok && data.story) setOriginStory(data.story);
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => { if (mounted) setOriginLoading(false); });
 
     return () => { mounted = false; };

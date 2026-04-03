@@ -40,10 +40,10 @@ const scaleIn = {
 
 /* ─── Data ─── */
 const stats = [
-  { value: "40+",  label: "Years of Passion",  icon: "⏳" },
-  { value: "120+", label: "Unique Recipes",     icon: "📖" },
-  { value: "50K+", label: "Happy Customers",    icon: "❤️" },
-  { value: "4.9★", label: "Average Rating",     icon: "⭐" },
+  { value: "40+", label: "Years of Passion", icon: "⏳" },
+  { value: "120+", label: "Unique Recipes", icon: "📖" },
+  { value: "50K+", label: "Happy Customers", icon: "❤️" },
+  { value: "4.9★", label: "Average Rating", icon: "⭐" },
 ];
 
 const defaultValues = [
@@ -129,14 +129,14 @@ const team = [
 ];
 
 const milestones = [
-  { year: "2024", event: "Margaret opens Hangary? Sweet. in her home kitchen on Elm Street.", icon: "🏠",        iconColor: "#E11D48", iconBg: "#FFF1F2" },
-  { year: "1992", event: "First brick-and-mortar bakery opens. Queues form on opening day and never really stop.", icon: "🏬",       iconColor: "#D97706", iconBg: "#FFFBEB" },
-  { year: "1998", event: "James returns from Paris and introduces the artisan pastry program.", icon: "🥐",   iconColor: "#EA580C", iconBg: "#FFF7ED" },
-  { year: "2005", event: "Wins first 'Best Bakery' at the City Food Awards — the first of many.", icon: "🏆",      iconColor: "#CA8A04", iconBg: "#FEFCE8" },
-  { year: "2012", event: "Custom cake studio opens. Priya Sharma joins and redefines cake art.", icon: "🎂",        iconColor: "#DB2777", iconBg: "#FDF2F8" },
-  { year: "2018", event: "Online ordering launches. 10,000 orders fulfilled in the very first month.", icon: "📱",  iconColor: "#2563EB", iconBg: "#EFF6FF" },
-  { year: "2022", event: "50,000 happy customers milestone. Featured on national television.", icon: "📺",          iconColor: "#7C3AED", iconBg: "#F5F3FF" },
-  { year: "2024", event: "Second location opens and Hangary? Sweet. subscription boxes launch nationwide.", icon: "🚀",      iconColor: "#16A34A", iconBg: "#F0FDF4" },
+  { year: "2024", event: "Margaret opens Hangary? Sweet. in her home kitchen on Elm Street.", icon: "🏠", iconColor: "#E11D48", iconBg: "#FFF1F2" },
+  { year: "1992", event: "First brick-and-mortar bakery opens. Queues form on opening day and never really stop.", icon: "🏬", iconColor: "#D97706", iconBg: "#FFFBEB" },
+  { year: "1998", event: "James returns from Paris and introduces the artisan pastry program.", icon: "🥐", iconColor: "#EA580C", iconBg: "#FFF7ED" },
+  { year: "2005", event: "Wins first 'Best Bakery' at the City Food Awards — the first of many.", icon: "🏆", iconColor: "#CA8A04", iconBg: "#FEFCE8" },
+  { year: "2012", event: "Custom cake studio opens. Priya Sharma joins and redefines cake art.", icon: "🎂", iconColor: "#DB2777", iconBg: "#FDF2F8" },
+  { year: "2018", event: "Online ordering launches. 10,000 orders fulfilled in the very first month.", icon: "📱", iconColor: "#2563EB", iconBg: "#EFF6FF" },
+  { year: "2022", event: "50,000 happy customers milestone. Featured on national television.", icon: "📺", iconColor: "#7C3AED", iconBg: "#F5F3FF" },
+  { year: "2024", event: "Second location opens and Hangary? Sweet. subscription boxes launch nationwide.", icon: "🚀", iconColor: "#16A34A", iconBg: "#F0FDF4" },
 ];
 
 type Testimonial = { name?: string; text?: string; stars?: number; role?: string; avatar?: string; bg?: string };
@@ -149,9 +149,9 @@ const staticTestimonials: Testimonial[] = [
 
 export default function About() {
   const defaultVisitCards = [
-    { icon: <MapPin size={22} />, title: "Find Us",  lines: ["12 Market Street", "Old Town District", "City Centre, SW1 4AB"], iconBg: "bg-rose-100 text-rose-600",   border: "border-rose-100"  },
-    { icon: <Clock size={22} />,  title: "Hours",    lines: ["Mon–Fri: 7AM – 7PM", "Saturday: 7AM – 5PM", "Sunday: 8AM – 3PM"], iconBg: "bg-amber-100 text-amber-600", border: "border-amber-100" },
-    { icon: <Phone size={22} />,  title: "Contact",  lines: ["+1 (555) 123-4567", "hello@hangary-sweet.com", "@hangary_sweet"],          iconBg: "bg-blue-100 text-blue-600",   border: "border-blue-100"  },
+    { icon: <MapPin size={22} />, title: "Find Us", lines: ["12 Market Street", "Old Town District", "City Centre, SW1 4AB"], iconBg: "bg-rose-100 text-rose-600", border: "border-rose-100" },
+    { icon: <Clock size={22} />, title: "Hours", lines: ["Mon–Fri: 7AM – 7PM", "Saturday: 7AM – 5PM", "Sunday: 8AM – 3PM"], iconBg: "bg-amber-100 text-amber-600", border: "border-amber-100" },
+    { icon: <Phone size={22} />, title: "Contact", lines: ["+1 (555) 123-4567", "hello@hangary-sweet.com", "@hangary_sweet"], iconBg: "bg-blue-100 text-blue-600", border: "border-blue-100" },
   ];
 
   const [visitCards, setVisitCards] = useState(defaultVisitCards);
@@ -175,7 +175,7 @@ export default function About() {
           setVisitCards((prev) => prev.map((c) => {
             if (c.title === 'Find Us') {
               const addr = typeof (profile as any).address === 'string' ? (profile as any).address : null;
-              const parts = addr ? addr.split(/\r?\n|,\s*/) .filter(Boolean).slice(0, 3) : c.lines;
+              const parts = addr ? addr.split(/\r?\n|,\s*/).filter(Boolean).slice(0, 3) : c.lines;
               return { ...c, lines: parts };
             }
             if (c.title === 'Hours') {
@@ -236,8 +236,8 @@ export default function About() {
         const data = res?.data || {};
         if (Array.isArray(data.values) && data.values.length) setValuesState(data.values);
       })
-      .catch(() => {})
-      .finally(() => {});
+      .catch(() => { })
+      .finally(() => { });
     return () => { mounted = false; };
   }, []);
 
@@ -419,10 +419,10 @@ export default function About() {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border border-[#E8DDD3] rounded-3xl overflow-hidden shadow-lg"
           >
             {[
-              { time: "3:00 AM", action: "Bakers Arrive",  desc: "Ovens fired up, doughs shaped, sourdoughs scored by hand.", icon: Moon,         step: "01", iconColor: "#6366F1", iconBg: "#EEF2FF" },
-              { time: "5:00 AM", action: "First Bake",     desc: "Croissants, loaves, and rolls go into stone-deck ovens.",   icon: Thermometer,  step: "02", iconColor: "#EA580C", iconBg: "#FFF7ED" },
-              { time: "6:30 AM", action: "Quality Check",  desc: "Every item tasted, weighed, and inspected before display.", icon: BadgeCheck,   step: "03", iconColor: "#16A34A", iconBg: "#F0FDF4" },
-              { time: "7:00 AM", action: "Doors Open",     desc: "Fresh aroma fills the street. The queues form. Every day.", icon: DoorOpen,     step: "04", iconColor: "#D4A373", iconBg: "#FDF8F0" },
+              { time: "3:00 AM", action: "Bakers Arrive", desc: "Ovens fired up, doughs shaped, sourdoughs scored by hand.", icon: Moon, step: "01", iconColor: "#6366F1", iconBg: "#EEF2FF" },
+              { time: "5:00 AM", action: "First Bake", desc: "Croissants, loaves, and rolls go into stone-deck ovens.", icon: Thermometer, step: "02", iconColor: "#EA580C", iconBg: "#FFF7ED" },
+              { time: "6:30 AM", action: "Quality Check", desc: "Every item tasted, weighed, and inspected before display.", icon: BadgeCheck, step: "03", iconColor: "#16A34A", iconBg: "#F0FDF4" },
+              { time: "7:00 AM", action: "Doors Open", desc: "Fresh aroma fills the street. The queues form. Every day.", icon: DoorOpen, step: "04", iconColor: "#D4A373", iconBg: "#FDF8F0" },
             ].map((step, i) => (
               <motion.div key={step.step} variants={fadeUp}
                 className={`relative p-8 ${i % 2 === 0 ? "bg-white" : "bg-[#FAF6E6]"} group hover:bg-[#3E2723] transition-colors duration-500 ${i < 3 ? "border-r border-[#E8DDD3]" : ""}`}

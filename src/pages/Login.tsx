@@ -126,17 +126,17 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen bg-[#FAFAFA] font-inter">
-      
+
       {/* ── Left Side: Image Panel ── */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#1A2744]">
         {/* Background Image */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 hover:scale-105"
           style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?q=80&w=2000&auto=format&fit=crop")' }}
         />
         {/* Dark Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#1A2744]/90 via-[#1A2744]/40 to-transparent" />
-        
+
         {/* Decorative Elements */}
         <div className="absolute top-10 left-10 text-white/50 animate-spin-slow opacity-20">
           <svg width="100" height="100" viewBox="0 0 100 100"><path fill="currentColor" d="M50 0 L55 45 L100 50 L55 55 L50 100 L45 55 L0 50 L45 45 Z" /></svg>
@@ -147,7 +147,7 @@ export default function Login() {
           <div>
             <div className="w-16 h-1 bg-[#D4A373] mb-6 rounded-full" />
             <h2 className="font-playfair text-5xl font-bold leading-tight mb-4">
-              Taste the Magic of <br/>Freshly Baked Delights.
+              Taste the Magic of <br />Freshly Baked Delights.
             </h2>
             <p className="text-white/80 text-lg max-w-md font-light">
               Log in to your account to track your sweet orders, save your favorite pastries, and enjoy exclusive bakery rewards.
@@ -172,15 +172,15 @@ export default function Login() {
 
       {/* ── Right Side: Form Panel ── */}
       <div className="w-full lg:w-1/2 flex flex-col relative px-6 md:px-16 py-12 justify-center bg-white">
-        
+
         {/* Back Button */}
-        <Link 
-          to="/" 
+        <Link
+          to="/"
           className="absolute top-8 left-6 md:left-12 flex items-center gap-2 text-[#8D6E63] hover:text-[#1A2744] transition-colors text-sm font-semibold tracking-wide"
         >
           <ArrowLeft size={16} /> Home
         </Link>
-        
+
         <div className="max-w-md w-full mx-auto animate-fade-up">
 
           {/* Header */}
@@ -198,11 +198,11 @@ export default function Login() {
 
           {/* Form */}
           <form onSubmit={handleLogin} className="space-y-6">
-            
+
             {/* Email Field */}
             <div className="space-y-2 group">
-              <label 
-                htmlFor="email" 
+              <label
+                htmlFor="email"
                 className="text-xs font-bold text-[#1A2744] uppercase tracking-widest pl-1"
               >
                 Email Address
@@ -225,8 +225,8 @@ export default function Login() {
 
             {/* Password Field */}
             <div className="space-y-2 group">
-              <label 
-                htmlFor="password" 
+              <label
+                htmlFor="password"
                 className="text-xs font-bold text-[#1A2744] uppercase tracking-widest pl-1"
               >
                 Password
@@ -256,8 +256,8 @@ export default function Login() {
                 </div>
                 <span className="text-sm text-[#8D6E63] group-hover:text-[#1A2744] transition-colors">Remember me</span>
               </label>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="text-sm font-semibold text-[#1A2744] hover:text-[#D4A373] transition-colors"
                 onClick={openForgotModal}
               >

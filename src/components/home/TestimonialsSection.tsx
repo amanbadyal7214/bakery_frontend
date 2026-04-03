@@ -33,7 +33,7 @@ export default function TestimonialsSection() {
   return (
     <section id="testimonials" className="py-24 px-6 bg-[#FDF6EC]">
       <div className="max-w-6xl mx-auto">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
