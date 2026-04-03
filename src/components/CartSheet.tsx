@@ -491,7 +491,10 @@ const CartSheet = () => {
                             <div className="border-t-2 border-[#2C1810] bg-[#F5ECD7] px-6 py-4 space-y-3 font-mono text-sm">
                                 <Button 
                                     onClick={handlePayNow}
-                                    disabled={cartItems.length === 0 || cartItems.some(it => typeof it.stock === 'number' && (it.stock <= 0 || it.quantity > it.stock))}
+                                    disabled={cartItems.length === 0 || cartItems.some(it => {
+                                        const actualStk = getActualStock(it);
+                                        return typeof actualStk === 'number' && (actualStk <= 0 || it.quantity > actualStk);
+                                    })}
                                     className="w-full bg-[#2C1810] text-[#F5ECD7] hover:bg-[#1f1008] font-bold py-3 text-sm tracking-wider uppercase"
                                 >
                                     Proceed to Payment

@@ -19,7 +19,7 @@ function normalize<T>(res: any): T {
 
 export const api = {
   products: {
-    getAll: (): Promise<any[]> => axiosInstance.get('/products').then(res => normalize<any[]>(res)),
+    getAll: (params?: any): Promise<any[]> => axiosInstance.get('/products', { params }).then(res => normalize<any[]>(res)),
     getById: (id: string | number) => axiosInstance.get(`/products/${id}`).then(res => normalize(res)),
     create: (product: object) => axiosInstance.post('/products', product).then(res => normalize(res)),
     update: (id: string | number, product: object) => axiosInstance.put(`/products/${id}`, product).then(res => normalize(res)),

@@ -362,9 +362,13 @@ export default function Menu() {
                   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage));
                   const start = (currentPage - 1) * itemsPerPage;
                   const pagedProducts = filteredProducts.slice(start, start + itemsPerPage);
-                  return pagedProducts.map((p) => {
+                  return pagedProducts.map((p, pIndex) => {
                     // determine stock availability from variants first, then common field names
-                    const currentVariantStock = Array.isArray(p.variants) && p.variants.length > 0 ? Number(p.variants[0].stock) : Number(p.stock);
+                    let bestVariant: any = null;
+                    if (Array.isArray(p.variants) && p.variants.length > 0) {
+                        bestVariant = p.variants.find((v: any) => Number(v.stock) > 0) || p.variants[0];
+                    }
+                    const currentVariantStock = bestVariant ? Number(bestVariant.stock) : Number(p.stock);
                     const inStock = (() => {
                       if (!p) return false;
                       if (!Number.isNaN(currentVariantStock)) return currentVariantStock > 0;
@@ -377,7 +381,7 @@ export default function Menu() {
                     })();
 
                     return (
-                      <motion.article key={p.id}
+                      <motion.article key={p._id || p.id || `fallback-${pIndex}`}
                         layout
                         variants={item}
                         initial="hidden"
@@ -413,7 +417,7 @@ export default function Menu() {
                                         {p.badge}
                                       </span>
                                     )}
-                                    <h3 className="font-playfair text-2xl font-bold leading-tight group-hover:text-[#D4A373] transition-colors line-clamp-3">
+                                    <h3 className="font-playfair text-2xl font-bold leading-tight group-hover:text-[#D4A373] transition-colors line-clamp-1">
                                       {p.name}
                                     </h3>
                                   </div>
@@ -427,7 +431,7 @@ export default function Menu() {
                                   )}
                                 </div>
                                 <span className="bg-white/10 px-3 py-1 rounded-full text-md font-semibold backdrop-blur-sm border border-white/10">
-                                  ${p.price.toFixed(2)}
+                                  ${(bestVariant ? bestVariant.price : p.price).toFixed(2)}
                                 </span>
                               </div>
 
@@ -459,11 +463,11 @@ export default function Menu() {
                                     toast({ title: 'Out of stock', description: 'This item is currently unavailable.' });
                                     return;
                                   }
-                                  
-                                  const baseWeight = Array.isArray(p.weight) && p.weight.length > 0 ? p.weight[0] : (Array.isArray(p.variants) && p.variants.length > 0 ? p.variants[0].weight : 'Standard');
+
+                                  const baseWeight = bestVariant ? bestVariant.weight : (Array.isArray(p.weight) && p.weight.length > 0 ? p.weight[0] : 'Standard');
                                   const baseFlavor = Array.isArray(p.flavor) && p.flavor.length > 0 ? p.flavor[0] : (typeof p.flavor === 'string' ? p.flavor : 'Original');
-                                  const basePrice = Array.isArray(p.pricesByWeight) && p.pricesByWeight[0] !== undefined ? p.pricesByWeight[0] : p.price;
-                                  
+                                  const basePrice = bestVariant ? bestVariant.price : (Array.isArray(p.pricesByWeight) && p.pricesByWeight[0] !== undefined ? p.pricesByWeight[0] : p.price);
+
                                   const variantProductToAdd = {
                                     ...p,
                                     name: `${p.name} (${baseFlavor}, ${baseWeight})`,

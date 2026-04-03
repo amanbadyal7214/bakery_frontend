@@ -105,7 +105,7 @@ export default function ProductDetails() {
 
         Promise.all([
             api.products.getById(String(id)),
-            api.products.getAll()
+            api.products.getAll({ limit: 50 })
         ])
             .then(([p, allProducts]) => {
                 setProduct(p);
@@ -125,13 +125,23 @@ export default function ProductDetails() {
                         multiplier: w.includes('kg') ? 1.8 : 1
                     }));
                     setWeightOptions(parsed);
+
+                    // Choose first available variant
+                    const pAny = p as any;
+                    if (Array.isArray(pAny.variants) && pAny.variants.length > 0) {
+                        const availableVariantIndex = pAny.variants.findIndex((v: any) => Number(v.stock) > 0);
+                        if (availableVariantIndex !== -1) {
+                            setSelectedWeightIndex(availableVariantIndex);
+                        }
+                    }
                 }
 
                 // Related products
-                const related = allProducts
-                    .filter((item: any) => item._id !== id && item.category === p.category)
-                    .slice(0, 4);
-                setRelatedProducts(related);
+                let related = allProducts.filter((item: any) => item._id !== id && item.category === p.category);
+                if (related.length === 0) {
+                    related = allProducts.filter((item: any) => item._id !== id);
+                }
+                setRelatedProducts(related.slice(0, 4));
             })
             .catch((err) => {
                 console.error(err);
@@ -390,7 +400,7 @@ export default function ProductDetails() {
                                             <label className="text-xs font-black text-[#2C1810] uppercase tracking-widest flex items-center gap-3">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373]" /> Size & Portion
                                             </label>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                                 {weightOptions.map((opt, idx) => (
                                                     <button
                                                         key={idx}
@@ -468,7 +478,7 @@ export default function ProductDetails() {
                                     <label className="text-[10px] font-black text-[#2C1810] uppercase tracking-widest flex items-center gap-3">
                                         <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373]" /> Size
                                     </label>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-3 gap-3">
                                         {weightOptions.map((opt, idx) => {
                                             const optionPrice = Array.isArray(product.pricesByWeight) && product.pricesByWeight[idx] !== undefined
                                                 ? product.pricesByWeight[idx]
@@ -775,7 +785,7 @@ export default function ProductDetails() {
                         <section className="space-y-12">
                             <div className="flex items-end justify-between border-b pb-8 border-[#F2EBE3]">
                                 <div className="space-y-2">
-                                    <h2 className="text-2xl font-playfair font-black">You'll Also Love</h2>
+                                    <h2 className="text-2xl font-playfair font-black">Suggested Products</h2>
                                     <p className="text-[#7A5C4F] text-lg">Curated pairings to complete your sweet experience</p>
                                 </div>
                                 <Button
@@ -826,12 +836,12 @@ export default function ProductDetails() {
                         </section>
                     )}
 
-                   
+
 
                 </div>
             </div>
-                     {/* Footer */}
-                    <FooterSection />
+            {/* Footer */}
+            <FooterSection />
             {/* Floating Checkout Button (Mobile Only) */}
             <div className="lg:hidden fixed bottom-6 left-6 right-6 z-[100]">
                 <Button

@@ -1,5 +1,6 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart, setCartItems } from "@/store/slices/cartSlice";
+import { useToast } from "@/hooks/use-toast";
 import type { Product as CartProduct } from "@/types";
 import { addCartItem } from "@/services/cartApi";
 import cakeJpg from "../../assets/cake.jpg";
@@ -29,6 +30,8 @@ export interface Product {
 
 export const useProductActions = () => {
   const dispatch = useDispatch();
+  const cartItems = useSelector((state: any) => state.cart.items);
+  const { toast } = useToast();
 
   const resolveImage = (record: Record<string, unknown>): string => {
     const imageCandidates = [
@@ -89,7 +92,7 @@ export const useProductActions = () => {
   ) => {
     // Check if user is authenticated
     if (!isAuthenticated) {
-      alert('Please login first to add items to cart');
+      toast({ title: 'Login required', description: 'Please login first to add items to cart' });
       window.location.href = '/login';
       return;
     }
@@ -99,12 +102,19 @@ export const useProductActions = () => {
 
     // Prevent adding out-of-stock items on client
     if (Number(cartProduct.stock) <= 0) {
-      alert(`Product "${cartProduct.name}" is currently out of stock`);
+      toast({ title: 'Out of stock', description: `Product "${cartProduct.name}" is currently out of stock` });
       return;
     }
 
-    const token = localStorage.getItem("token");
+    // Local cart threshold prevention check
     const normalizedQuantity = Math.max(1, Math.floor(Number(quantity) || 1));
+    const findExisting = cartItems?.find((item: any) => item.id && item.id.toString() === cartProduct.id.toString() && item.name === cartProduct.name);
+    if (findExisting && (findExisting.quantity + normalizedQuantity > Number(cartProduct.stock))) {
+        toast({ title: 'Stock limit reached', description: `You cannot add ${normalizedQuantity} more units. You already have ${findExisting.quantity} of "${cartProduct.name}" in your cart, and only ${cartProduct.stock} are available!` });
+        return;
+    }
+
+    const token = localStorage.getItem("token");
     const isObjectId = /^[a-fA-F0-9]{24}$/.test(String(cartProduct.id));
 
     if (token && isObjectId) {
@@ -117,14 +127,10 @@ export const useProductActions = () => {
           price: cartProduct.price
         });
         dispatch(setCartItems(response.cart.items));
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to sync cart with server, using local fallback:", error);
-        dispatch(
-          addToCart({
-            product: cartProduct,
-            quantity: normalizedQuantity,
-          }),
-        );
+        toast({ title: 'Add failed', description: error.message || `Failed to add "${cartProduct.name}". Server negated the request.` });
+        return; // Halt local dispatch fallback to prevent unsynced overrides
       }
     } else {
       dispatch(
