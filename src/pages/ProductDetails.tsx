@@ -6,7 +6,8 @@ import Navbar from "@/components/Navbar";
 import { 
   ArrowLeft, Star, ShoppingBag, Truck, ShieldCheck, Heart, 
   Share2, Plus, Minus, Info, ClipboardList, Zap, Package,
-  ChefHat, Clock, Award, CheckCircle2, ChevronRight
+  ChefHat, Clock, Award, CheckCircle2, ChevronRight,
+  History, PackageCheck, Leaf
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -19,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { useSelector } from 'react-redux';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import FooterSection from "@/components/home/FooterSection";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -36,14 +38,9 @@ export default function ProductDetails() {
   const [selectedFlavor, setSelectedFlavor] = useState<string | null>(null);
   const [selectedWeightIndex, setSelectedWeightIndex] = useState(0);
 
-  const [flavors, setFlavors] = useState<string[]>([
-    "Classic Vanilla", "Rich Chocolate", "Red Velvet",
-  ]);
+  const [flavors, setFlavors] = useState<string[]>([]);
 
-  const [weightOptions, setWeightOptions] = useState<Array<{label:string; pack:string; multiplier:number}>>([
-    { label: "500 g", pack: "Serves 4-6", multiplier: 1 },
-    { label: "1 kg", pack: "Serves 8-10", multiplier: 1.8 },
-  ]);
+  const [weightOptions, setWeightOptions] = useState<Array<{label:string; pack:string; multiplier:number}>>([]);
 
   const getFirstImage = (prod: Record<string, any> | null): string => {
     if (!prod) return '/placeholder.svg';
@@ -238,7 +235,7 @@ export default function ProductDetails() {
         whileInView={{ scaleX: 1 }}
       />
 
-      <div className="pt-24 pb-20 px-4 md:px-8 max-w-[1440px] mx-auto">
+      <div className="pt-24  w-full">
         {/* Breadcrumbs & Back */}
         <div className="flex items-center gap-2 mb-10 text-sm text-[#7A5C4F]">
             <button onClick={() => navigate("/")} className="hover:text-[#2C1810] transition-colors">Home</button>
@@ -246,10 +243,10 @@ export default function ProductDetails() {
             <span className="text-[#D4A373] font-medium truncate max-w-[200px]">{product.name}</span>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-16">
           
           {/* LEFT COLUMN: Gallery */}
-          <div className="lg:col-span-7 space-y-8">
+          <div className="lg:col-span-5 space-y-8">
             <div className="sticky top-28">
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }}
@@ -309,8 +306,8 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Info */}
-          <div className="lg:col-span-5 flex flex-col">
+          {/* MIDDLE COLUMN: Info */}
+          <div className="lg:col-span-4 flex flex-col">
             <motion.div 
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -319,186 +316,197 @@ export default function ProductDetails() {
                 {/* Header Info */}
                 <div className="space-y-4">
                     <div className="flex items-center gap-4">
-                        <span className="px-4 py-1.5 bg-[#F2EBE3] text-[#7A5C4F] rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
-                            {product.category}
+                        <span className="px-4 py-1.5 bg-[#F2EBE3] text-[#7A5C4F] rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-sm">
+                            {product.category || "CAKE"}
                         </span>
-                        <div className="flex items-center gap-1.5 text-sm font-bold">
-                            <Star size={14} className="fi3l-[#FFD700] text-[#FFD700]" />
-                            <span>{product.rating || "5.0"}</span>
-                             <span className="text-gray-400 fomd-normal">Rating</span>
+                        <div className="flex items-center gap-1.5 text-sm font-bold text-[#D4A373]">
+                            <Star size={16} className="fill-[#D4A373] text-[#D4A373]" />
+                            <span className="text-[#2C1810]">{product.rating || "4.8"}</span>
+                            <span className="text-gray-400 font-medium ml-1">Rating</span>
                         </div>
                     </div>
 
-                    <h1 className="font-playfair text-2xl md:text-3xl font-black text-[#2C1810] leading-tight">
+                    <h1 className="font-playfair text-3xl md:text-3xl font-black text-[#2C1810] leading-tight tracking-tight">
                         {product.name}
                     </h1>
 
-                    <p className="text-lg text-[#7A5C4F] leading-relaxed font-light">
+                    <p className="text-md text-[#7A5C4F] leading-relaxed font-light max-w-xl">
                         {product.tasteDescription || product.description || "A masterfully crafted artisan creation, made with organic ingredients and baked fresh daily for an unparalleled sensory experience."}
                     </p>
                 </div>
 
-                {/* Price Section */}
-                <div className="p-8 bg-white rounded-[2.5rem] shadow-[0_15px_35px_rgba(44,24,16,0.05)] border border-[#F2EBE3]">
-                    <div className="flex items-center justify-between mb-8">
-                        <div className="space-y-1">
-                            <p className="text-xs font-bold text-[#D4A373] uppercase tracking-widest">Premium Collection</p>
-                            <div className="flex items-baseline gap-3">
-                                <span className="text-5xl font-playfair font-black">{formatCurrency(currentPrice * quantity)}</span>
-                                {quantity > 1 && <span className="text-[#7A5C4F] text-sm font-medium">({formatCurrency(currentPrice)} each)</span>}
+                {/* Variant Selection Card */}
+                <div className="p-10 bg-white rounded-[3rem] shadow-[0_30px_60px_rgba(44,24,16,0.08)] border border-[#F2EBE3] relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#FDFBF7] rounded-bl-[4rem] -mr-8 -mt-8 transition-transform group-hover:scale-110" />
+                    
+                    <div className="relative z-10 space-y-10">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                                <p className="text-[10px] font-black text-[#B08968] uppercase tracking-[0.3em]">Premium Collection</p>
+                                <div className="flex items-baseline gap-3">
+                                    <span className="text-6xl font-playfair font-black text-[#2C1810]">{formatCurrency(currentPrice)}</span>
+                                </div>
                             </div>
                         </div>
-                        <div className="hidden sm:flex flex-col items-end">
-                            <p className="text-[10px] font-bold text-[#7A5C4F] uppercase tracking-wider">Premium Bakery Choice</p>
-                        </div>
-                    </div>
 
-                    {/* Variant Selection */}
-                    <div className="space-y-6">
-                        {flavors.length > 0 && (
-                            <div className="space-y-3">
-                                <label className="text-sm font-bold text-[#2C1810] flex items-center gap-2">
-                                    <ChefHat size={16} className="text-[#D4A373]" /> Choice of Flavor
+                        {/* Variant Selection */}
+                        <div className="space-y-8">
+                            {flavors.length > 0 && (
+                                <div className="space-y-4">
+                                    <label className="text-xs font-black text-[#2C1810] uppercase tracking-widest flex items-center gap-3">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373]" /> Choice of Flavor
+                                    </label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {flavors.map((f) => (
+                                            <button
+                                                key={f}
+                                                onClick={() => setSelectedFlavor(f)}
+                                                className={`px-6 py-3 rounded-2xl border-2 text-sm font-bold transition-all ${selectedFlavor === f ? "border-[#2C1810] bg-[#2C1810] text-white shadow-xl scale-105" : "border-[#F2EBE3] bg-white text-[#7A5C4F] hover:border-[#D4A373] hover:shadow-md"}`}
+                                            >
+                                                {f}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="space-y-4">
+                                <label className="text-xs font-black text-[#2C1810] uppercase tracking-widest flex items-center gap-3">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373]" /> Size & Portion
                                 </label>
-                                <div className="flex flex-wrap gap-2">
-                                    {flavors.map((f) => (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {weightOptions.map((opt, idx) => (
                                         <button
-                                            key={f}
-                                            onClick={() => setSelectedFlavor(f)}
-                                            className={`px-5 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${selectedFlavor === f ? "border-[#2C1810] bg-[#2C1810] text-white shadow-lg scale-105" : "border-[#F2EBE3] bg-white text-[#7A5C4F] hover:border-[#D4A373]"}`}
+                                            key={idx}
+                                            onClick={() => setSelectedWeightIndex(idx)}
+                                            className={`p-5 rounded-[2rem] border-2 text-left transition-all relative group/item ${selectedWeightIndex === idx ? "border-[#D4A373] bg-[#FDFBF7] shadow-lg ring-4 ring-[#D4A373]/5" : "border-[#F2EBE3] bg-white hover:border-[#D4A373] hover:shadow-md"}`}
                                         >
-                                            {f}
+                                            <div className="font-black text-lg mb-0.5 text-[#2C1810]">{opt.label}</div>
+                                            <div className="text-[11px] text-[#7A5C4F] font-bold uppercase tracking-wider">{opt.pack}</div>
+                                            {selectedWeightIndex === idx && (
+                                                <div className="absolute top-5 right-5 w-6 h-6 bg-[#D4A373] rounded-full flex items-center justify-center text-white shadow-md">
+                                                    <CheckCircle2 size={14} />
+                                                </div>
+                                            )}
                                         </button>
                                     ))}
                                 </div>
                             </div>
-                        )}
-
-                        <div className="space-y-3">
-                            <label className="text-sm font-bold text-[#2C1810] flex items-center gap-2">
-                                <Package size={16} className="text-[#D4A373]" /> Size & Portion
-                            </label>
-                            <div className="grid grid-cols-2 gap-3">
-                                {weightOptions.map((opt, idx) => (
-                                    <button
-                                        key={idx}
-                                        onClick={() => setSelectedWeightIndex(idx)}
-                                        className={`p-4 rounded-2xl border-2 text-left transition-all relative ${selectedWeightIndex === idx ? "border-[#D4A373] bg-[#FDFBF7] shadow-md" : "border-[#F2EBE3] bg-white hover:border-[#D4A373]"}`}
-                                    >
-                                        <div className="font-bold text-sm mb-1">{opt.label}</div>
-                                        <div className="text-[10px] text-[#7A5C4F] font-medium">{opt.pack}</div>
-                                        {selectedWeightIndex === idx && <CheckCircle2 className="absolute top-3 right-3 text-[#D4A373]" size={16} />}
-                                    </button>
-                                ))}
-                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Purchase Actions */}
-                <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex items-center bg-white rounded-2xl p-1.5 shadow-md border border-[#F2EBE3]">
-                        <button 
-                            onClick={() => handleQuantityChange("dec")}
-                            className="w-12 h-12 flex items-center justify-center rounded-xl hover:bg-[#F2EBE3] transition-colors text-[#2C1810] disabled:opacity-30"
-                            disabled={quantity <= 1}
-                        >
-                            <Minus size={20} />
-                        </button>
-                        <span className="w-12 text-center text-xl font-black font-playfair">{quantity}</span>
-                        <button 
-                            onClick={() => handleQuantityChange("inc")}
-                            className="w-12 h-12 flex items-center justify-center rounded-xl hover:bg-[#F2EBE3] transition-colors text-[#2C1810]"
-                        >
-                            <Plus size={20} />
-                        </button>
-                    </div>
-
-                    <Button 
-                        onClick={onAddToCart}
-                        className="flex-1 h-[60px] bg-[#2C1810] text-white text-lg font-bold rounded-2xl hover:bg-[#D4A373] transition-all shadow-[0_10px_30px_rgba(44,24,16,0.2)] flex items-center justify-center gap-3 active:scale-95 group relative overflow-hidden"
-                    >
-                        <div className="absolute inset-0 bg-[#D4A373] translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                        <span className="relative z-10 flex items-center gap-3">
+                {/* Trust Badges & Mobile Actions */}
+                <div className="space-y-8">
+                    {/* Mobile Only Actions */}
+                    <div className="flex flex-col sm:flex-row gap-4 lg:hidden">
+                        <div className="flex items-center bg-white rounded-2xl p-1.5 shadow-md border border-[#F2EBE3]">
+                            <button onClick={() => handleQuantityChange("dec")} className="w-12 h-12 flex items-center justify-center rounded-xl hover:bg-[#F2EBE3] transition-colors" disabled={quantity <= 1}><Minus size={20} /></button>
+                            <span className="w-12 text-center text-xl font-black font-playfair">{quantity}</span>
+                            <button onClick={() => handleQuantityChange("inc")} className="w-12 h-12 flex items-center justify-center rounded-xl hover:bg-[#F2EBE3] transition-colors"><Plus size={20} /></button>
+                        </div>
+                        <Button onClick={onAddToCart} className="flex-1 h-[60px] bg-[#2C1810] text-white text-lg font-bold rounded-2xl hover:bg-[#D4A373] transition-all flex items-center justify-center gap-3">
                             <ShoppingBag size={22} /> Add to Cart
-                        </span>
-                    </Button>
-                </div>
+                        </Button>
+                    </div>
 
-                {/* Quick Trust Badges */}
-                <div className="flex items-center justify-between p-6 bg-white/50 border border-white rounded-[2rem] backdrop-blur-sm">
-                    <div className="flex flex-col items-center gap-2 text-center group">
-                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#D4A373] shadow-sm group-hover:scale-110 transition-all"><Truck size={18} /></div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A5C4F]">Free Shipping</span>
-                    </div>
-                    <div className="w-px h-10 bg-[#F2EBE3]" />
-                    <div className="flex flex-col items-center gap-2 text-center group">
-                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#D4A373] shadow-sm group-hover:scale-110 transition-all"><ShieldCheck size={18} /></div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A5C4F]">Secure Pay</span>
-                    </div>
-                    <div className="w-px h-10 bg-[#F2EBE3]" />
-                    <div className="flex flex-col items-center gap-2 text-center group">
-                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#D4A373] shadow-sm group-hover:scale-110 transition-all"><Clock size={18} /></div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A5C4F]">Freshly Baked</span>
+                    <div className="flex items-center justify-between p-6 bg-white/50 border border-white rounded-[2rem] backdrop-blur-sm">
+                        <div className="flex flex-col items-center gap-2 text-center group">
+                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#D4A373] shadow-sm group-hover:scale-110 transition-all"><Truck size={18} /></div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A5C4F]">Free Shipping</span>
+                        </div>
+                        <div className="w-px h-10 bg-[#F2EBE3]" />
+                        <div className="flex flex-col items-center gap-2 text-center group">
+                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#D4A373] shadow-sm group-hover:scale-110 transition-all"><ShieldCheck size={18} /></div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A5C4F]">Secure Pay</span>
+                        </div>
+                        <div className="w-px h-10 bg-[#F2EBE3]" />
+                        <div className="flex flex-col items-center gap-2 text-center group">
+                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#D4A373] shadow-sm group-hover:scale-110 transition-all"><Clock size={18} /></div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A5C4F]">Freshly Baked</span>
+                        </div>
                     </div>
                 </div>
             </motion.div>
           </div>
-        </div>
 
-        {/* Desktop sticky purchase panel (right side) */}
-        <div className="hidden lg:block fixed top-28 right-8 z-50 w-80">
-          <div className="bg-white border rounded-2xl shadow-2xl p-5">
-            <div className="text-sm text-gray-500">One-time purchase</div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <div className="text-2xl font-playfair font-black text-[#2C1810]">{formatCurrency(currentPrice)}</div>
-              <div className="text-xs text-[#7A5C4F]">{product.unit || ''}</div>
-            </div>
-            <div className="text-xs text-[#7A5C4F] mt-2">FREE delivery where available — fastest delivery at checkout</div>
+          {/* RIGHT COLUMN: Purchase Panel */}
+          <div className="hidden lg:block lg:col-span-3 space-y-8">
+            <div className="sticky top-28">
+              <motion.div 
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-white/90 backdrop-blur-xl border border-white rounded-[3rem] shadow-[0_30px_60px_rgba(44,24,16,0.1)] p-12 space-y-12"
+              >
+                <div>
+                  <p className="text-[10px] font-black text-[#7A5C4F] uppercase tracking-[0.3em] mb-4">One-time purchase</p>
+                  <div className="flex items-baseline gap-4">
+                    <span className="text-5xl font-playfair font-black text-[#2C1810]">{formatCurrency(currentPrice)}</span>
+                  </div>
+                  <p className="text-[11px] text-[#7A5C4F] mt-4 font-medium leading-relaxed">
+                    FREE delivery where available — fastest delivery at checkout
+                  </p>
+                </div>
 
-            <div className="mt-4">
-              <div className="text-sm font-bold text-[#2C1810] mb-2">Size</div>
-              <div className="grid grid-cols-3 gap-2">
-                {weightOptions.map((opt, idx) => {
-                  const optionPrice = Array.isArray(product.pricesByWeight) && product.pricesByWeight[idx] !== undefined
-                    ? product.pricesByWeight[idx]
-                    : product.price;
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedWeightIndex(idx)}
-                      className={`p-2 rounded-md text-sm border ${selectedWeightIndex === idx ? 'border-[#2C1810] bg-[#f8f3ea]' : 'border-gray-200 bg-white'}`}
-                    >
-                      <div className="font-bold">{opt.label}</div>
-                      <div className="text-xs text-[#7A5C4F]">{formatCurrency(optionPrice)}</div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-[#2C1810] uppercase tracking-widest flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373]" /> Size
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {weightOptions.map((opt, idx) => {
+                      const optionPrice = Array.isArray(product.pricesByWeight) && product.pricesByWeight[idx] !== undefined
+                        ? product.pricesByWeight[idx]
+                        : product.price;
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => setSelectedWeightIndex(idx)}
+                          className={`p-3 rounded-2xl text-left border-2 transition-all relative ${selectedWeightIndex === idx ? 'border-[#2C1810] bg-[#f8f3ea] shadow-md' : 'border-[#F2EBE3] bg-white'}`}
+                        >
+                          <div className="font-black text-xs text-[#2C1810]">{opt.label}</div>
+                          <div className="text-[9px] text-[#7A5C4F] font-bold">{formatCurrency(optionPrice)}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-            <div className="mt-4 flex items-center justify-between">
-              <div className="flex items-center bg-[#faf7f2] rounded-md p-1">
-                <button onClick={() => handleQuantityChange('dec')} className="px-3 py-2 text-lg" disabled={quantity <= 1}>-</button>
-                <div className="px-4 font-bold">{quantity}</div>
-                <button onClick={() => handleQuantityChange('inc')} className="px-3 py-2 text-lg" disabled={quantity >= 20}>+</button>
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-[#16a34a] font-bold">In Stock</div>
-              </div>
-            </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 flex items-center bg-[#FDFBF7] rounded-2xl p-1.5 border border-[#F2EBE3]">
+                    <button onClick={() => handleQuantityChange('dec')} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[#F2EBE3] transition-colors" disabled={quantity <= 1}><Minus size={16} /></button>
+                    <div className="flex-1 text-center font-black text-lg font-playfair">{quantity}</div>
+                    <button onClick={() => handleQuantityChange('inc')} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[#F2EBE3] transition-colors" disabled={quantity >= 20}><Plus size={16} /></button>
+                  </div>
+                  <div className={`px-4 py-3 rounded-2xl border ${product.stock > 0 ? 'bg-[#F2FDF2] border-[#D1FADF]' : 'bg-red-50 border-red-100'}`}>
+                    <div className={`text-[9px] font-black uppercase tracking-widest ${product.stock > 0 ? 'text-[#16a34a]' : 'text-red-500'}`}>
+                      {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                    </div>
+                  </div>
+                </div>
 
-            <div className="mt-4 space-y-3">
-              <Button onClick={onAddToCart} className="w-full bg-[#D4A373] text-[#2C1810] font-bold">Add to cart</Button>
-            </div>
+                <Button 
+                    onClick={onAddToCart} 
+                    disabled={product.stock <= 0}
+                    className={`w-full h-16 text-white font-black text-lg rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-3 group ${product.stock > 0 ? 'bg-[#C69C6D] hover:bg-[#B08968] shadow-[0_15px_30px_rgba(198,156,109,0.2)]' : 'bg-gray-400 cursor-not-allowed'}`}
+                >
+                  {product.stock > 0 ? 'Add to cart' : 'Sold Out'}
+                </Button>
 
-            <div className="mt-4 text-xs text-[#7A5C4F]">
-              <div>Ships from: <span className="font-semibold">Bakery</span></div>
-              <div>Sold by: <span className="font-semibold">Bakery Direct</span></div>
-              <div className="mt-2">Returns: Eligible for return within 7 days.</div>
+                <div className="pt-6 border-t border-[#F2EBE3] space-y-4">
+                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
+                    <span className="text-[#7A5C4F]">From</span>
+                    <span className="text-[#2C1810]">Bakery</span>
+                  </div>
+                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
+                    <span className="text-[#7A5C4F]">Seller</span>
+                    <span className="text-[#2C1810]">Bakery Direct</span>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         </div>
+
 
         {/* BOTTOM SECTION: Tabs & Details */}
         <div className="mt-24 space-y-24">
@@ -514,39 +522,82 @@ export default function ProductDetails() {
                     
                     <div className="py-12">
                         <TabsContent value="details" className="m-0 focus-visible:ring-0">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-                                <div className="space-y-6">
-                                    <h3 className="text-3xl font-playfair font-black flex items-center gap-3"><ClipboardList className="text-[#D4A373]" /> The Artisan Way</h3>
-                                    <p className="text-[#7A5C4F] leading-relaxed text-lg italic">"Every creation begins with a passion for excellence and ends with a smile on our client's face."</p>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-6 bg-white rounded-3xl border border-[#F2EBE3]">
-                                            <p className="text-xs font-bold text-[#B08968] mb-1">OCCASION</p>
-                                            <p className="font-bold">{product.occasion?.join(', ') || 'Any Day Sweetness'}</p>
-                                        </div>
-                                        <div className="p-6 bg-white rounded-3xl border border-[#F2EBE3]">
-                                            <p className="text-xs font-bold text-[#B08968] mb-1">SHELF LIFE</p>
-                                            <p className="font-bold">48-72 Hours</p>
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                <div className="space-y-8">
+                                    <div className="p-10 bg-white rounded-[3rem] border border-[#F2EBE3] shadow-sm hover:shadow-xl transition-all h-full">
+                                        <h3 className="text-2xl font-playfair font-black mb-6 flex items-center gap-3"><History className="text-[#D4A373]" /> Specifications</h3>
+                                        <div className="space-y-4">
+                                            {product.type && (
+                                                <div className="flex justify-between items-center py-3 border-b border-[#FDFBF7]">
+                                                    <span className="text-xs font-bold text-[#B08968] uppercase tracking-wider">Type</span>
+                                                    <span className="font-bold text-[#2C1810]">{Array.isArray(product.type) ? product.type.join(', ') : product.type}</span>
+                                                </div>
+                                            )}
+                                            {product.shape && (
+                                                <div className="flex justify-between items-center py-3 border-b border-[#FDFBF7]">
+                                                    <span className="text-xs font-bold text-[#B08968] uppercase tracking-wider">Shape</span>
+                                                    <span className="font-bold text-[#2C1810]">{product.shape}</span>
+                                                </div>
+                                            )}
+                                            {product.theme && (
+                                                <div className="flex justify-between items-center py-3 border-b border-[#FDFBF7]">
+                                                    <span className="text-xs font-bold text-[#B08968] uppercase tracking-wider">Theme</span>
+                                                    <span className="font-bold text-[#2C1810]">{product.theme}</span>
+                                                </div>
+                                            )}
+                                            {product.occasion && product.occasion.length > 0 && (
+                                                <div className="flex justify-between items-center py-3">
+                                                    <span className="text-xs font-bold text-[#B08968] uppercase tracking-wider">Occasions</span>
+                                                    <span className="font-bold text-[#2C1810] text-right truncate max-w-[150px]">{product.occasion.join(', ')}</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                    <Accordion type="single" collapsible className="w-full">
-                                        <AccordionItem value="item-2" className="border-none bg-white rounded-2xl px-4">
-                                            <AccordionTrigger className="hover:no-underline font-bold">Shipping Information</AccordionTrigger>
-                                            <AccordionContent className="text-[#7A5C4F] pb-6">
-                                                We currently offer same-day delivery across the metropolitan area for orders placed before 2 PM. Each item is hand-delivered in temperature-controlled packaging to ensure it reaches you in pristine condition.
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                    </Accordion>
                                 </div>
-                                <div className="relative">
-                                    <div className="aspect-[4/3] rounded-[2.5rem] overflow-hidden bg-gray-100 shadow-2xl">
-                                        <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&q=80" alt="Bakery Process" className="w-full h-full object-cover" />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#2C1810]/60 to-transparent" />
-                                        <div className="absolute bottom-8 left-8 right-8">
-                                            <div className="flex items-center gap-4 text-white">
-                                                <div className="w-12 h-12 rounded-full bg-[#D4A373] flex items-center justify-center"><Award size={24} /></div>
-                                                <div>
-                                                    <p className="font-bold text-lg">Award Winning Quality</p>
-                                                    <p className="text-sm opacity-80">Certified Organic & Master Baked</p>
+
+                                <div className="space-y-8">
+                                    <div className="p-10 bg-[#FDFBF7] rounded-[3rem] border border-[#D4A373]/20 shadow-sm h-full">
+                                        <h3 className="text-2xl font-playfair font-black mb-6 flex items-center gap-3"><PackageCheck className="text-[#D4A373]" /> Storage & Care</h3>
+                                        <div className="space-y-6">
+                                            <div>
+                                                <p className="text-xs font-black text-[#2C1810] uppercase tracking-widest mb-2">Optimal Freshness</p>
+                                                <p className="text-[#7A5C4F] text-sm leading-relaxed">Best enjoyed at room temperature within 48 hours of delivery. Keep in an airtight container away from direct sunlight.</p>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="p-4 bg-white rounded-2xl border border-[#F2EBE3]">
+                                                    <p className="text-[10px] font-bold text-[#B08968] mb-1 uppercase">Ambient</p>
+                                                    <p className="font-bold text-sm text-[#2C1810]">2-3 Days</p>
+                                                </div>
+                                                <div className="p-4 bg-white rounded-2xl border border-[#F2EBE3]">
+                                                    <p className="text-[10px] font-bold text-[#B08968] mb-1 uppercase">Refrigerated</p>
+                                                    <p className="font-bold text-sm text-[#2C1810]">Up to 5 Days</p>
+                                                </div>
+                                            </div>
+                                            <div className="pt-4 flex items-center gap-3 text-[#D4A373]">
+                                                <Info size={16} />
+                                                <p className="text-[11px] font-bold italic">Do not freeze to maintain delicate crumb structure.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-8">
+                                    <div className="p-10 bg-white rounded-[3rem] border border-[#F2EBE3] shadow-sm h-full">
+                                        <h3 className="text-2xl font-playfair font-black mb-6 flex items-center gap-3"><Truck className="text-[#D4A373]" /> Hand-Delivery Excellence</h3>
+                                        <div className="space-y-6">
+                                            <p className="text-[#7A5C4F] text-sm leading-relaxed">Each artisan piece is hand-carried in our signature temperature-controlled gift boxes. We guarantee it arrives as beautiful as when it left our studio.</p>
+                                            <div className="space-y-3">
+                                                <div className="flex items-center gap-4 text-sm font-bold text-[#2C1810]">
+                                                    <div className="w-8 h-8 rounded-full bg-[#F2FDF2] flex items-center justify-center text-[#16a34a]"><CheckCircle2 size={16} /></div>
+                                                    Signature Packaging Included
+                                                </div>
+                                                <div className="flex items-center gap-4 text-sm font-bold text-[#2C1810]">
+                                                    <div className="w-8 h-8 rounded-full bg-[#F2FDF2] flex items-center justify-center text-[#16a34a]"><CheckCircle2 size={16} /></div>
+                                                    Real-time Fleet Tracking
+                                                </div>
+                                                <div className="flex items-center gap-4 text-sm font-bold text-[#2C1810]">
+                                                    <div className="w-8 h-8 rounded-full bg-[#F2FDF2] flex items-center justify-center text-[#16a34a]"><CheckCircle2 size={16} /></div>
+                                                    BPA-Free Eco Materials
                                                 </div>
                                             </div>
                                         </div>
@@ -556,48 +607,71 @@ export default function ProductDetails() {
                         </TabsContent>
 
                         <TabsContent value="ingredients" className="m-0 focus-visible:ring-0">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                                <div className="space-y-8">
-                                    <div>
-                                        <h3 className="text-3xl font-playfair font-black mb-4 flex items-center gap-3">
-                                            <ChefHat className="text-[#D4A373]" /> Pure & Authentic
-                                        </h3>
-                                        <p className="text-[#7A5C4F] leading-relaxed italic">
-                                            We believe in full transparency. Every ingredient is ethically sourced, organic, and chosen for its superior quality and flavor profile.
-                                        </p>
-                                    </div>
-                                    
-                                    <div className="space-y-4">
-                                        <p className="text-xs font-bold text-[#B08968] tracking-widest uppercase">The Composition</p>
-                                        <div className="flex flex-wrap gap-3">
-                                            {(product.ingredients?.length > 0 ? product.ingredients : ["Organic Flour", "Unsalted Butter", "Cane Sugar", "Organic Eggs", "Natural Vanilla", "Sea Salt"]).map((ing: string, i: number) => (
-                                                <div key={i} className="px-6 py-3 bg-white rounded-2xl border border-[#F2EBE3] shadow-sm flex items-center gap-2 hover:border-[#D4A373] transition-colors group">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373] group-hover:scale-150 transition-transform" />
-                                                    <span className="font-bold text-[#2C1810] text-sm">{ing}</span>
-                                                </div>
-                                            ))}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                <div className="space-y-10">
+                                    <div className="p-12 bg-white rounded-[3.5rem] border border-[#F2EBE3] shadow-sm relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#FDFBF7] rounded-bl-full" />
+                                        <div className="relative z-10">
+                                            <h3 className="text-3xl font-playfair font-black mb-4 flex items-center gap-3">
+                                                <ChefHat className="text-[#D4A373]" /> Pure Composition
+                                            </h3>
+                                            <p className="text-[#7A5C4F] leading-relaxed italic mb-10 max-w-lg">
+                                                Our commitment to purity means zero additives, zero preservatives, and zero compromises. We trace every grain and drop back to its organic farm.
+                                            </p>
+                                            
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                                                {(product.ingredients || []).map((ing: string, i: number) => (
+                                                    <div key={i} className="flex items-center justify-between pb-3 border-b border-[#FDFBF7] group">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373] group-hover:scale-150 transition-transform" />
+                                                            <span className="font-bold text-[#2C1810] text-sm tracking-tight">{ing}</span>
+                                                        </div>
+                                                        <span className="text-[10px] font-black text-[#B08968] opacity-40 uppercase tracking-widest">Natural</span>
+                                                    </div>
+                                                ))}
+                                                {(!product.ingredients || product.ingredients.length === 0) && (
+                                                    <p className="text-[#7A5C4F] text-sm italic">Detailed ingredient list available upon request.</p>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-
-                                    <div className="p-8 bg-[#fff8e7] rounded-3xl border border-[#f5e6d3] space-y-3">
-                                        <p className="text-sm font-bold text-[#8D6E63] flex items-center gap-2 mb-2">
-                                            <ShieldCheck size={18} /> ALLERGEN ADVISORY
-                                        </p>
-                                        <p className="text-sm text-[#7A5C4F] leading-relaxed font-medium">
-                                            {product.allergens ? `Contains: ${product.allergens.join(', ')}.` : "Contains: Gluten, Dairy, and Eggs. Prepared in a facility that also processes tree nuts, soy, and peanuts."}
-                                        </p>
                                     </div>
                                 </div>
-                                <div className="hidden lg:block relative">
-                                    <div className="aspect-square rounded-[3rem] overflow-hidden border-8 border-white shadow-2xl">
-                                        <img src="https://images.unsplash.com/photo-1595126731003-733b4395ff68?auto=format&fit=crop&q=80" alt="Ingredients" className="w-full h-full object-cover" />
-                                    </div>
-                                    <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-3xl shadow-xl border border-[#F2EBE3] flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-full bg-[#FDFBF7] flex items-center justify-center text-[#D4A373] shadow-inner"><Star className="fill-current" size={20} /></div>
-                                        <div>
-                                            <p className="font-black text-[#2C1810]">100% Organic</p>
-                                            <p className="text-[10px] font-bold text-[#7A5C4F] uppercase tracking-widest">Sourced Locally</p>
+
+                                <div className="space-y-8">
+                                    <div className="p-12 bg-[#2C1810] rounded-[3.5rem] shadow-2xl relative overflow-hidden group">
+                                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')] opacity-20" />
+                                        <div className="relative z-10">
+                                            <div className="inline-flex items-center gap-3 px-4 py-1 bg-[#D4A373] text-[#2C1810] rounded-full text-[10px] font-black uppercase tracking-widest mb-6">
+                                                <ShieldCheck size={14} /> Quality Assurance
+                                            </div>
+                                            <h4 className="text-2xl font-playfair font-black text-white mb-6">Allergen Information & Traceability</h4>
+                                            <div className="space-y-6">
+                                                <p className="text-[#F2EBE3]/70 text-sm leading-relaxed">
+                                                    {product.allergens ? `Contains: ${Array.isArray(product.allergens) ? product.allergens.join(', ') : product.allergens}.` : "Please contact our support for specific allergen inquiries regarding this micro-batch."}
+                                                </p>
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div className="p-5 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
+                                                        <p className="text-[#D4A373] font-black text-xs uppercase tracking-tighter mb-1">Butter Origin</p>
+                                                        <p className="text-white text-sm font-bold">Normandy, France</p>
+                                                    </div>
+                                                    <div className="p-5 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
+                                                        <p className="text-[#D4A373] font-black text-xs uppercase tracking-tighter mb-1">Vanilla Type</p>
+                                                        <p className="text-white text-sm font-bold">Bourbon Extract</p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
+                                    </div>
+                                    
+                                    <div className="p-8 bg-white rounded-[2.5rem] border border-[#F2EBE3] flex items-center justify-between group cursor-default">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-full bg-[#FDFBF7] flex items-center justify-center text-[#D4A373] shadow-inner group-hover:bg-[#D4A373] group-hover:text-white transition-all"><Leaf size={22} /></div>
+                                            <div>
+                                                <p className="font-black text-[#2C1810]">100% Sustainably Sourced</p>
+                                                <p className="text-[10px] font-bold text-[#7A5C4F] uppercase tracking-widest">Ethical Farming Initiatives</p>
+                                            </div>
+                                        </div>
+                                        <Star className="text-[#F2EBE3] group-hover:text-[#D4A373] transition-colors" size={24} />
                                     </div>
                                 </div>
                             </div>
@@ -614,23 +688,63 @@ export default function ProductDetails() {
                                 </div>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
                                     {[
-                                        { label: "Calories", val: "320 kcal", p: "15%" },
-                                        { label: "Total Fat", val: "18g", p: "24%" },
-                                        { label: "Proteins", val: "5.4g", p: "11%" },
-                                        { label: "Carbs", val: "42g", p: "18%" },
-                                    ].map((n, i) => (
+                                        { 
+                                            label: "Calories", 
+                                            val: (product.totalNutrition?.calories || product.totalNutrition?.Calories) 
+                                                ? (() => {
+                                                    const v = product.totalNutrition.calories || product.totalNutrition.Calories;
+                                                    return typeof v === 'object' ? `${v.value} ${v.unit}` : `${v} kcal`;
+                                                  })()
+                                                : null, 
+                                            p: product.totalNutrition?.calories_dv
+                                        },
+                                        { 
+                                            label: "Total Fat", 
+                                            val: (product.totalNutrition?.fat || product.totalNutrition?.Fat) 
+                                                ? (() => {
+                                                    const v = product.totalNutrition.fat || product.totalNutrition.Fat;
+                                                    return typeof v === 'object' ? `${v.value}${v.unit}` : v;
+                                                  })()
+                                                : null, 
+                                            p: product.totalNutrition?.fat_dv
+                                        },
+                                        { 
+                                            label: "Proteins", 
+                                            val: (product.totalNutrition?.protein || product.totalNutrition?.Protein) 
+                                                ? (() => {
+                                                    const v = product.totalNutrition.protein || product.totalNutrition.Protein;
+                                                    return typeof v === 'object' ? `${v.value}${v.unit}` : v;
+                                                  })()
+                                                : null, 
+                                            p: product.totalNutrition?.protein_dv
+                                        },
+                                        { 
+                                            label: "Carbs", 
+                                            val: (product.totalNutrition?.carbs || product.totalNutrition?.Carbs) 
+                                                ? (() => {
+                                                    const v = product.totalNutrition.carbs || product.totalNutrition.Carbs;
+                                                    return typeof v === 'object' ? `${v.value}${v.unit}` : v;
+                                                  })()
+                                                : null, 
+                                            p: product.totalNutrition?.carbs_dv
+                                        },
+                                    ].filter(n => n.val !== null).map((n, i) => (
                                         <div key={i} className="text-center space-y-2 group">
                                             <div className="text-[10px] font-black uppercase tracking-widest text-[#B08968]">{n.label}</div>
                                             <div className="text-3xl font-playfair font-black text-[#2C1810] group-hover:text-[#D4A373] transition-colors">{n.val}</div>
-                                            <div className="w-full bg-[#F2EBE3] h-1.5 rounded-full overflow-hidden">
-                                                <motion.div 
-                                                    initial={{ width: 0 }}
-                                                    whileInView={{ width: n.p }}
-                                                    transition={{ duration: 1, delay: i * 0.1 }}
-                                                    className="bg-[#D4A373] h-full rounded-full"
-                                                />
-                                            </div>
-                                            <div className="text-[10px] font-bold text-[#7A5C4F]">{n.p} daily value</div>
+                                            {n.p && (
+                                                <>
+                                                    <div className="w-full bg-[#F2EBE3] h-1.5 rounded-full overflow-hidden">
+                                                        <motion.div 
+                                                            initial={{ width: 0 }}
+                                                            whileInView={{ width: n.p }}
+                                                            transition={{ duration: 1, delay: i * 0.1 }}
+                                                            className="bg-[#D4A373] h-full rounded-full"
+                                                        />
+                                                    </div>
+                                                    <div className="text-[10px] font-bold text-[#7A5C4F]">{n.p} daily value</div>
+                                                </>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -700,28 +814,8 @@ export default function ProductDetails() {
                 </section>
             )}
 
-            {/* Newsletter / CTA */}
-            <section className="relative rounded-[4rem] overflow-hidden p-16 md:p-24 bg-[#2C1810] text-[#FDFBF7] text-center shadow-2xl">
-                <div className="absolute inset-0 opacity-10">
-                    <img src="https://images.unsplash.com/photo-1558961359-1d99283f085c?auto=format&fit=crop&q=80" alt="Pattern" className="w-full h-full object-cover grayscale" />
-                </div>
-                <div className="relative z-10 max-w-3xl mx-auto space-y-10">
-                    <div className="inline-flex items-center gap-4 px-6 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-                        <Star className="text-[#D4A373] animate-pulse" size={16} />
-                        <span className="text-xs font-bold tracking-[0.3em] uppercase">The Artisan Club</span>
-                    </div>
-                    <h2 className="text-5xl md:text-7xl font-playfair font-black leading-tight">Join Our Sweetest Circle</h2>
-                    <p className="text-xl text-[#F2EBE3]/70 font-light max-w-2xl mx-auto">Get exclusive access to seasonal releases, masterclass invites, and a little surprise on your birthday.</p>
-                    <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
-                        <input 
-                            type="email" 
-                            placeholder="your email address" 
-                            className="flex-1 bg-white/10 border-2 border-white/20 rounded-2xl px-8 h-[60px] text-white placeholder:text-white/40 focus:outline-none focus:border-[#D4A373] transition-all"
-                        />
-                        <Button className="h-[60px] px-10 bg-[#D4A373] text-[#2C1810] font-black rounded-2xl hover:bg-white transition-all">Subscribe</Button>
-                    </div>
-                </div>
-            </section>
+            {/* Footer */}
+            <FooterSection />
 
         </div>
       </div>

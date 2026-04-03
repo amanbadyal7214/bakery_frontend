@@ -86,18 +86,18 @@ export default function Register() {
 
   return (
     <div className="flex min-h-screen bg-[#FAFAFA] font-inter">
-      
+
       {/* ── Left Side: Form Panel ── */}
       <div className="w-full lg:w-1/2 flex flex-col relative px-6 md:px-16 py-12 justify-center bg-white order-2 lg:order-1">
-        
+
         {/* Back Button */}
-        <Link 
-          to="/login" 
+        <Link
+          to="/login"
           className="absolute top-8 left-6 md:left-12 flex items-center gap-2 text-[#8D6E63] hover:text-[#1A2744] transition-colors text-sm font-semibold tracking-wide"
         >
           <ArrowLeft size={16} /> Back to Login
         </Link>
-        
+
         <div className="max-w-md w-full mx-auto animate-fade-up">
 
           {/* Header */}
@@ -112,7 +112,7 @@ export default function Register() {
 
           {/* Form */}
           <form onSubmit={handleRegister} className="space-y-5">
-            
+
             {/* Name Field */}
             <div className="space-y-1.5 group">
               <label htmlFor="name" className="text-[0.7rem] font-bold text-[#1A2744] uppercase tracking-widest pl-1">
@@ -257,7 +257,7 @@ export default function Register() {
             <div className="flex justify-center py-2">
               <ReCAPTCHA
                 ref={recaptchaRef}
-                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                sitekey={import.meta.env.RECAPTCHA_SITE_KEY}
                 onChange={(token) => setRecaptchaToken(token)}
                 theme="light"
               />
@@ -305,14 +305,14 @@ export default function Register() {
       {/* ── Right Side: Image Panel ── */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#3E2723] order-1 lg:order-2">
         {/* Background Image */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 md:scale-105 hover:scale-100"
           style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1614145121029-83a9f7b68bf4?q=80&w=2000&auto=format&fit=crop")' }}
         />
         {/* Dark Gradient Overlay */}
         <div className="absolute inset-0 bg-[#3E2723]/60 mix-blend-multiply" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#1A2744] via-transparent to-transparent opacity-80" />
-        
+
         {/* Glassmorphic Card Overlay */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] bg-white/10 backdrop-blur-md border border-white/20 p-10 rounded-3xl shadow-2xl">
           <div className="mb-6 flex justify-center">
