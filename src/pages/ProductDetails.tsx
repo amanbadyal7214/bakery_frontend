@@ -150,13 +150,27 @@ export default function ProductDetails() {
         return product.price || 0;
     }, [product, selectedWeightIndex]);
 
+    const currentStock = useMemo(() => {
+        if (!product) return 0;
+        if (Array.isArray(product.variants) && product.variants[selectedWeightIndex] !== undefined) {
+            return Number(product.variants[selectedWeightIndex].stock) || 0;
+        }
+        return Number(product.stock) || 0;
+    }, [product, selectedWeightIndex]);
+
+    useEffect(() => {
+        if (currentStock > 0 && quantity > currentStock) {
+            setQuantity(currentStock);
+        }
+    }, [currentStock, quantity]);
+
     const formatCurrency = (v: number) => {
         return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(v);
     };
 
     const handleQuantityChange = (type: "inc" | "dec") => {
         if (type === "dec" && quantity > 1) setQuantity(prev => prev - 1);
-        if (type === "inc" && quantity < 20) setQuantity(prev => prev + 1);
+        if (type === "inc" && quantity < currentStock) setQuantity(prev => prev + 1);
     };
 
     const onAddToCart = () => {
@@ -171,7 +185,8 @@ export default function ProductDetails() {
         const variantProduct = {
             ...product,
             name: `${product.name} (${selectedFlavor || 'Original'}, ${weightOptions[selectedWeightIndex]?.label || 'Standard'})`,
-            price: currentPrice
+            price: currentPrice,
+            stock: currentStock
         };
 
         void handleAddToCart(variantProduct, quantity, isAuthenticated);
@@ -187,7 +202,8 @@ export default function ProductDetails() {
         const variantProduct = {
             ...product,
             name: `${product.name} (${selectedFlavor || 'Original'}, ${weightOptions[selectedWeightIndex]?.label || 'Standard'})`,
-            price: currentPrice
+            price: currentPrice,
+            stock: currentStock
         };
         // ensure item added then go to checkout
         try {
@@ -403,10 +419,10 @@ export default function ProductDetails() {
                                     <div className="flex items-center bg-white rounded-2xl p-1.5 shadow-md border border-[#F2EBE3]">
                                         <button onClick={() => handleQuantityChange("dec")} className="w-12 h-12 flex items-center justify-center rounded-xl hover:bg-[#F2EBE3] transition-colors" disabled={quantity <= 1}><Minus size={20} /></button>
                                         <span className="w-12 text-center text-xl font-black font-playfair">{quantity}</span>
-                                        <button onClick={() => handleQuantityChange("inc")} className="w-12 h-12 flex items-center justify-center rounded-xl hover:bg-[#F2EBE3] transition-colors"><Plus size={20} /></button>
+                                        <button onClick={() => handleQuantityChange("inc")} className="w-12 h-12 flex items-center justify-center rounded-xl hover:bg-[#F2EBE3] transition-colors" disabled={quantity >= currentStock}><Plus size={20} /></button>
                                     </div>
-                                    <Button onClick={onAddToCart} className="flex-1 h-[60px] bg-[#2C1810] text-white text-lg font-bold rounded-2xl hover:bg-[#D4A373] transition-all flex items-center justify-center gap-3">
-                                        <ShoppingBag size={22} /> Add to Cart
+                                    <Button onClick={onAddToCart} disabled={currentStock <= 0} className={`flex-1 h-[60px] text-white text-lg font-bold rounded-2xl transition-all flex items-center justify-center gap-3 ${currentStock > 0 ? 'bg-[#2C1810] hover:bg-[#D4A373]' : 'bg-gray-400 cursor-not-allowed'}`}>
+                                        <ShoppingBag size={22} /> {currentStock > 0 ? 'Add to Cart' : 'Sold Out'}
                                     </Button>
                                 </div>
 
@@ -475,21 +491,21 @@ export default function ProductDetails() {
                                     <div className="flex-1 flex items-center bg-[#FDFBF7] rounded-2xl p-1.5 border border-[#F2EBE3]">
                                         <button onClick={() => handleQuantityChange('dec')} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[#F2EBE3] transition-colors" disabled={quantity <= 1}><Minus size={16} /></button>
                                         <div className="flex-1 text-center font-black text-lg font-playfair">{quantity}</div>
-                                        <button onClick={() => handleQuantityChange('inc')} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[#F2EBE3] transition-colors" disabled={quantity >= 20}><Plus size={16} /></button>
+                                        <button onClick={() => handleQuantityChange('inc')} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[#F2EBE3] transition-colors" disabled={quantity >= currentStock}><Plus size={16} /></button>
                                     </div>
-                                    <div className={`px-4 py-3 rounded-2xl border ${product.stock > 0 ? 'bg-[#F2FDF2] border-[#D1FADF]' : 'bg-red-50 border-red-100'}`}>
-                                        <div className={`text-[9px] font-black uppercase tracking-widest ${product.stock > 0 ? 'text-[#16a34a]' : 'text-red-500'}`}>
-                                            {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                                    <div className={`px-4 py-3 rounded-2xl border ${currentStock > 0 ? 'bg-[#F2FDF2] border-[#D1FADF]' : 'bg-red-50 border-red-100'}`}>
+                                        <div className={`text-[9px] font-black uppercase tracking-widest ${currentStock > 0 ? 'text-[#16a34a]' : 'text-red-500'}`}>
+                                            {currentStock > 0 ? `${currentStock} In Stock` : 'Out of Stock'}
                                         </div>
                                     </div>
                                 </div>
 
                                 <Button
                                     onClick={onAddToCart}
-                                    disabled={product.stock <= 0}
-                                    className={`w-full h-16 text-white font-black text-lg rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-3 group ${product.stock > 0 ? 'bg-[#C69C6D] hover:bg-[#B08968] shadow-[0_15px_30px_rgba(198,156,109,0.2)]' : 'bg-gray-400 cursor-not-allowed'}`}
+                                    disabled={currentStock <= 0}
+                                    className={`w-full h-16 text-white font-black text-lg rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-3 group ${currentStock > 0 ? 'bg-[#C69C6D] hover:bg-[#B08968] shadow-[0_15px_30px_rgba(198,156,109,0.2)]' : 'bg-gray-400 cursor-not-allowed'}`}
                                 >
-                                    {product.stock > 0 ? 'Add to cart' : 'Sold Out'}
+                                    {currentStock > 0 ? 'Add to cart' : 'Sold Out'}
                                 </Button>
 
                                 <div className="pt-6 border-t border-[#F2EBE3] space-y-4">
@@ -631,7 +647,7 @@ export default function ProductDetails() {
                                                                         <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373] group-hover:scale-150 transition-transform" />
                                                                         <span className=" text-[#2C1810] text-sm tracking-tight">{name}</span>
                                                                     </div>
-                                                                    <span className="text-[10px] font-black text-[#B08968] opacity-40 uppercase tracking-widest">{label}</span>
+                                                                    <span className="text-[10px] font-black text-[#2C1810] uppercase tracking-widest">{label}</span>
                                                                 </div>
                                                             );
                                                         })}
@@ -726,8 +742,8 @@ export default function ProductDetails() {
                                                 },
                                             ].filter(n => n.val !== null).map((n, i) => (
                                                 <div key={i} className="text-center space-y-2 group">
-                                                    <div className="text-[10px] font-black uppercase tracking-widest text-[#B08968]">{n.label}</div>
-                                                    <div className="text-xl font-playfair  text-[#2C1810] group-hover:text-[#D4A373] transition-colors">{n.val}</div>
+                                                    <div className="text-[15px] font-black uppercase tracking-widest text-[#B08968]">{n.label}</div>
+                                                    <div className="text-[12px] font-playfair  text-[#2C1810] group-hover:text-[#D4A373] transition-colors">{n.val}</div>
                                                     {n.p && (
                                                         <>
                                                             <div className="w-full bg-[#F2EBE3] h-1.5 rounded-full overflow-hidden">
@@ -759,7 +775,7 @@ export default function ProductDetails() {
                         <section className="space-y-12">
                             <div className="flex items-end justify-between border-b pb-8 border-[#F2EBE3]">
                                 <div className="space-y-2">
-                                    <h2 className="text-5xl font-playfair font-black">You'll Also Love</h2>
+                                    <h2 className="text-2xl font-playfair font-black">You'll Also Love</h2>
                                     <p className="text-[#7A5C4F] text-lg">Curated pairings to complete your sweet experience</p>
                                 </div>
                                 <Button

@@ -503,8 +503,8 @@ export default function Navbar() {
             {navLinks.map((link) => (
               <button key={link.label} onClick={() => scrollTo(link)}
                 className={`text-xs font-bold tracking-widest px-5 py-3.5 transition-all duration-200 border-b-2 whitespace-nowrap ${active === link.label
-                    ? "text-[#D4A373] border-[#D4A373] bg-white/10"
-                    : "text-[#F5ECD7]/90 border-transparent hover:text-[#D4A373] hover:bg-white/10 hover:border-[#D4A373]/50"
+                  ? "text-[#D4A373] border-[#D4A373] bg-white/10"
+                  : "text-[#F5ECD7]/90 border-transparent hover:text-[#D4A373] hover:bg-white/10 hover:border-[#D4A373]/50"
                   }`}
               >
                 {link.label}

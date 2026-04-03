@@ -116,9 +116,28 @@ const CartSheet = () => {
         dispatch(clearCart());
     };
 
+    const getActualStock = (item: any) => {
+        let actualStock = typeof item.stock === 'number' ? Number(item.stock) : Infinity;
+        if (Array.isArray(item.variants) && item.variants.length > 0) {
+            const match = item.name.match(/\(([^,]+),\s*([^)]+)\)$/);
+            if (match) {
+                const weightStr = match[2].trim();
+                const variant = item.variants.find((v: any) => String(v.weight).toLowerCase() === weightStr.toLowerCase());
+                if (variant && typeof variant.stock !== 'undefined') actualStock = Number(variant.stock) || 0;
+            } else {
+                const variant = item.variants.find((v: any) => item.name.includes(v.weight));
+                if (variant && typeof variant.stock !== 'undefined') actualStock = Number(variant.stock) || 0;
+            }
+        }
+        return actualStock;
+    };
+
     const handlePayNow = () => {
         // Prevent checkout if any item is out of stock or quantity exceeds available stock
-        const stockProblem = cartItems.some(it => typeof it.stock === 'number' && (it.stock <= 0 || it.quantity > it.stock));
+        const stockProblem = cartItems.some(it => {
+            const actStock = getActualStock(it);
+            return typeof actStock === 'number' && (actStock <= 0 || it.quantity > actStock);
+        });
         if (stockProblem) {
             alert('Some items are out of stock or exceed available quantity. Please update your cart before placing the order.');
             return;
@@ -286,8 +305,9 @@ const CartSheet = () => {
                                                 const price = Number(item.price) || 0;
                                                 const lineTotal = price * item.quantity;
 
-                                                const availableStock = typeof item.stock === 'number' ? Number(item.stock) : Infinity;
-                                                const outOfStock = typeof item.stock === 'number' ? availableStock <= 0 : false;
+                                                const actualStock = getActualStock(item);
+                                                const availableStock = actualStock;
+                                                const outOfStock = availableStock !== Infinity ? availableStock <= 0 : false;
                                                 const canIncrease = !outOfStock && item.quantity < availableStock;
 
                                                 return (

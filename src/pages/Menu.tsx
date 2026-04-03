@@ -339,8 +339,8 @@ export default function Menu() {
                       setCurrentPage(1);
                     }}
                     className={`whitespace-nowrap px-6 py-2.5 rounded-2xl text-sm font-bold tracking-wide transition-all duration-300 border-2 select-none ${selectedCategory === cat
-                        ? "bg-[#3E2723] text-[#F5ECD7] border-[#3E2723] shadow-lg shadow-[#3E2723]/20 transform -translate-y-0.5"
-                        : "bg.white text-[#8D6E63] border-transparent hover:border-[#D4A373]/30 hover:text-[#3E2723] hover:bg-white shadow-sm"
+                      ? "bg-[#3E2723] text-[#F5ECD7] border-[#3E2723] shadow-lg shadow-[#3E2723]/20 transform -translate-y-0.5"
+                      : "bg.white text-[#8D6E63] border-transparent hover:border-[#D4A373]/30 hover:text-[#3E2723] hover:bg-white shadow-sm"
                       }`}
                   >
                     {cat}
@@ -349,13 +349,13 @@ export default function Menu() {
               </div>
             </div>
 
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            layout
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 lg:gap-8"
-          >
+            <motion.div
+              variants={container}
+              initial="hidden"
+              animate="show"
+              layout
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 lg:gap-8"
+            >
               <AnimatePresence mode="popLayout">
                 {/* paginate filteredProducts */}
                 {(() => {
@@ -363,10 +363,11 @@ export default function Menu() {
                   const start = (currentPage - 1) * itemsPerPage;
                   const pagedProducts = filteredProducts.slice(start, start + itemsPerPage);
                   return pagedProducts.map((p) => {
-                    // determine stock availability from common field names
+                    // determine stock availability from variants first, then common field names
+                    const currentVariantStock = Array.isArray(p.variants) && p.variants.length > 0 ? Number(p.variants[0].stock) : Number(p.stock);
                     const inStock = (() => {
                       if (!p) return false;
-                      if (typeof p.stock === 'number') return p.stock > 0;
+                      if (!Number.isNaN(currentVariantStock)) return currentVariantStock > 0;
                       if (typeof p.quantity === 'number') return p.quantity > 0;
                       if (typeof p.available === 'boolean') return p.available === true;
                       // fallback: if there's an inventory field
@@ -382,7 +383,7 @@ export default function Menu() {
                         initial="hidden"
                         animate="show"
                         exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                        className="group relative h-[420px] w-full rounded-3xl overflow-hidden shadow-xl cursor-pointer" // Add cursor-pointer
+                        className="group relative h-[360px] w-full rounded-3xl overflow-hidden shadow-xl cursor-pointer" // reduced height from 420px to 360px
                       >
                         <div onClick={() => {
                           const prodId = (p && (p._id ?? p.id ?? '')) || '';
@@ -458,14 +459,25 @@ export default function Menu() {
                                     toast({ title: 'Out of stock', description: 'This item is currently unavailable.' });
                                     return;
                                   }
-                                  void handleAddToCart(p, 1, isAuthenticated);
+                                  
+                                  const baseWeight = Array.isArray(p.weight) && p.weight.length > 0 ? p.weight[0] : (Array.isArray(p.variants) && p.variants.length > 0 ? p.variants[0].weight : 'Standard');
+                                  const baseFlavor = Array.isArray(p.flavor) && p.flavor.length > 0 ? p.flavor[0] : (typeof p.flavor === 'string' ? p.flavor : 'Original');
+                                  const basePrice = Array.isArray(p.pricesByWeight) && p.pricesByWeight[0] !== undefined ? p.pricesByWeight[0] : p.price;
+                                  
+                                  const variantProductToAdd = {
+                                    ...p,
+                                    name: `${p.name} (${baseFlavor}, ${baseWeight})`,
+                                    price: basePrice,
+                                    stock: currentVariantStock || 0
+                                  };
+                                  void handleAddToCart(variantProductToAdd, 1, isAuthenticated);
                                 }}
                                 disabled={!isAuthenticated || !inStock}
-                                className={`w-full font-bold py-3 rounded-xl transition-colors text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 group/btn ${!isAuthenticated
-                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    : !inStock
-                                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                      : 'bg-[#D4A373] text-[#2C1810] hover:bg-[#F5ECD7]'
+                                className={`w-full font-bold h-10 py-2 rounded-xl transition-colors text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 group/btn ${!isAuthenticated
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                  : !inStock
+                                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                    : 'bg-[#D4A373] text-[#2C1810] hover:bg-[#F5ECD7]'
                                   }`}
                               >
                                 {!inStock ? 'Out of stock' : (isAuthenticated ? 'Add to Cart' : 'Login to Order')} <ShoppingBag size={16} className="group-hover/btn:scale-110 transition-transform" />

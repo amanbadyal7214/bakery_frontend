@@ -112,6 +112,9 @@ export const useProductActions = () => {
         const response = await addCartItem(token, {
           productId: String(cartProduct.id),
           quantity: normalizedQuantity,
+          name: cartProduct.name,
+          stock: cartProduct.stock,
+          price: cartProduct.price
         });
         dispatch(setCartItems(response.cart.items));
       } catch (error) {

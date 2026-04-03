@@ -10,6 +10,7 @@ export interface Product {
   flavor?: string[];
   ingredients?: string[];
   tasteDescription?: string;
+  variants?: any[];
 }
 
 export interface Order {

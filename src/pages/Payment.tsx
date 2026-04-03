@@ -128,69 +128,69 @@ const Payment = () => {
       <Navbar />
       <div className="flex-1 pt-28 pb-16 px-6 flex items-center justify-center">
         <div className="w-full max-w-2xl grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <section className="bg-white rounded-2xl border-2 border-[#2C1810] p-6 space-y-5">
-          <h1 className="text-2xl font-bold text-[#2C1810]">Payment</h1>
-          <p className="text-sm text-[#8D6E63]">Choose payment method and confirm. Order will be placed only after payment.</p>
+          <section className="bg-white rounded-2xl border-2 border-[#2C1810] p-6 space-y-5">
+            <h1 className="text-2xl font-bold text-[#2C1810]">Payment</h1>
+            <p className="text-sm text-[#8D6E63]">Choose payment method and confirm. Order will be placed only after payment.</p>
 
-          <div className="space-y-3">
-            {loadingPaymentModes && <div className="text-sm text-[#8D6E63]">Loading payment options…</div>}
-            {!loadingPaymentModes && paymentModes.length === 0 && (
-              <div className="text-sm text-[#8D6E63]">No payment options available.</div>
-            )}
-            {!loadingPaymentModes && paymentModes.map((pm) => (
-              <button
-                key={pm.id || pm.name}
-                onClick={() => setPaymentMethod(pm.name)}
-                className={`w-full text-left border rounded-xl px-4 py-3 ${paymentMethod === pm.name ? "border-[#2C1810] bg-[#F5ECD7]" : "border-[#D4A373]"}`}
+            <div className="space-y-3">
+              {loadingPaymentModes && <div className="text-sm text-[#8D6E63]">Loading payment options…</div>}
+              {!loadingPaymentModes && paymentModes.length === 0 && (
+                <div className="text-sm text-[#8D6E63]">No payment options available.</div>
+              )}
+              {!loadingPaymentModes && paymentModes.map((pm) => (
+                <button
+                  key={pm.id || pm.name}
+                  onClick={() => setPaymentMethod(pm.name)}
+                  className={`w-full text-left border rounded-xl px-4 py-3 ${paymentMethod === pm.name ? "border-[#2C1810] bg-[#F5ECD7]" : "border-[#D4A373]"}`}
+                >
+                  {pm.name}
+                </button>
+              ))}
+            </div>
+
+            <div className="text-sm text-[#2C1810] space-y-1 border-t border-dashed border-[#D4A373] pt-4">
+              <div><span className="font-semibold">Name:</span> {draft.customerName}</div>
+              <div><span className="font-semibold">Phone:</span> {draft.customerPhone}</div>
+              <div><span className="font-semibold">Delivery:</span> {draft.deliveryType === "home" ? "Home Delivery" : "Pickup"}</div>
+              {draft.deliveryType === "home" && <div><span className="font-semibold">Address:</span> {draft.deliveryAddress}</div>}
+            </div>
+          </section>
+
+          <section className="bg-white rounded-2xl border border-[#D4A373] p-6 space-y-4">
+            <h2 className="text-xl font-bold text-[#2C1810]">Order Summary</h2>
+            <div className="space-y-2 text-sm text-[#2C1810] max-h-64 overflow-auto pr-1">
+              {cartItems.map((item) => (
+                <div key={item.id} className="flex justify-between">
+                  <span>{item.name} x {item.quantity}</span>
+                  <span>${((Number(item.price) || 0) * item.quantity).toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-dashed border-[#D4A373] pt-3 text-sm space-y-1">
+              <div className="flex justify-between"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span>Delivery</span><span>${deliveryFee.toFixed(2)}</span></div>
+              <div className="flex justify-between font-bold text-lg text-[#2C1810]"><span>Total</span><span>${total.toFixed(2)}</span></div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => navigate(-1)}
+                className="border-[#2C1810] text-[#2C1810]"
               >
-                {pm.name}
-              </button>
-            ))}
-          </div>
-
-          <div className="text-sm text-[#2C1810] space-y-1 border-t border-dashed border-[#D4A373] pt-4">
-            <div><span className="font-semibold">Name:</span> {draft.customerName}</div>
-            <div><span className="font-semibold">Phone:</span> {draft.customerPhone}</div>
-            <div><span className="font-semibold">Delivery:</span> {draft.deliveryType === "home" ? "Home Delivery" : "Pickup"}</div>
-            {draft.deliveryType === "home" && <div><span className="font-semibold">Address:</span> {draft.deliveryAddress}</div>}
-          </div>
-        </section>
-
-        <section className="bg-white rounded-2xl border border-[#D4A373] p-6 space-y-4">
-          <h2 className="text-xl font-bold text-[#2C1810]">Order Summary</h2>
-          <div className="space-y-2 text-sm text-[#2C1810] max-h-64 overflow-auto pr-1">
-            {cartItems.map((item) => (
-              <div key={item.id} className="flex justify-between">
-                <span>{item.name} x {item.quantity}</span>
-                <span>${((Number(item.price) || 0) * item.quantity).toFixed(2)}</span>
-              </div>
-            ))}
-          </div>
-          <div className="border-t border-dashed border-[#D4A373] pt-3 text-sm space-y-1">
-            <div className="flex justify-between"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-            <div className="flex justify-between"><span>Delivery</span><span>${deliveryFee.toFixed(2)}</span></div>
-            <div className="flex justify-between font-bold text-lg text-[#2C1810]"><span>Total</span><span>${total.toFixed(2)}</span></div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 pt-2">
-            <Button
-              variant="outline"
-              onClick={() => navigate(-1)}
-              className="border-[#2C1810] text-[#2C1810]"
-            >
-              Back
-            </Button>
-            <Button
-              onClick={() => void handlePayAndPlaceOrder()}
-              disabled={isProcessing || cartItems.length === 0}
-              className="bg-[#2C1810] hover:bg-[#1f1008] text-white"
-            >
-              {isProcessing ? "Processing..." : "Pay & Place Order"}
-            </Button>
-          </div>
-        </section>
+                Back
+              </Button>
+              <Button
+                onClick={() => void handlePayAndPlaceOrder()}
+                disabled={isProcessing || cartItems.length === 0}
+                className="bg-[#2C1810] hover:bg-[#1f1008] text-white"
+              >
+                {isProcessing ? "Processing..." : "Pay & Place Order"}
+              </Button>
+            </div>
+          </section>
+        </div>
       </div>
-    </div>
     </div>
   );
 };
