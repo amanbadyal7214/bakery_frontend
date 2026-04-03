@@ -85,7 +85,7 @@ const Payment = () => {
   useEffect(() => {
     let mounted = true;
     setLoadingPaymentModes(true);
-    fetch('/api/payment-modes')
+    fetch('https://bakery-bakend.onrender.com/api/payment-modes')
       .then(async (res) => {
         const json = await res.json();
         const raw = Array.isArray(json) ? json : (json && (json.data || json)) ? (json.data || json) : [];
