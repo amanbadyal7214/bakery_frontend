@@ -22,11 +22,13 @@ export default function Menu() {
     flavor: [],
     type: [],
     occasion: [],
+    suboccasion: [],
+    subtheme: [],
     priceRange: [0, 5000],
     weight: [],
     delivery: [],
-    rating: null,
     dietary: [],
+    rating: null,
     shape: [],
     theme: [],
   });
@@ -41,7 +43,7 @@ export default function Menu() {
   const [loading, setLoading] = useState(false);
   // pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 16;
+  const itemsPerPage = 20;
 
   useEffect(() => {
     let mounted = true;
@@ -347,13 +349,13 @@ export default function Menu() {
               </div>
             </div>
 
-            <motion.div
-              variants={container}
-              initial="hidden"
-              animate="show"
-              layout
-              className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8"
-            >
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            layout
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 lg:gap-8"
+          >
               <AnimatePresence mode="popLayout">
                 {/* paginate filteredProducts */}
                 {(() => {
@@ -380,7 +382,7 @@ export default function Menu() {
                         initial="hidden"
                         animate="show"
                         exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                        className="group relative h-[450px] w-full rounded-3xl overflow-hidden shadow-xl cursor-pointer" // Add cursor-pointer
+                        className="group relative h-[420px] w-full rounded-3xl overflow-hidden shadow-xl cursor-pointer" // Add cursor-pointer
                       >
                         <div onClick={() => {
                           const prodId = (p && (p._id ?? p.id ?? '')) || '';
@@ -410,7 +412,7 @@ export default function Menu() {
                                         {p.badge}
                                       </span>
                                     )}
-                                    <h3 className="font-playfair text-2xl font-bold leading-tight group-hover:text-[#D4A373] transition-colors">
+                                    <h3 className="font-playfair text-2xl font-bold leading-tight group-hover:text-[#D4A373] transition-colors line-clamp-3">
                                       {p.name}
                                     </h3>
                                   </div>
@@ -432,55 +434,7 @@ export default function Menu() {
                                 Experience the taste of our premium {p.category.toLowerCase()}, baked fresh every morning with organic ingredients.
                               </p>
 
-                              {/* Grouped: show Occasion -> Sub-Occasions, and Theme -> Sub-Themes */}
-                              {(() => {
-                                const prodOcc = Array.isArray(p.occasion) ? p.occasion : (typeof p.occasion === 'string' ? p.occasion.split(',').map((s: string) => s.trim()) : []);
-                                const prodSubOcc = Array.isArray(p.suboccasions) ? p.suboccasions : (typeof p.suboccasions === 'string' ? p.suboccasions.split(',').map((s: string) => s.trim()) : []);
-                                const prodTheme = Array.isArray(p.theme) ? p.theme : (typeof p.theme === 'string' ? p.theme.split(',').map((s: string) => s.trim()) : (p.theme ? [p.theme] : []));
-                                const prodSubthemes = Array.isArray(p.subthemes) ? p.subthemes : (typeof p.subthemes === 'string' ? p.subthemes.split(',').map((s: string) => s.trim()) : []);
 
-                                if (prodOcc.length === 0 && prodSubOcc.length === 0 && prodTheme.length === 0 && prodSubthemes.length === 0) return null;
-
-                                return (
-                                  <div className="mt-3 text-sm text-white/90">
-                                    {prodOcc.length > 0 && (
-                                      <div className="mb-2">
-                                        <div className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">Occasion</div>
-                                        <div className="flex items-center gap-2 mt-1">
-                                          {prodOcc.map((o: unknown, idx: number) => (
-                                            <span key={idx} className="text-xs bg-white/10 px-2 py-0.5 rounded-full border border-white/20">{String(o)}</span>
-                                          ))}
-                                        </div>
-                                        {prodSubOcc.length > 0 && (
-                                          <div className="mt-2 flex flex-wrap gap-2">
-                                            {prodSubOcc.map((s: unknown, i: number) => (
-                                              <span key={i} className="text-[11px] bg-[#F7E9E6] text-[#8D4B3B] px-2 py-1 rounded-full font-semibold">{String(s)}</span>
-                                            ))}
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-
-                                    {prodTheme.length > 0 && (
-                                      <div className="mb-2">
-                                        <div className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">Theme</div>
-                                        <div className="flex items-center gap-2 mt-1">
-                                          {prodTheme.map((t: unknown, idx: number) => (
-                                            <span key={idx} className="text-xs bg-white/10 px-2 py-0.5 rounded-full border border-white/20">{String(t)}</span>
-                                          ))}
-                                        </div>
-                                        {prodSubthemes.length > 0 && (
-                                          <div className="mt-2 flex flex-wrap gap-2">
-                                            {prodSubthemes.map((s: unknown, i: number) => (
-                                              <span key={i} className="text-[11px] bg-[#EAF6EA] text-[#2C6B2C] px-2 py-1 rounded-full font-semibold">{String(s)}</span>
-                                            ))}
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })()}
 
                               <div className="flex items-center justify-between mb-5">
                                 <div className="flex items-center gap-1.5">
