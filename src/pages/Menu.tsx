@@ -366,7 +366,7 @@ export default function Menu() {
                     // determine stock availability from variants first, then common field names
                     let bestVariant: any = null;
                     if (Array.isArray(p.variants) && p.variants.length > 0) {
-                        bestVariant = p.variants.find((v: any) => Number(v.stock) > 0) || p.variants[0];
+                      bestVariant = p.variants.find((v: any) => Number(v.stock) > 0) || p.variants[0];
                     }
                     const currentVariantStock = bestVariant ? Number(bestVariant.stock) : Number(p.stock);
                     const inStock = (() => {
@@ -387,7 +387,7 @@ export default function Menu() {
                         initial="hidden"
                         animate="show"
                         exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                        className="group relative h-[360px] w-full rounded-3xl overflow-hidden shadow-xl cursor-pointer" // reduced height from 420px to 360px
+                        className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] hover:shadow-[0_20px_50px_rgba(62,39,35,0.12)] transition-all duration-500 border border-[#3E2723]/5 flex flex-col h-full group"
                       >
                         <div onClick={() => {
                           const prodId = (p && (p._id ?? p.id ?? '')) || '';
@@ -396,59 +396,53 @@ export default function Menu() {
                             return;
                           }
                           navigate(`/product/${prodId}`);
-                        }} className="block h-full w-full">
-                          {/* Full Background Image */}
-                          <div className="absolute inset-0 w-full h-full">
+                        }} className="block h-full w-full p-3 flex flex-col cursor-pointer">
+                          {/* Image Container */}
+                          <div className="relative aspect-square w-full rounded-[1.5rem] overflow-hidden mb-4 bg-[#F5F1ED]">
                             <img src={getImageSrc(p)} alt={p.name}
                               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                          </div>
 
-                          {/* Gradient Overlay: Dark Bottom to Transparent Top */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#1a0f0a] via-[#3E2723]/60 to-transparent opacity-90" />
-
-                          {/* Content Section */}
-                          <div className="absolute inset-0 p-6 flex flex-col justify-end text-white z-10">
-                            <div className="transform transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                              <div className="flex justify-between items-end mb-2">
-                                <div className="flex flex-col gap-1">
-                                  <div className="flex items-center gap-2">
-                                    {p.badge && (
-                                      <span className="w-fit px-2 py-0.5 rounded-full bg-[#D4A373] text-[#2C1810] text-[0.65rem] font-bold uppercase tracking-wider">
-                                        {p.badge}
-                                      </span>
-                                    )}
-                                    <h3 className="font-playfair text-2xl font-bold leading-tight group-hover:text-[#D4A373] transition-colors line-clamp-1">
-                                      {p.name}
-                                    </h3>
-                                  </div>
-                                  {/* show which selected filters this product matches */}
-                                  {(filters && (Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== null))) && (
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                      {getMatchedTags(p).map((t) => (
-                                        <span key={t} className="text-xs bg-white/10 px-2 py-0.5 rounded-full border border-white/20">{t}</span>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                                <span className="bg-white/10 px-3 py-1 rounded-full text-md font-semibold backdrop-blur-sm border border-white/10">
-                                  ${(bestVariant ? bestVariant.price : p.price).toFixed(2)}
+                            {/* Badge */}
+                            {p.badge && (
+                              <div className="absolute top-2.5 left-2.5 px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1.5 animate-in fade-in slide-in-from-left-4 duration-500">
+                                <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
+                                <span className="text-[#3E2723] text-[0.6rem] font-bold uppercase tracking-wider">
+                                  {p.badge}
                                 </span>
                               </div>
+                            )}
+                          </div>
 
-                              <p className="text-white/80 text-sm mb-4 line-clamp-2 opacity-0 h-0 group-hover:h-auto group-hover:opacity-100 transition-all duration-300 delay-75">
-                                Experience the taste of our premium {p.category.toLowerCase()}, baked fresh every morning with organic ingredients.
-                              </p>
+                          {/* Content Section */}
+                          <div className="flex-1 flex flex-col px-1">
+                            <div className="flex justify-between items-start mb-1">
+                              <h3 className="font-playfair text-base font-bold text-[#3E2723] group-hover:text-[#D4A373] transition-colors line-clamp-1">
+                                {p.name}
+                              </h3>
+                            </div>
 
+                            <div className="flex items-center gap-1.5 mb-2 text-[#D4A373]">
+                              <Star size={12} className="fill-[#D4A373] text-[#D4A373]" />
+                              <span className="text-[#3E2723] text-xs font-bold">{p.rating || "4.8"}</span>
+                              <span className="text-[#3E2723]/40 text-[10px] uppercase font-bold tracking-widest ml-auto">{p.category}</span>
+                            </div>
 
+                            {/* show which selected filters this product matches */}
+                            {(filters && (Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== null))) && (
+                              <div className="mb-4 flex flex-wrap gap-1.5">
+                                {getMatchedTags(p).slice(0, 2).map((t) => (
+                                  <span key={t} className="text-[9px] bg-[#3E2723]/5 text-[#3E2723] px-2 py-0.5 rounded-full border border-[#3E2723]/10 font-bold capitalize">
+                                    {t}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
 
-                              <div className="flex items-center justify-between mb-5">
-                                <div className="flex items-center gap-1.5">
-                                  <Star className="w-4 h-4 fill-[#FFD700] text-[#FFD700]" />
-                                  <span className="text-white text-sm font-bold">{p.rating || "4.8"}</span>
-                                </div>
-                                <span className="text-white/60 text-xs font-medium uppercase tracking-widest">
-                                  {p.category}
-                                </span>
+                            {/* Price & Action */}
+                            <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
+                              <div className="flex flex-col">
+                                <span className="text-[9px] font-bold uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
+                                <span className="text-sm font-bold text-[#3E2723]">${(bestVariant ? bestVariant.price : p.price).toFixed(2)}</span>
                               </div>
 
                               <button
@@ -477,14 +471,13 @@ export default function Menu() {
                                   void handleAddToCart(variantProductToAdd, 1, isAuthenticated);
                                 }}
                                 disabled={!isAuthenticated || !inStock}
-                                className={`w-full font-bold h-10 py-2 rounded-xl transition-colors text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 group/btn ${!isAuthenticated
-                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                  : !inStock
-                                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                    : 'bg-[#D4A373] text-[#2C1810] hover:bg-[#F5ECD7]'
+                                className={`font-bold h-10 px-4 text-[9px] rounded-xl transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-1.5 ${!isAuthenticated || !inStock
+                                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                  : 'bg-[#3E2723] text-white hover:bg-[#D4A373] hover:text-[#3E2723] shadow-md hover:shadow-lg active:scale-95'
                                   }`}
                               >
-                                {!inStock ? 'Out of stock' : (isAuthenticated ? 'Add to Cart' : 'Login to Order')} <ShoppingBag size={16} className="group-hover/btn:scale-110 transition-transform" />
+                                <ShoppingBag size={12} />
+                                {!inStock ? 'Soon' : (isAuthenticated ? 'Add To Cart' : 'Login')}
                               </button>
                             </div>
                           </div>

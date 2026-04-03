@@ -7,7 +7,7 @@ import {
     ArrowLeft, Star, ShoppingBag, Truck, ShieldCheck, Heart,
     Share2, Plus, Minus, Info, ClipboardList, Zap, Package,
     ChefHat, Clock, Award, CheckCircle2, ChevronRight,
-    History, PackageCheck, Leaf
+    History, PackageCheck, Leaf, Search
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -277,23 +277,51 @@ export default function ProductDetails() {
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="relative aspect-square md:aspect-[5/4] rounded-[3rem] overflow-hidden bg-white shadow-[0_20px_50px_rgba(44,24,16,0.12)] border-8 border-white"
+                                className="relative aspect-square md:aspect-[5/4] rounded-[3rem] overflow-hidden bg-white shadow-[0_20px_50px_rgba(44,24,16,0.12)] border-8 border-white cursor-none group/zoom"
+                                onMouseMove={(e) => {
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                                    e.currentTarget.style.setProperty('--x', `${x}%`);
+                                    e.currentTarget.style.setProperty('--y', `${y}%`);
+                                    
+                                    const magnifier = e.currentTarget.querySelector('.magnifier-glass') as HTMLElement;
+                                    if (magnifier) {
+                                      magnifier.style.left = `${e.clientX - rect.left}px`;
+                                      magnifier.style.top = `${e.clientY - rect.top}px`;
+                                    }
+                                }}
                             >
                                 <AnimatePresence mode="wait">
-                                    <motion.img
+                                    <motion.div
                                         key={activeImage}
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.5 }}
-                                        src={productImages[activeImage]}
-                                        alt={product.name}
-                                        className="w-full h-full object-cover"
-                                    />
+                                        className="w-full h-full relative"
+                                    >
+                                        <img
+                                            src={productImages[activeImage]}
+                                            alt={product.name}
+                                            className="w-full h-full object-cover transition-transform duration-500 group-hover/zoom:scale-[1.8]"
+                                            style={{
+                                                transformOrigin: 'var(--x, 50%) var(--y, 50%)'
+                                            }}
+                                        />
+                                        
+                                        {/* Magnifier Glass Overlay Element */}
+                                        <div className="magnifier-glass absolute pointer-events-none opacity-0 group-hover/zoom:opacity-100 transition-opacity duration-300 w-16 h-16 bg-white/20 backdrop-blur-[2px] border-2 border-white rounded-full -translate-x-1/2 -translate-y-1/2 flex items-center justify-center shadow-2xl z-20">
+                                            <Search size={24} className="text-white drop-shadow-md" />
+                                        </div>
+                                    </motion.div>
                                 </AnimatePresence>
+                                
+                                {/* Overlay Gradient for Depth */}
+                                <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/5 to-transparent" />
 
                                 {/* Floating Badges */}
-                                <div className="absolute top-6 left-6 flex flex-col gap-2">
+                                <div className="absolute top-6 left-6 flex flex-col gap-2 z-10">
                                     {product.badge && (
                                         <Badge className="bg-[#2C1810] text-[#D4A373] border-none px-4 py-2 text-xs font-bold tracking-widest uppercase rounded-full shadow-lg">
                                             {product.badge}
@@ -305,7 +333,7 @@ export default function ProductDetails() {
                                 </div>
 
                                 {/* Action Overlay */}
-                                <div className="absolute top-6 right-6 flex flex-col gap-3">
+                                <div className="absolute top-6 right-6 flex flex-col gap-3 z-10">
                                     <button className="w-12 h-12 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-xl hover:bg-white hover:scale-110 transition-all text-red-500 group">
                                         <Heart size={22} className="group-hover:fill-red-500" />
                                     </button>
@@ -801,34 +829,62 @@ export default function ProductDetails() {
                                 {relatedProducts.map((p) => (
                                     <motion.div
                                         key={p._id}
-                                        whileHover={{ y: -10 }}
+                                        whileHover={{ y: -5 }}
                                         onClick={() => {
                                             navigate(`/product/${p._id}`);
                                             window.scrollTo(0, 0);
                                         }}
-                                        className="group cursor-pointer"
+                                        className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] hover:shadow-[0_20px_50px_rgba(62,39,35,0.12)] transition-all duration-500 border border-[#3E2723]/5 flex flex-col h-full group cursor-pointer"
                                     >
-                                        <div className="relative aspect-square rounded-[2rem] overflow-hidden mb-6 shadow-lg border-2 border-white">
-                                            <img
-                                                src={getFirstImage(p)}
-                                                alt={p.name}
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                            />
-                                            <div className="absolute inset-0 bg-[#2C1810]/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                                                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-[#2C1810] shadow-2xl scale-0 group-hover:scale-100 transition-transform duration-500 delay-100">
-                                                    <ShoppingBag size={24} />
+                                        <div className="p-3 flex flex-col h-full">
+                                            {/* Image Container */}
+                                            <div className="relative aspect-square w-full rounded-[1.5rem] overflow-hidden mb-4 bg-[#F5F1ED]">
+                                                <img
+                                                    src={getFirstImage(p)}
+                                                    alt={p.name}
+                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                />
+                                                {p.badge && (
+                                                    <div className="absolute top-2.5 left-2.5 px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1.5 ">
+                                                        <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
+                                                        <span className="text-[#3E2723] text-[0.6rem] font-bold uppercase tracking-wider">{p.badge}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Content */}
+                                            <div className="px-1 flex flex-col flex-1">
+                                                <div className="flex justify-between items-start mb-1">
+                                                    <h4 className="font-playfair text-base font-bold text-[#3E2723] group-hover:text-[#D4A373] transition-colors line-clamp-1">{p.name}</h4>
+                                                </div>
+
+                                                <div className="flex items-center gap-1.5 mb-2 text-[#D4A373]">
+                                                    <Star size={12} className="fill-[#D4A373] text-[#D4A373]" />
+                                                    <span className="text-[#3E2723] text-xs font-bold">4.8</span>
+                                                    <span className="text-[#3E2723]/40 text-[10px] uppercase font-bold tracking-widest ml-auto">{p.category}</span>
+                                                </div>
+                                                
+                                                <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[9px] font-bold uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
+                                                        <span className="text-sm font-bold text-[#3E2723]">{formatCurrency(p.price)}</span>
+                                                    </div>
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (!isAuthenticated) {
+                                                              navigate('/login');
+                                                              return;
+                                                            }
+                                                            void handleAddToCart(p, 1, isAuthenticated);
+                                                        }}
+                                                        className="bg-[#3E2723] text-white font-bold py-2 px-4 text-[9px] rounded-xl hover:bg-[#D4A373] hover:text-[#3E2723] transition-all shadow-md hover:shadow-lg active:scale-95 duration-200 uppercase tracking-widest flex items-center gap-1.5"
+                                                    >
+                                                        <ShoppingBag size={12} />
+                                                        Add To Cart
+                                                    </button>
                                                 </div>
                                             </div>
-                                            {p.badge && (
-                                                <div className="absolute top-4 left-4">
-                                                    <Badge className="bg-white/90 backdrop-blur-md text-[#2C1810] border-none text-[8px] font-black uppercase tracking-widest px-3 py-1.5">{p.badge}</Badge>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="space-y-2 text-center">
-                                            <p className="text-[10px] font-black tracking-widest text-[#B08968] uppercase">{p.category}</p>
-                                            <h4 className="font-playfair text-xl font-black text-[#2C1810] group-hover:text-[#D4A373] transition-colors line-clamp-1">{p.name}</h4>
-                                            <p className="font-bold text-[#7A5C4F]">{formatCurrency(p.price)}</p>
                                         </div>
                                     </motion.div>
                                 ))}

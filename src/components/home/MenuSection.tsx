@@ -166,59 +166,56 @@ export default function MenuSection() {
           {products.slice(0, 8).map((p, i) => (
             <motion.article key={getProdId(p) || `prod-${i}`}
               variants={item}
-              className="group relative h-[320px] rounded-2xl overflow-hidden shadow-xl cursor-pointer"
+              className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] hover:shadow-[0_20px_50px_rgba(62,39,35,0.12)] transition-all duration-500 border border-[#3E2723]/5 flex flex-col h-full group"
             >
-              {/* Wrap the product card content with Link */}
-              <Link to={`/product/${getProdId(p)}`} className="block h-full w-full">
-                {/* Full Background Image */}
-                <div className="absolute inset-0 w-full h-full">
+              <Link to={`/product/${getProdId(p)}`} className="block h-full w-full p-3 flex flex-col">
+                {/* Image Container */}
+                <div className="relative aspect-square w-full rounded-[1.5rem] overflow-hidden mb-4 bg-[#F5F1ED]">
                   <img
                     alt={p.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     src={imgMap[getProdId(p)] ?? p.img}
                   />
+
+                  {/* Badge */}
+                  {p.badge && (
+                    <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1">
+                      <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
+                      <span className="text-[#3E2723] text-[0.6rem] font-bold uppercase tracking-wider">
+                        {p.badge}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                {/* Gradient Overlay: Dark Bottom to Transparent Top */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1a0f0a] via-[#3E2723]/60 to-transparent opacity-90" />
-
                 {/* Content Section */}
-                <div className="absolute inset-0 p-4 flex flex-col justify-end text-white z-10">
-                  <div className="transform transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                    <div className="flex justify-between items-end mb-1.5">
-                      <div className="flex flex-col gap-0.5">
-                        {p.badge && (
-                          <span className="w-fit px-2 py-0.5 rounded-full bg-[#D4A373] text-[#2C1810] text-[0.6rem] font-bold uppercase tracking-wider mb-0.5">
-                            {p.badge}
-                          </span>
-                        )}
-                        <h3 className="font-playfair text-lg font-bold leading-tight group-hover:text-[#D4A373] transition-colors">
-                          {p.name}
-                        </h3>
-                      </div>
-                      <span className="bg-white/10 px-2 py-0.5 rounded-full text-sm font-semibold backdrop-blur-sm border border-white/10">
-                        ${p.price.toFixed(2)}
-                      </span>
+                <div className="flex-1 flex flex-col px-1">
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="font-playfair text-base font-bold text-[#3E2723] group-hover:text-[#D4A373] transition-colors line-clamp-1">
+                      {p.name}
+                    </h3>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 mb-2 text-[#D4A373]">
+                    <Star size={12} className="fill-[#D4A373] text-[#D4A373]" />
+                    <span className="text-[#3E2723] text-xs font-bold">4.8</span>
+                    <span className="text-[#3E2723]/40 text-[10px] uppercase font-bold tracking-widest ml-auto">{p.category}</span>
+                  </div>
+
+                  {/* Price & Action */}
+                  <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
+                    <div className="flex flex-col">
+                      <span className="text-[9px] font-bold uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
+                      <span className="text-sm font-bold text-[#3E2723]">${p.price.toFixed(2)}</span>
                     </div>
 
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-[#FFD700] text-[#FFD700]" />
-                        <span className="text-white text-xs font-bold">4.8</span>
-                      </div>
-                      <span className="text-white/60 text-[0.65rem] font-medium uppercase tracking-widest">
-                        {p.category}
-                      </span>
-                    </div>
-
-                    {/* Add / Out of Stock button */}
                     {(() => {
                       const outOfStock = typeof (p as any).stock === 'number' ? Number((p as any).stock) <= 0 : false;
                       const disabled = outOfStock || !isAuthenticated;
-                      const label = outOfStock ? 'Out of Stock' : (isAuthenticated ? 'Add to Order' : 'Login to Order');
+                      const label = outOfStock ? 'Soon' : (isAuthenticated ? 'Add To Cart' : 'Login');
                       const btnClass = disabled
-                        ? 'w-full bg-gray-300 text-gray-600 font-bold py-2.5 text-sm rounded-full transition-colors shadow-none cursor-not-allowed'
-                        : 'w-full bg-white text-[#2C1810] font-bold py-2.5 text-sm rounded-full hover:bg-[#D4A373] hover:text-[#2C1810] transition-colors shadow-lg active:scale-95 duration-200';
+                        ? 'bg-gray-100 text-gray-400 font-bold py-2 px-4 text-[9px] rounded-xl cursor-not-allowed uppercase tracking-widest'
+                        : 'bg-[#3E2723] text-white font-bold py-2 px-4 text-[9px] rounded-xl hover:bg-[#D4A373] hover:text-[#3E2723] transition-all shadow-md hover:shadow-lg active:scale-95 duration-200 uppercase tracking-widest';
 
                       return (
                         <button
