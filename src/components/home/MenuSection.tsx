@@ -211,8 +211,8 @@ export default function MenuSection() {
 
                     {(() => {
                       const outOfStock = typeof (p as any).stock === 'number' ? Number((p as any).stock) <= 0 : false;
-                      const disabled = outOfStock || !isAuthenticated;
-                      const label = outOfStock ? 'Soon' : (isAuthenticated ? 'Add To Cart' : 'Login');
+                      const disabled = outOfStock;
+                      const label = outOfStock ? 'Soon' : 'Add To Cart';
                       const btnClass = disabled
                         ? 'bg-gray-100 text-gray-400 font-bold py-2 px-4 text-[9px] rounded-xl cursor-not-allowed uppercase tracking-widest'
                         : 'bg-[#3E2723] text-white font-bold py-2 px-4 text-[9px] rounded-xl hover:bg-[#D4A373] hover:text-[#3E2723] transition-all shadow-md hover:shadow-lg active:scale-95 duration-200 uppercase tracking-widest';
@@ -222,7 +222,6 @@ export default function MenuSection() {
                           onClick={(e) => {
                             e.preventDefault();
                             if (!isAuthenticated) {
-                              alert('Please login first to add items to cart');
                               navigate('/login');
                               return;
                             }

@@ -470,14 +470,14 @@ export default function Menu() {
                                   };
                                   void handleAddToCart(variantProductToAdd, 1, isAuthenticated);
                                 }}
-                                disabled={!isAuthenticated || !inStock}
-                                className={`font-bold h-10 px-4 text-[9px] rounded-xl transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-1.5 ${!isAuthenticated || !inStock
+                                disabled={!inStock}
+                                className={`font-bold h-10 px-4 text-[9px] rounded-xl transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-1.5 ${!inStock
                                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                   : 'bg-[#3E2723] text-white hover:bg-[#D4A373] hover:text-[#3E2723] shadow-md hover:shadow-lg active:scale-95'
                                   }`}
                               >
                                 <ShoppingBag size={12} />
-                                {!inStock ? 'Soon' : (isAuthenticated ? 'Add To Cart' : 'Login')}
+                                {!inStock ? 'Soon' : 'Add To Cart'}
                               </button>
                             </div>
                           </div>

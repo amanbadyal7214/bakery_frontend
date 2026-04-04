@@ -185,7 +185,6 @@ export default function ProductDetails() {
 
     const onAddToCart = () => {
         if (!isAuthenticated) {
-            alert('Please login first to add items to cart');
             navigate('/login');
             return;
         }
@@ -204,7 +203,6 @@ export default function ProductDetails() {
 
     const onBuyNow = async () => {
         if (!isAuthenticated) {
-            alert('Please login to proceed to checkout');
             navigate('/login');
             return;
         }
