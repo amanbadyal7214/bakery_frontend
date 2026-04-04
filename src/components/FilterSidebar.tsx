@@ -62,6 +62,8 @@ const useDynamicOptions = () => {
   const [options, setOptions] = useState<typeof defaultFilterOptions>(defaultFilterOptions);
   const [subOccMap, setSubOccMap] = useState<Record<string, string[]>>({});
   const [subThemeMap, setSubThemeMap] = useState<Record<string, string[]>>({});
+  const [flavorMap, setFlavorMap] = useState<Record<string, string[]>>({});
+  const [typeMap, setTypeMap] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
     let mounted = true;
@@ -84,12 +86,10 @@ const useDynamicOptions = () => {
         const normalizeResp = (r: unknown): unknown[] => {
           if (!r) return [];
           if (Array.isArray(r)) return r;
-          // handle { data: [...] } or { data: { ... } }
           if (r && typeof r === 'object' && (r as Record<string, unknown>).data !== undefined) {
             const d = (r as Record<string, unknown>).data;
             return Array.isArray(d) ? d : [d];
           }
-          // single object -> wrap
           if (typeof r === 'object') return [r];
           return [];
         };
@@ -110,6 +110,14 @@ const useDynamicOptions = () => {
 
         const [cats, flvs, wts, types, occ, shp, thm] = results.map(normalizeResp);
 
+        const catLookup: Record<string, string> = {};
+        cats.forEach(c => {
+          if (!c) return;
+          const id = (c as any)._id || (c as any).id;
+          const name = toStrings([c])[0];
+          if (id && name) catLookup[String(id)] = name;
+        });
+
         let built: Record<string, string[]> = {
           category: toStrings(cats),
           flavor: toStrings(flvs),
@@ -121,6 +129,35 @@ const useDynamicOptions = () => {
           shape: toStrings(shp),
           theme: toStrings(thm),
         };
+
+        const buildSectionMap = (data: unknown[]): Record<string, string[]> => {
+          const map: Record<string, string[]> = {};
+          data.forEach(item => {
+            if (!item || typeof item !== 'object') return;
+            const obj = item as any;
+            const name = toStrings([item])[0];
+            const catVal = obj.category;
+            if (name && catVal) {
+              const catsArr = Array.isArray(catVal) ? catVal : [catVal];
+              catsArr.forEach(c => {
+                 let cn = '';
+                 if (typeof c === 'string') {
+                    cn = catLookup[c] || c;
+                 } else {
+                    cn = toStrings([c])[0];
+                 }
+                 if (cn) {
+                   if (!map[cn]) map[cn] = [];
+                   if (!map[cn].includes(name)) map[cn].push(name);
+                 }
+              });
+            }
+          });
+          return map;
+        };
+
+        const fMap = buildSectionMap(flvs);
+        const tMap = buildSectionMap(types);
 
         // build subOccMap from occasions response if objects provided
         const occMap: Record<string, string[]> = {};
@@ -138,7 +175,6 @@ const useDynamicOptions = () => {
               break;
             }
           }
-          // store subs under both name and id (if available) so matching works when options are ids or names
           if (name) occMap[name] = subs;
           if (typeof idVal === 'string' && idVal) occMap[String(idVal)] = subs;
         }
@@ -159,12 +195,11 @@ const useDynamicOptions = () => {
               break;
             }
           }
-          // store subs under both name and id to handle different option formats
           if (name) thMap[name] = subs;
           if (typeof idVal2 === 'string' && idVal2) thMap[String(idVal2)] = subs;
         }
 
-        // If backend endpoints returned unexpected shapes (empty), fall back to scanning products to build filter lists
+        // If backend endpoints returned unexpected shapes (empty), fall back to scanning products
         const allEmpty = Object.values(built).every(arr => !arr || arr.length === 0);
         if (allEmpty) {
           try {
@@ -191,41 +226,57 @@ const useDynamicOptions = () => {
               theme: extract('theme'),
             };
 
-            // also attempt to derive suboccasions and subthemes from products grouped by occasion/theme
             const subOccMapFallback: Record<string, Set<string>> = {};
             const subThemeMapFallback: Record<string, Set<string>> = {};
             for (const p of prods) {
-              const occVal = (p as Record<string, unknown>)?.occasion;
-              const occNames = Array.isArray(occVal) ? occVal as unknown[] : (typeof occVal === 'string' ? (occVal as string).split(',').map((s:string)=>s.trim()) : []);
-              const subOccVal = (p as Record<string, unknown>)?.suboccasions;
-              const subOccNames = Array.isArray(subOccVal) ? subOccVal as unknown[] : (typeof subOccVal === 'string' ? (subOccVal as string).split(',').map((s:string)=>s.trim()) : []);
+              const obj = p as any;
+              const catVal = obj.category;
+              const catNames = Array.isArray(catVal) ? toStrings(catVal) : (typeof catVal === 'string' ? [catVal] : toStrings([catVal]));
+              
+              const flv = obj.flavor;
+              const flvNames = Array.isArray(flv) ? toStrings(flv) : (typeof flv === 'string' ? [flv] : toStrings([flv]));
+              
+              const typ = obj.type;
+              const typNames = Array.isArray(typ) ? toStrings(typ) : (typeof typ === 'string' ? [typ] : toStrings([typ]));
 
-              const themeVal = (p as Record<string, unknown>)?.theme;
-              const themeNames = Array.isArray(themeVal) ? themeVal as unknown[] : (typeof themeVal === 'string' ? (themeVal as string).split(',').map((s:string)=>s.trim()) : []);
-              const subThemeVal = (p as Record<string, unknown>)?.subthemes;
-              const subThemeNames = Array.isArray(subThemeVal) ? subThemeVal as unknown[] : (typeof subThemeVal === 'string' ? (subThemeVal as string).split(',').map((s:string)=>s.trim()) : []);
+              catNames.forEach(cn => {
+                if (cn) {
+                  if (!fMap[cn]) fMap[cn] = [];
+                  flvNames.forEach(fn => fn && !fMap[cn].includes(fn) && fMap[cn].push(fn));
 
-              for (const oName of occNames as string[]) {
+                  if (!tMap[cn]) tMap[cn] = [];
+                  typNames.forEach(tn => tn && !tMap[cn].includes(tn) && tMap[cn].push(tn));
+                }
+              });
+
+              const occVal = obj.occasion;
+              const occNames = Array.isArray(occVal) ? toStrings(occVal) : (typeof occVal === 'string' ? [occVal] : toStrings([occVal]));
+              const subOccVal = obj.suboccasions;
+              const subOccNames = Array.isArray(subOccVal) ? toStrings(subOccVal) : (typeof subOccVal === 'string' ? [subOccVal] : toStrings([subOccVal]));
+
+              const themeVal = obj.theme;
+              const themeNames = Array.isArray(themeVal) ? toStrings(themeVal) : (typeof themeVal === 'string' ? [themeVal] : toStrings([themeVal]));
+              const subThemeVal = obj.subthemes;
+              const subThemeNames = Array.isArray(subThemeVal) ? toStrings(subThemeVal) : (typeof subThemeVal === 'string' ? [subThemeVal] : toStrings([subThemeVal]));
+
+              for (const oName of occNames) {
                 if (!oName) continue;
                 if (!subOccMapFallback[oName]) subOccMapFallback[oName] = new Set();
-                for (const sName of subOccNames as string[]) if (sName) subOccMapFallback[oName].add(sName);
+                for (const sName of subOccNames) if (sName) subOccMapFallback[oName].add(sName);
               }
 
-              for (const tName of themeNames as string[]) {
+              for (const tName of themeNames) {
                 if (!tName) continue;
                 if (!subThemeMapFallback[tName]) subThemeMapFallback[tName] = new Set();
-                for (const sName of subThemeNames as string[]) if (sName) subThemeMapFallback[tName].add(sName);
+                for (const sName of subThemeNames) if (sName) subThemeMapFallback[tName].add(sName);
               }
             }
             for (const k of Object.keys(subOccMapFallback)) occMap[k] = Array.from(subOccMapFallback[k]);
             for (const k of Object.keys(subThemeMapFallback)) thMap[k] = Array.from(subThemeMapFallback[k]);
 
-          } catch (e) {
-            // ignore fallback errors
-          }
+          } catch (e) { }
         }
 
-        // merge with defaults where empty
         setOptions({
           category: built.category.length ? built.category : defaultFilterOptions.category,
           flavor: built.flavor.length ? built.flavor : defaultFilterOptions.flavor,
@@ -233,15 +284,16 @@ const useDynamicOptions = () => {
           occasion: built.occasion.length ? built.occasion : defaultFilterOptions.occasion,
           weight: built.weight.length ? built.weight : defaultFilterOptions.weight,
           delivery: built.delivery && built.delivery.length ? built.delivery : defaultFilterOptions.delivery,
-          dietary: built.dietary && built.dietary.length ? built.dietary : defaultFilterOptions.delivery,
+          dietary: built.dietary && built.dietary.length ? built.dietary : defaultFilterOptions.dietary,
           shape: built.shape.length ? built.shape : defaultFilterOptions.shape,
           theme: built.theme.length ? built.theme : defaultFilterOptions.theme,
         });
 
         setSubOccMap(occMap);
         setSubThemeMap(thMap);
+        setFlavorMap(fMap);
+        setTypeMap(tMap);
       } catch (e) {
-        // noop
       } finally {
         mounted = false;
       }
@@ -250,7 +302,7 @@ const useDynamicOptions = () => {
     return () => { mounted = false; };
   }, []);
 
-  return { options, subOccMap, subThemeMap };
+  return { options, subOccMap, subThemeMap, flavorMap, typeMap };
 };
 
 interface FilterSidebarProps {
@@ -262,7 +314,7 @@ interface FilterSidebarProps {
 
 export default function FilterSidebar({ onFilterChange, className, isOpen, onClose }: FilterSidebarProps) {
   const [filters, setFilters] = useState<FilterState>(initialFilters);
-  const { options, subOccMap, subThemeMap } = useDynamicOptions();
+  const { options, subOccMap, subThemeMap, flavorMap, typeMap } = useDynamicOptions();
   // control which accordion panels are open so we can auto-open sub-sections
   const [openPanels, setOpenPanels] = useState<string[]>(["category", "price", "flavor"]);
 
@@ -274,6 +326,17 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
         : [...current, value];
       
       const newFilters = { ...prev, [section]: updated };
+      
+      // Auto-prune flavor and type when category changes
+      if (section === 'category') {
+        if (updated.length > 0) {
+          const validFlavors = computeFlavorOptions(updated);
+          const validTypes = computeTypeOptions(updated);
+          newFilters.flavor = prev.flavor.filter(f => validFlavors.includes(f));
+          newFilters.type = prev.type.filter(t => validTypes.includes(t));
+        }
+      }
+
       onFilterChange?.(newFilters);
 
       // Auto-open dependent sub-section when parent selection made/cleared
@@ -359,6 +422,30 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
     return Array.from(set);
   };
 
+  const computeFlavorOptions = (sel?: string[]) => {
+    const selCats = (typeof sel !== 'undefined') ? (sel || []) : (filters.category || []);
+    if (selCats.length === 0) return options.flavor;
+    const set = new Set<string>();
+    selCats.forEach(c => {
+      const list = flavorMap[c] || [];
+      list.forEach(item => set.add(item));
+    });
+    const result = Array.from(set);
+    return result.length > 0 ? result : options.flavor;
+  };
+
+  const computeTypeOptions = (sel?: string[]) => {
+    const selCats = (typeof sel !== 'undefined') ? (sel || []) : (filters.category || []);
+    if (selCats.length === 0) return options.type;
+    const set = new Set<string>();
+    selCats.forEach(c => {
+      const list = typeMap[c] || [];
+      list.forEach(item => set.add(item));
+    });
+    const result = Array.from(set);
+    return result.length > 0 ? result : options.type;
+  };
+
   return (
     <div className={`bg-white border-r border-[#D4A373]/20 ${className}`}>
       <div className="p-4 border-b border-[#F5ECD7] flex items-center justify-between bg-white z-10">
@@ -405,40 +492,46 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
           </AccordionItem>
 
           {/* Dynamic Checkbox Sections */}
-          {Object.entries(options).map(([key, opts]) => (
-            <AccordionItem value={key} key={key} className="border-b border-[#D4A373]/20">
-              <AccordionTrigger className="capitalize text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">
-                {key.replace(/([A-Z])/g, ' $1').trim()}
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid grid-cols-1 gap-1.5 pt-1">
-                  {opts.map((option) => (
-                    <div
-                      key={option}
-                      className={`flex items-center space-x-2 px-2 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                        (filters[key as keyof FilterState] as string[]).includes(option)
-                          ? "bg-[#3E2723]/8 "
-                          : "hover:bg-[#D4A373]/10"
-                      }`}
-                    >
-                      <Checkbox 
-                        id={`${key}-${option}`} 
-                        checked={(filters[key as keyof FilterState] as string[]).includes(option)}
-                        onCheckedChange={() => handleCheckboxChange(key as keyof FilterState, option)}
-                        className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723]"
-                      />
-                      <label
-                        htmlFor={`${key}-${option}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full"
+          {Object.entries(options).map(([key, opts]) => {
+            let displayOpts = opts;
+            if (key === 'flavor') displayOpts = computeFlavorOptions();
+            if (key === 'type') displayOpts = computeTypeOptions();
+
+            return (
+              <AccordionItem value={key} key={key} className="border-b border-[#D4A373]/20">
+                <AccordionTrigger className="capitalize text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">
+                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="grid grid-cols-1 gap-1.5 pt-1">
+                    {displayOpts.map((option) => (
+                      <div
+                        key={option}
+                        className={`flex items-center space-x-2 px-2 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                          (filters[key as keyof FilterState] as string[]).includes(option)
+                            ? "bg-[#3E2723]/8 "
+                            : "hover:bg-[#D4A373]/10"
+                        }`}
                       >
-                        {option}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
+                        <Checkbox 
+                          id={`${key}-${option}`} 
+                          checked={(filters[key as keyof FilterState] as string[]).includes(option)}
+                          onCheckedChange={() => handleCheckboxChange(key as keyof FilterState, option)}
+                          className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723]"
+                        />
+                        <label
+                          htmlFor={`${key}-${option}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full"
+                        >
+                          {option}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            );
+          })}
 
           {/* Sub-Occasions (dependent on selected Occasion) */}
           <AccordionItem value="suboccasions" className="border-b border-[#D4A373]/20">
