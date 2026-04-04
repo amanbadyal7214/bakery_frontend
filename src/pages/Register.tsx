@@ -27,7 +27,7 @@ export default function Register() {
     }
     setSendingOtp(true);
     try {
-      const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || "http://localhost:5000";
+      const apiBase = "https://bakery-bakend.onrender.com";
       const response = await fetch(`${apiBase}/api/customers/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
