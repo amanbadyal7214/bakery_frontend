@@ -59,6 +59,7 @@ export default function Register() {
     try {
       const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || "http://localhost:5000";
       const response = await fetch(`${apiBase}/api/customers/register`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
