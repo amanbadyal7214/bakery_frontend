@@ -26,8 +26,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === "localhost" ? "https://bakery-bakend.onrender.com" : "https://bakery-bakend.onrender.com");
-      const response = await fetch(`${apiBase}/api/customers/login`, {
+      const response = await fetch("https://bakery-bakend.onrender.com/api/customers/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,8 +67,7 @@ export default function Login() {
   const sendResetOtp = async () => {
     setFpLoading(true);
     try {
-      const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === "localhost" ? "https://bakery-bakend.onrender.com" : "https://bakery-bakend.onrender.com");
-      const res = await fetch(`${apiBase}/api/customers/send-reset-otp`, {
+      const res = await fetch('https://bakery-bakend.onrender.com/api/customers/send-reset-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: fpEmail }),
@@ -89,8 +87,7 @@ export default function Login() {
   const verifyResetOtp = async () => {
     setFpLoading(true);
     try {
-      const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === "localhost" ? "https://bakery-bakend.onrender.com" : "https://bakery-bakend.onrender.com");
-      const res = await fetch(`${apiBase}/api/customers/verify-reset-otp`, {
+      const res = await fetch('https://bakery-bakend.onrender.com/api/customers/verify-reset-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: fpEmail, otp: fpOtp }),
@@ -110,8 +107,7 @@ export default function Login() {
   const resetPassword = async () => {
     setFpLoading(true);
     try {
-      const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === "localhost" ? "https://bakery-bakend.onrender.com" : "https://bakery-bakend.onrender.com");
-      const res = await fetch(`${apiBase}/api/customers/reset-password`, {
+      const res = await fetch('https://bakery-bakend.onrender.com/api/customers/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: fpEmail, otp: fpOtp, newPassword: fpNewPassword }),

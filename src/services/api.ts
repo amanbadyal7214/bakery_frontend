@@ -2,9 +2,7 @@
 
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : (window.location.hostname === "localhost" ? "https://bakery-bakend.onrender.com/api" : "https://bakery-bakend.onrender.com/api");
+const API_BASE_URL = 'https://bakery-bakend.onrender.com/api';
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
