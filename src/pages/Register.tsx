@@ -27,7 +27,7 @@ export default function Register() {
     }
     setSendingOtp(true);
     try {
-      const apiBase = "https://bakery-bakend.onrender.com";
+      const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === "localhost" ? "https://bakery-bakend.onrender.com" : "https://bakery-bakend.onrender.com");
       const response = await fetch(`${apiBase}/api/customers/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,7 +57,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const apiBase = "https://bakery-bakend.onrender.com";
+      const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === "localhost" ? "https://bakery-bakend.onrender.com" : "https://bakery-bakend.onrender.com");
       const response = await fetch(`${apiBase}/api/customers/register`, {
         method: "POST",
         headers: {
