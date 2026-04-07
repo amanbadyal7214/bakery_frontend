@@ -27,8 +27,7 @@ export default function Register() {
     }
     setSendingOtp(true);
     try {
-      const apiBase = "https://bakery-bakend.onrender.com";
-      const response = await fetch(`${apiBase}/api/customers/send-otp`, {
+      const response = await fetch("https://bakery-bakend.onrender.com/api/customers/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
