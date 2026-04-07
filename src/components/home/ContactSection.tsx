@@ -154,9 +154,19 @@ export default function ContactSection() {
                
                <h3 className="font-playfair text-2xl font-bold text-bread-dark mb-8 relative z-10">Get in Touch</h3>
                
-               {/* Only show backend data. If loading, show loading text. If no profile, show not available message. */}
+               {/* Only show backend data. If loading, show skeleton. If no profile, show not available message. */}
                {loading ? (
-                 <div className="py-8 text-center text-gray-500">Loading contact information…</div>
+                 <div className="space-y-8 relative z-10 animate-pulse">
+                   {[1, 2, 3, 4].map((i) => (
+                     <div key={i} className="flex gap-5 items-start">
+                       <div className="w-12 h-12 bg-gray-200 rounded-2xl flex-shrink-0" />
+                       <div className="space-y-2 w-full pt-2">
+                         <div className="h-3 bg-gray-200 rounded w-24"></div>
+                         <div className="h-4 bg-gray-200 rounded w-3/4 max-w-[200px]"></div>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
                ) : profile ? (
                  <motion.div 
                     variants={container}

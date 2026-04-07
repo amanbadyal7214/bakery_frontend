@@ -357,8 +357,31 @@ export default function Menu() {
               className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 lg:gap-8"
             >
               <AnimatePresence mode="popLayout">
-                {/* paginate filteredProducts */}
-                {(() => {
+                {loading ? (
+                  Array.from({ length: 15 }).map((_, i) => (
+                    <motion.article key={`skeleton-${i}`}
+                      variants={item}
+                      className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] border border-[#3E2723]/5 flex flex-col h-full animate-pulse"
+                    >
+                      <div className="block h-full w-full p-3 flex flex-col">
+                        <div className="relative aspect-square w-full rounded-[1.5rem] overflow-hidden mb-4 bg-gray-200"></div>
+                        <div className="flex-1 flex flex-col px-1">
+                          <div className="h-5 bg-gray-200 rounded-md w-3/4 mb-2"></div>
+                          <div className="h-4 bg-gray-200 rounded-md w-1/2 mb-2"></div>
+                          <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
+                            <div className="flex flex-col gap-1 w-full max-w-[60px]">
+                              <div className="h-2 bg-gray-200 rounded w-full"></div>
+                              <div className="h-4 bg-gray-200 rounded w-full"></div>
+                            </div>
+                            <div className="h-10 bg-gray-200 rounded-xl w-24"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.article>
+                  ))
+                ) : (
+                /* paginate filteredProducts */
+                (() => {
                   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage));
                   const start = (currentPage - 1) * itemsPerPage;
                   const pagedProducts = filteredProducts.slice(start, start + itemsPerPage);
@@ -485,7 +508,7 @@ export default function Menu() {
                       </motion.article>
                     );
                   });
-                })()}
+                })())}
               </AnimatePresence>
             </motion.div>
 
@@ -519,7 +542,7 @@ export default function Menu() {
               </div>
             )}
 
-            {filteredProducts.length === 0 && (
+            {!loading && filteredProducts.length === 0 && (
               <div className="text-center py-20 flex flex-col items-center">
                 <div className="w-24 h-24 bg-[#F5ECD7] rounded-full flex items-center justify-center mb-4 text-4xl">🍪</div>
                 <h3 className="text-2xl font-playfair font-bold text-[#1A2744] mb-2">No items match your taste</h3>

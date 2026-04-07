@@ -224,10 +224,39 @@ export default function ProductDetails() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-16 h-16 border-4 border-[#D4A373] border-t-transparent rounded-full animate-spin" />
-                    <p className="font-playfair text-xl text-[#2C1810]">Preparing sweetness...</p>
+            <div className="min-h-screen bg-[#FDFBF7] font-inter overflow-x-hidden">
+                <Navbar />
+                <div className="pt-24 px-4 w-full container mx-auto animate-pulse">
+                    <div className="h-4 w-48 bg-gray-200 rounded mb-10"></div>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-16">
+                        <div className="lg:col-span-5 space-y-8">
+                           <div className="aspect-square md:aspect-[5/4] rounded-[3rem] bg-gray-200"></div>
+                           <div className="flex gap-4 mt-8 justify-center">
+                              <div className="w-24 h-24 rounded-2xl bg-gray-200"></div>
+                              <div className="w-24 h-24 rounded-2xl bg-gray-200"></div>
+                              <div className="w-24 h-24 rounded-2xl bg-gray-200"></div>
+                           </div>
+                        </div>
+                        <div className="lg:col-span-4 flex flex-col space-y-8">
+                           <div className="h-6 w-32 bg-gray-200 rounded-full"></div>
+                           <div className="h-12 w-3/4 bg-gray-200 rounded"></div>
+                           <div className="space-y-3">
+                               <div className="h-4 w-full bg-gray-200 rounded"></div>
+                               <div className="h-4 w-5/6 bg-gray-200 rounded"></div>
+                               <div className="h-4 w-4/6 bg-gray-200 rounded"></div>
+                           </div>
+                           
+                           <div className="p-10 rounded-[3rem] bg-white border border-gray-100 h-64 shadow-sm flex flex-col gap-6">
+                               <div className="h-8 w-24 bg-gray-200 rounded"></div>
+                               <div className="h-10 w-full bg-gray-200 rounded"></div>
+                               <div className="h-10 w-full bg-gray-200 rounded"></div>
+                           </div>
+                           <div className="h-24 bg-gray-200 rounded-[2rem]"></div>
+                        </div>
+                        <div className="hidden lg:block lg:col-span-3">
+                           <div className="h-96 bg-gray-200 rounded-[3rem]"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         );

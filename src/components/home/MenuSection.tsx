@@ -154,12 +154,35 @@ export default function MenuSection() {
         <motion.div
           variants={container}
           initial="hidden"
-          animate={loading ? "hidden" : "show"}
+          animate="show"
           className="grid grid-cols-2 md:grid-cols-4 gap-5"
         >
-          {loading && (
-            <div className="col-span-2 md:col-span-4 text-center py-12 text-gray-500">Loading menu…</div>
-          )}
+          {loading && Array.from({ length: 8 }).map((_, i) => (
+            <motion.article key={`skeleton-${i}`}
+              variants={item}
+              className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] border border-[#3E2723]/5 flex flex-col h-full animate-pulse"
+            >
+              <div className="block h-full w-full p-3 flex flex-col">
+                {/* Image Skeleton */}
+                <div className="relative aspect-square w-full rounded-[1.5rem] overflow-hidden mb-4 bg-gray-200"></div>
+
+                {/* Content Skeleton */}
+                <div className="flex-1 flex flex-col px-1">
+                  <div className="h-5 bg-gray-200 rounded-md w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded-md w-1/2 mb-2"></div>
+
+                  {/* Price & Action Skeleton */}
+                  <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
+                    <div className="flex flex-col gap-1 w-full max-w-[60px]">
+                      <div className="h-2 bg-gray-200 rounded w-full"></div>
+                      <div className="h-4 bg-gray-200 rounded w-full"></div>
+                    </div>
+                    <div className="h-8 bg-gray-200 rounded-xl w-24"></div>
+                  </div>
+                </div>
+              </div>
+            </motion.article>
+          ))}
           {!loading && products.length === 0 && (
             <div className="col-span-2 md:col-span-4 text-center py-12 text-gray-500">No menu items available.</div>
           )}
