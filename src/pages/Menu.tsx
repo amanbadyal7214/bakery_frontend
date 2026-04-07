@@ -380,135 +380,135 @@ export default function Menu() {
                     </motion.article>
                   ))
                 ) : (
-                /* paginate filteredProducts */
-                (() => {
-                  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage));
-                  const start = (currentPage - 1) * itemsPerPage;
-                  const pagedProducts = filteredProducts.slice(start, start + itemsPerPage);
-                  return pagedProducts.map((p, pIndex) => {
-                    // determine stock availability from variants first, then common field names
-                    let bestVariant: any = null;
-                    if (Array.isArray(p.variants) && p.variants.length > 0) {
-                      bestVariant = p.variants.find((v: any) => Number(v.stock) > 0) || p.variants[0];
-                    }
-                    const currentVariantStock = bestVariant ? Number(bestVariant.stock) : Number(p.stock);
-                    const inStock = (() => {
-                      if (!p) return false;
-                      if (!Number.isNaN(currentVariantStock)) return currentVariantStock > 0;
-                      if (typeof p.quantity === 'number') return p.quantity > 0;
-                      if (typeof p.available === 'boolean') return p.available === true;
-                      // fallback: if there's an inventory field
-                      if (typeof p.inventory === 'number') return p.inventory > 0;
-                      // if no clear field, assume available
-                      return true;
-                    })();
+                  /* paginate filteredProducts */
+                  (() => {
+                    const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage));
+                    const start = (currentPage - 1) * itemsPerPage;
+                    const pagedProducts = filteredProducts.slice(start, start + itemsPerPage);
+                    return pagedProducts.map((p, pIndex) => {
+                      // determine stock availability from variants first, then common field names
+                      let bestVariant: any = null;
+                      if (Array.isArray(p.variants) && p.variants.length > 0) {
+                        bestVariant = p.variants.find((v: any) => Number(v.stock) > 0) || p.variants[0];
+                      }
+                      const currentVariantStock = bestVariant ? Number(bestVariant.stock) : Number(p.stock);
+                      const inStock = (() => {
+                        if (!p) return false;
+                        if (!Number.isNaN(currentVariantStock)) return currentVariantStock > 0;
+                        if (typeof p.quantity === 'number') return p.quantity > 0;
+                        if (typeof p.available === 'boolean') return p.available === true;
+                        // fallback: if there's an inventory field
+                        if (typeof p.inventory === 'number') return p.inventory > 0;
+                        // if no clear field, assume available
+                        return true;
+                      })();
 
-                    return (
-                      <motion.article key={p._id || p.id || `fallback-${pIndex}`}
-                        layout
-                        variants={item}
-                        initial="hidden"
-                        animate="show"
-                        exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                        className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] hover:shadow-[0_20px_50px_rgba(62,39,35,0.12)] transition-all duration-500 border border-[#3E2723]/5 flex flex-col h-full group"
-                      >
-                        <div onClick={() => {
-                          const prodId = (p && (p._id ?? p.id ?? '')) || '';
-                          if (!prodId) {
-                            console.warn('Product missing id, not navigating to detail:', p);
-                            return;
-                          }
-                          navigate(`/product/${prodId}`);
-                        }} className="block h-full w-full p-3 flex flex-col cursor-pointer">
-                          {/* Image Container */}
-                          <div className="relative aspect-square w-full rounded-[1.5rem] overflow-hidden mb-4 bg-[#F5F1ED]">
-                            <img src={getImageSrc(p)} alt={p.name}
-                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      return (
+                        <motion.article key={p._id || p.id || `fallback-${pIndex}`}
+                          layout
+                          variants={item}
+                          initial="hidden"
+                          animate="show"
+                          exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                          className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] hover:shadow-[0_20px_50px_rgba(62,39,35,0.12)] transition-all duration-500 border border-[#3E2723]/5 flex flex-col h-full group"
+                        >
+                          <div onClick={() => {
+                            const prodId = (p && (p._id ?? p.id ?? '')) || '';
+                            if (!prodId) {
+                              console.warn('Product missing id, not navigating to detail:', p);
+                              return;
+                            }
+                            navigate(`/product/${prodId}`);
+                          }} className="block h-full w-full p-3 flex flex-col cursor-pointer">
+                            {/* Image Container */}
+                            <div className="relative aspect-square w-full rounded-[1.5rem] overflow-hidden mb-4 bg-[#F5F1ED]">
+                              <img src={getImageSrc(p)} alt={p.name}
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
 
-                            {/* Badge */}
-                            {p.badge && (
-                              <div className="absolute top-2.5 left-2.5 px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1.5 animate-in fade-in slide-in-from-left-4 duration-500">
-                                <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
-                                <span className="text-[#3E2723] text-[0.6rem] font-bold uppercase tracking-wider">
-                                  {p.badge}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Content Section */}
-                          <div className="flex-1 flex flex-col px-1">
-                            <div className="flex justify-between items-start mb-1">
-                              <h3 className="font-playfair text-base font-bold text-[#3E2723] group-hover:text-[#D4A373] transition-colors line-clamp-1">
-                                {p.name}
-                              </h3>
-                            </div>
-
-                            <div className="flex items-center gap-1.5 mb-2 text-[#D4A373]">
-                              <Star size={12} className="fill-[#D4A373] text-[#D4A373]" />
-                              <span className="text-[#3E2723] text-xs font-bold">{p.rating || "4.8"}</span>
-                              <span className="text-[#3E2723]/40 text-[10px] uppercase font-bold tracking-widest ml-auto">{p.category}</span>
-                            </div>
-
-                            {/* show which selected filters this product matches */}
-                            {(filters && (Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== null))) && (
-                              <div className="mb-4 flex flex-wrap gap-1.5">
-                                {getMatchedTags(p).slice(0, 2).map((t) => (
-                                  <span key={t} className="text-[9px] bg-[#3E2723]/5 text-[#3E2723] px-2 py-0.5 rounded-full border border-[#3E2723]/10 font-bold capitalize">
-                                    {t}
+                              {/* Badge */}
+                              {p.badge && (
+                                <div className="absolute top-2.5 left-2.5 px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1.5 animate-in fade-in slide-in-from-left-4 duration-500">
+                                  <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
+                                  <span className="text-[#3E2723] text-[0.6rem] font-bold uppercase tracking-wider">
+                                    {p.badge}
                                   </span>
-                                ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Content Section */}
+                            <div className="flex-1 flex flex-col px-1">
+                              <div className="flex justify-between items-start mb-1">
+                                <h3 className="font-playfair text-base font-bold text-[#3E2723] group-hover:text-[#D4A373] transition-colors line-clamp-1">
+                                  {p.name}
+                                </h3>
                               </div>
-                            )}
 
-                            {/* Price & Action */}
-                            <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
-                              <div className="flex flex-col">
-                                <span className="text-[9px] font-bold uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
-                                <span className="text-sm font-bold text-[#3E2723]">${(bestVariant ? bestVariant.price : p.price).toFixed(2)}</span>
+                              <div className="flex items-center gap-1.5 mb-2 text-[#D4A373]">
+                                <Star size={12} className="fill-[#D4A373] text-[#D4A373]" />
+                                <span className="text-[#3E2723] text-xs font-bold">{p.rating || "4.8"}</span>
+                                <span className="text-[#3E2723]/40 text-[10px] uppercase font-bold tracking-widest ml-auto">{p.category}</span>
                               </div>
 
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (!isAuthenticated) {
-                                    toast({ title: 'Login required', description: 'Please sign in to add items to cart.' });
-                                    navigate('/login');
-                                    return;
-                                  }
-                                  if (!inStock) {
-                                    toast({ title: 'Out of stock', description: 'This item is currently unavailable.' });
-                                    return;
-                                  }
+                              {/* show which selected filters this product matches */}
+                              {(filters && (Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== null))) && (
+                                <div className="mb-4 flex flex-wrap gap-1.5">
+                                  {getMatchedTags(p).slice(0, 2).map((t) => (
+                                    <span key={t} className="text-[9px] bg-[#3E2723]/5 text-[#3E2723] px-2 py-0.5 rounded-full border border-[#3E2723]/10 font-bold capitalize">
+                                      {t}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
 
-                                  const baseWeight = bestVariant ? bestVariant.weight : (Array.isArray(p.weight) && p.weight.length > 0 ? p.weight[0] : 'Standard');
-                                  const baseFlavor = Array.isArray(p.flavor) && p.flavor.length > 0 ? p.flavor[0] : (typeof p.flavor === 'string' ? p.flavor : 'Original');
-                                  const basePrice = bestVariant ? bestVariant.price : (Array.isArray(p.pricesByWeight) && p.pricesByWeight[0] !== undefined ? p.pricesByWeight[0] : p.price);
+                              {/* Price & Action */}
+                              <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
+                                <div className="flex flex-col">
+                                  <span className="text-[9px] font-bold uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
+                                  <span className="text-sm font-bold text-[#3E2723]">${(bestVariant ? bestVariant.price : p.price).toFixed(2)}</span>
+                                </div>
 
-                                  const variantProductToAdd = {
-                                    ...p,
-                                    name: `${p.name} (${baseFlavor}, ${baseWeight})`,
-                                    price: basePrice,
-                                    stock: currentVariantStock || 0
-                                  };
-                                  void handleAddToCart(variantProductToAdd, 1, isAuthenticated);
-                                }}
-                                disabled={!inStock}
-                                className={`font-bold h-10 px-4 text-[9px] rounded-xl transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-1.5 ${!inStock
-                                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                  : 'bg-[#3E2723] text-white hover:bg-[#D4A373] hover:text-[#3E2723] shadow-md hover:shadow-lg active:scale-95'
-                                  }`}
-                              >
-                                <ShoppingBag size={12} />
-                                {!inStock ? 'Soon' : 'Add To Cart'}
-                              </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (!isAuthenticated) {
+                                      toast({ title: 'Login required', description: 'Please sign in to add items to cart.' });
+                                      navigate('/login');
+                                      return;
+                                    }
+                                    if (!inStock) {
+                                      toast({ title: 'Out of stock', description: 'This item is currently unavailable.' });
+                                      return;
+                                    }
+
+                                    const baseWeight = bestVariant ? bestVariant.weight : (Array.isArray(p.weight) && p.weight.length > 0 ? p.weight[0] : 'Standard');
+                                    const baseFlavor = Array.isArray(p.flavor) && p.flavor.length > 0 ? p.flavor[0] : (typeof p.flavor === 'string' ? p.flavor : 'Original');
+                                    const basePrice = bestVariant ? bestVariant.price : (Array.isArray(p.pricesByWeight) && p.pricesByWeight[0] !== undefined ? p.pricesByWeight[0] : p.price);
+
+                                    const variantProductToAdd = {
+                                      ...p,
+                                      name: `${p.name} (${baseFlavor}, ${baseWeight})`,
+                                      price: basePrice,
+                                      stock: currentVariantStock || 0
+                                    };
+                                    void handleAddToCart(variantProductToAdd, 1, isAuthenticated);
+                                  }}
+                                  disabled={!inStock}
+                                  className={`font-bold h-10 px-4 text-[9px] rounded-xl transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-1.5 ${!inStock
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-[#3E2723] text-white hover:bg-[#D4A373] hover:text-[#3E2723] shadow-md hover:shadow-lg active:scale-95'
+                                    }`}
+                                >
+                                  <ShoppingBag size={12} />
+                                  {!inStock ? 'Soon' : 'Add To Cart'}
+                                </button>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </motion.article>
-                    );
-                  });
-                })())}
+                        </motion.article>
+                      );
+                    });
+                  })())}
               </AnimatePresence>
             </motion.div>
 

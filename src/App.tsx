@@ -47,10 +47,10 @@ const AppContent = () => {
       <Suspense
         fallback={
           <div className="min-h-screen grid place-items-center">
-             <div className="flex flex-col items-center gap-4">
-                <div className="w-12 h-12 border-4 border-[#D4A373] border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-[#8D6E63] font-medium animate-pulse uppercase tracking-widest text-xs">Loading Store...</p>
-             </div>
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-12 h-12 border-4 border-[#D4A373] border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-[#8D6E63] font-medium animate-pulse uppercase tracking-widest text-xs">Loading Store...</p>
+            </div>
           </div>
         }
       >
