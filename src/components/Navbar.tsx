@@ -6,7 +6,7 @@ import { logout } from "../store/slices/authSlice";
 import { ShoppingBag, ChevronDown, Search, X, TrendingUp, Clock, ArrowRight, User } from "lucide-react";
 import CartSheet from "./CartSheet";
 import { products } from "./home/home-data";
-import logo from "../assets/Logo.jpeg";
+import logo from "../assets/Logo2.png";
 
 const navLinks = [
   { label: "HOME", id: "home", path: null },
