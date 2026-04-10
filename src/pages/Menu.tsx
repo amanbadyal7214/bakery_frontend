@@ -261,7 +261,7 @@ export default function Menu() {
         <div className="flex items-start gap-8 min-h-[calc(100vh-6rem)]">
 
           <aside className="hidden lg:block w-[300px] min-w-[300px] sticky top-28 self-start rounded-3xl bg-white border border-[#D4A373]/20 shadow-2xl shadow-[#3E2723]/5 transition-all duration-300 hover:shadow-xl">
-            <FilterSidebar onFilterChange={handleFilterChange} className="bg-white shadow-none border-none h-auto" />
+            <FilterSidebar filters={filters} onFilterChange={handleFilterChange} className="bg-white shadow-none border-none h-auto" />
           </aside>
 
           <AnimatePresence>
@@ -289,7 +289,7 @@ export default function Menu() {
                       <X size={20} />
                     </button>
                   </div>
-                  <FilterSidebar onFilterChange={handleFilterChange} className="bg-transparent shadow-none border-none" onClose={() => setIsFilterOpen(false)} />
+                  <FilterSidebar filters={filters} onFilterChange={handleFilterChange} className="bg-transparent shadow-none border-none" onClose={() => setIsFilterOpen(false)} />
                 </motion.div>
               </>
             )}
@@ -536,7 +536,21 @@ export default function Menu() {
                 <h3 className="text-2xl font-playfair font-bold text-[#1A2744] mb-2">No items match your taste</h3>
                 <p className="text-[#8D6E63]">Try adjusting your filters or search for something else.</p>
                 <button
-                  onClick={() => setSelectedCategory("All")}
+                  onClick={() => {
+                    setSelectedCategory("All");
+                    setFilters({
+                      category: [],
+                      flavor: [],
+                      type: [],
+                      occasion: [],
+                      suboccasion: [],
+                      subtheme: [],
+                      priceRange: [0, 5000],
+                      weight: [],
+                      shape: [],
+                      theme: [],
+                    });
+                  }}
                   className="mt-6 text-[#D4A373] font-bold border-b-2 border-[#D4A373] hover:text-[#3E2723] hover:border-[#3E2723] transition-all"
                 >
                   Clear Filters

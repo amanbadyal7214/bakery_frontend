@@ -35,7 +35,7 @@ const initialFilters: FilterState = {
   occasion: [],
   suboccasion: [],
   subtheme: [],
-  priceRange: [0, 2000],
+  priceRange: [0, 5000],
   weight: [],
   shape: [],
   theme: [],
@@ -59,6 +59,10 @@ const useDynamicOptions = () => {
   const [subThemeMap, setSubThemeMap] = useState<Record<string, string[]>>({});
   const [flavorMap, setFlavorMap] = useState<Record<string, string[]>>({});
   const [typeMap, setTypeMap] = useState<Record<string, string[]>>({});
+  const [occasionMap, setOccasionMap] = useState<Record<string, string[]>>({});
+  const [weightMap, setWeightMap] = useState<Record<string, string[]>>({});
+  const [shapeMap, setShapeMap] = useState<Record<string, string[]>>({});
+  const [themeMap, setThemeMap] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
     let mounted = true;
@@ -129,7 +133,7 @@ const useDynamicOptions = () => {
             if (!item || typeof item !== 'object') return;
             const obj = item as any;
             const name = toStrings([item])[0];
-            const catVal = obj.category;
+            const catVal = obj.category || obj.categoryId;
             if (name && catVal) {
               const catsArr = Array.isArray(catVal) ? catVal : [catVal];
               catsArr.forEach(c => {
@@ -151,6 +155,10 @@ const useDynamicOptions = () => {
 
         const fMap = buildSectionMap(flvs);
         const tMap = buildSectionMap(types);
+        const oMap = buildSectionMap(occ);
+        const wMap = buildSectionMap(wts);
+        const sShpMap = buildSectionMap(shp);
+        const sThmMap = buildSectionMap(thm);
 
         // build subOccMap from occasions response if objects provided
         const occMap: Record<string, string[]> = {};
@@ -282,6 +290,10 @@ const useDynamicOptions = () => {
         setSubThemeMap(thMap);
         setFlavorMap(fMap);
         setTypeMap(tMap);
+        setOccasionMap(oMap);
+        setWeightMap(wMap);
+        setShapeMap(sShpMap);
+        setThemeMap(sThmMap);
       } catch (e) {
       } finally {
         mounted = false;
@@ -291,19 +303,29 @@ const useDynamicOptions = () => {
     return () => { mounted = false; };
   }, []);
 
-  return { options, subOccMap, subThemeMap, flavorMap, typeMap };
+  return { options, subOccMap, subThemeMap, flavorMap, typeMap, occasionMap, weightMap, shapeMap, themeMap };
 };
 
 interface FilterSidebarProps {
+  filters?: FilterState;
   onFilterChange?: (filters: FilterState) => void;
   className?: string;
   isOpen?: boolean;
   onClose?: () => void;
 }
 
-export default function FilterSidebar({ onFilterChange, className, isOpen, onClose }: FilterSidebarProps) {
-  const [filters, setFilters] = useState<FilterState>(initialFilters);
-  const { options, subOccMap, subThemeMap, flavorMap, typeMap } = useDynamicOptions();
+export default function FilterSidebar({ filters: externalFilters, onFilterChange, className, isOpen, onClose }: FilterSidebarProps) {
+  const [filters, setFilters] = useState<FilterState>(externalFilters || initialFilters);
+
+  useEffect(() => {
+    if (externalFilters) {
+      setFilters(externalFilters);
+    }
+  }, [externalFilters]);
+  const { 
+    options, subOccMap, subThemeMap, flavorMap, typeMap, 
+    occasionMap, weightMap, shapeMap, themeMap 
+  } = useDynamicOptions();
   // control which accordion panels are open so we can auto-open sub-sections
   const [openPanels, setOpenPanels] = useState<string[]>(["category", "price", "flavor"]);
 
@@ -313,10 +335,12 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
     // Auto-prune flavor and type when category changes
     if (section === 'category') {
       if (updated.length > 0) {
-        const validFlavors = computeFlavorOptions(updated);
-        const validTypes = computeTypeOptions(updated);
-        newFilters.flavor = prev.flavor.filter(f => validFlavors.includes(f));
-        newFilters.type = prev.type.filter(t => validTypes.includes(t));
+        newFilters.flavor = prev.flavor.filter(f => computeFlavorOptions(updated).includes(f));
+        newFilters.type = prev.type.filter(t => computeTypeOptions(updated).includes(t));
+        newFilters.occasion = prev.occasion.filter(o => computeOccasionOptions(updated).includes(o));
+        newFilters.weight = prev.weight.filter(w => computeWeightOptions(updated).includes(w));
+        newFilters.shape = prev.shape.filter(s => computeShapeOptions(updated).includes(s));
+        newFilters.theme = prev.theme.filter(th => computeThemeOptions(updated).includes(th));
       }
     }
 
@@ -442,7 +466,8 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
       list.forEach(item => set.add(item));
     });
     const result = Array.from(set);
-    return result;
+    // fallback to all if empty to avoid "gayab" (disappearing) behavior
+    return result.length > 0 ? result : options.flavor;
   };
 
   const computeTypeOptions = (sel?: string[]) => {
@@ -454,7 +479,52 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
       list.forEach(item => set.add(item));
     });
     const result = Array.from(set);
-    return result;
+    // fallback to all if empty to avoid "gayab" (disappearing) behavior
+    return result.length > 0 ? result : options.type;
+  };
+
+  const computeOccasionOptions = (sel?: string[]) => {
+    const selCats = (typeof sel !== 'undefined') ? (sel || []) : (filters.category || []);
+    if (selCats.length === 0) return options.occasion;
+    const set = new Set<string>();
+    selCats.forEach(c => {
+      const list = occasionMap[c] || [];
+      list.forEach(item => set.add(item));
+    });
+    return Array.from(set);
+  };
+
+  const computeWeightOptions = (sel?: string[]) => {
+    const selCats = (typeof sel !== 'undefined') ? (sel || []) : (filters.category || []);
+    if (selCats.length === 0) return options.weight;
+    const set = new Set<string>();
+    selCats.forEach(c => {
+      const list = weightMap[c] || [];
+      list.forEach(item => set.add(item));
+    });
+    return Array.from(set);
+  };
+
+  const computeShapeOptions = (sel?: string[]) => {
+    const selCats = (typeof sel !== 'undefined') ? (sel || []) : (filters.category || []);
+    if (selCats.length === 0) return options.shape;
+    const set = new Set<string>();
+    selCats.forEach(c => {
+      const list = shapeMap[c] || [];
+      list.forEach(item => set.add(item));
+    });
+    return Array.from(set);
+  };
+
+  const computeThemeOptions = (sel?: string[]) => {
+    const selCats = (typeof sel !== 'undefined') ? (sel || []) : (filters.category || []);
+    if (selCats.length === 0) return options.theme;
+    const set = new Set<string>();
+    selCats.forEach(c => {
+      const list = themeMap[c] || [];
+      list.forEach(item => set.add(item));
+    });
+    return Array.from(set);
   };
 
   return (
@@ -529,6 +599,10 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
             let displayOpts = opts;
             if (key === 'flavor') displayOpts = computeFlavorOptions();
             if (key === 'type') displayOpts = computeTypeOptions();
+            if (key === 'occasion') displayOpts = computeOccasionOptions();
+            if (key === 'weight') displayOpts = computeWeightOptions();
+            if (key === 'shape') displayOpts = computeShapeOptions();
+            if (key === 'theme') displayOpts = computeThemeOptions();
 
             if (displayOpts.length === 0) return null;
 
@@ -600,7 +674,7 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
           })}
 
           {/* Sub-Occasions (dependent on selected Occasion) */}
-          {computeSubOccOptions().length > 0 && (
+          {filters.occasion.length > 0 && computeSubOccOptions().length > 0 && (
             <AccordionItem value="suboccasions" className="border-b border-[#D4A373]/20">
               <AccordionTrigger className="text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">Sub-Occasions</AccordionTrigger>
               <AccordionContent>
@@ -633,7 +707,7 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
           )}
 
           {/* Sub-Themes (dependent on selected Theme) */}
-          {computeSubThemeOptions().length > 0 && (
+          {filters.theme.length > 0 && computeSubThemeOptions().length > 0 && (
             <AccordionItem value="subthemes" className="border-b border-[#D4A373]/20">
               <AccordionTrigger className="text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">Sub-Themes</AccordionTrigger>
               <AccordionContent>
