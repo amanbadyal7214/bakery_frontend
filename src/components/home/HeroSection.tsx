@@ -78,33 +78,42 @@ export default function HeroSection() {
         restControls.set({ opacity: 0, y: 30, filter: "blur(10px)" })
       ]);
 
-      // 2. Flight in - Slower and more graceful
-      await Promise.all([
-        hangryControls.start({
-          x: 0, y: 0, opacity: 1, scale: 1, rotate: 0, filter: "brightness(1)",
-          transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] }
-        }),
-        sweetControls.start({
-          x: 0, y: 0, opacity: 1, scale: 1, rotate: 0, filter: "brightness(1)",
-          transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.1 }
-        })
-      ]);
+      // 2. Flight In - Sequential (One by One) - Ultra Smooth
+      await hangryControls.start({
+        x: 0, y: 0, opacity: 1, scale: 1, rotate: 0, filter: "brightness(1)",
+        transition: { 
+          type: "spring", stiffness: 90, damping: 18, mass: 1, 
+          opacity: { duration: 0.6 }
+        }
+      });
+
+      await new Promise(r => setTimeout(r, 100));
+
+      await sweetControls.start({
+        x: 0, y: 0, opacity: 1, scale: 1, rotate: 0, filter: "brightness(1)",
+        transition: { 
+          type: "spring", stiffness: 90, damping: 18, mass: 1,
+          opacity: { duration: 0.6 }
+        }
+      });
 
       await new Promise(r => setTimeout(r, 400));
 
-      // 3. Meet in Center
+      // 3. Meet in Center - Side-by-Side (Hangry Left, Sweet Right)
       await Promise.all([
         hangryControls.start({
-          x: "135%", // Move towards middle
-          rotate: 8,
-          scale: 1.1,
-          transition: { duration: 0.7, ease: "anticipate" }
+          x: "115%", // Move towards center-left
+          y: 0,
+          rotate: 0,
+          scale: 1.05,
+          transition: { duration: 0.7, ease: [0.6, 0.05, 0.1, 0.9] }
         }),
         sweetControls.start({
-          x: "-135%", // Move towards middle
-          rotate: -8,
-          scale: 1.1,
-          transition: { duration: 0.7, ease: "anticipate" }
+          x: "-115%", // Move towards center-right
+          y: 0,
+          rotate: 0,
+          scale: 1.05,
+          transition: { duration: 0.7, ease: [0.6, 0.05, 0.1, 0.9] }
         })
       ]);
 
@@ -112,33 +121,37 @@ export default function HeroSection() {
       setShowBlast(true);
       await Promise.all([
         hangryControls.start({
-          scale: 1.4,
+          scale: 1.3,
           filter: "brightness(1.5)",
-          transition: { duration: 0.2 }
+          transition: { duration: 0.25, ease: "easeOut" }
         }),
         sweetControls.start({
-          scale: 1.4,
+          scale: 1.3,
           filter: "brightness(1.5)",
-          transition: { duration: 0.2 }
+          transition: { duration: 0.25, ease: "easeOut" }
         })
       ]);
 
       await new Promise(r => setTimeout(r, 500));
       setShowBlast(false);
 
-      // 5. Final Positions and Reveal Rest
+      // 5. Final Banner Reveal - Secure Settlement
       await Promise.all([
         hangryControls.start({
           x: 0, scale: 1, rotate: 0, filter: "brightness(1)",
-          transition: { duration: 0.8, ease: [0.175, 0.885, 0.32, 1.15] } // Back out bounce
+          transition: { 
+            type: "spring", stiffness: 110, damping: 16
+          } 
         }),
         sweetControls.start({
           x: 0, scale: 1, rotate: 0, filter: "brightness(1)",
-          transition: { duration: 0.8, ease: [0.175, 0.885, 0.32, 1.15] }
+          transition: { 
+            type: "spring", stiffness: 110, damping: 16
+          }
         }),
         restControls.start({
           opacity: 1, y: 0, filter: "blur(0px)",
-          transition: { duration: 1, ease: "easeOut" }
+          transition: { duration: 1.2, ease: "easeOut" }
         })
       ]);
     };
