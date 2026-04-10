@@ -26,9 +26,6 @@ export default function Menu() {
     subtheme: [],
     priceRange: [0, 5000],
     weight: [],
-    delivery: [],
-    dietary: [],
-    rating: null,
     shape: [],
     theme: [],
   });
@@ -143,12 +140,7 @@ export default function Menu() {
     const matchedWeight = filters.weight?.filter(w => prodWeight.includes(w)) || [];
     pushIf(matchedWeight);
 
-    // delivery, dietary, shape, theme (also consider subthemes)
-    const prodDelivery = Array.isArray(p.delivery) ? p.delivery : (p.delivery ? [p.delivery] : []);
-    pushIf(filters.delivery?.filter(d => prodDelivery.includes(d)));
-
-    const prodDietary = Array.isArray(p.dietary) ? p.dietary : (p.dietary ? [p.dietary] : []);
-    pushIf(filters.dietary?.filter(d => prodDietary.includes(d)));
+    // shape, theme (also consider subthemes)
 
     const prodSubthemes = Array.isArray(p.subthemes) ? p.subthemes : (typeof p.subthemes === 'string' ? p.subthemes.split(',').map((s: string) => s.trim()) : []);
     if (filters.shape && filters.shape.length > 0 && p.shape && filters.shape.includes(p.shape)) pushIf([p.shape]);
@@ -205,8 +197,6 @@ export default function Menu() {
     // 3. Price Range
     if (p.price < filters.priceRange[0] || p.price > filters.priceRange[1]) return false;
 
-    // 4. Rating
-    if (filters.rating && (p.rating || 0) < filters.rating) return false;
 
     // 5. Dynamic Filters (Flavor, Type, Occasion, etc.)
     if (filters.flavor.length > 0 && !fieldMatchesAny(p.flavor, filters.flavor)) return false;
@@ -221,8 +211,6 @@ export default function Menu() {
     }
 
     if (filters.weight.length > 0 && !fieldMatchesAny(p.weight, filters.weight)) return false;
-    if (filters.delivery.length > 0 && !fieldMatchesAny(p.delivery, filters.delivery)) return false;
-    if (filters.dietary.length > 0 && !fieldMatchesAny(p.dietary, filters.dietary)) return false;
 
     // shape
     if (filters.shape.length > 0 && !filters.shape.some(s => matches(p.shape, s))) return false;

@@ -11,6 +11,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { X, Filter } from "lucide-react";
 import { api } from "@/services/api";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 export interface FilterState {
   category: string[];
@@ -21,9 +24,6 @@ export interface FilterState {
   subtheme: string[];
   priceRange: [number, number];
   weight: string[];
-  delivery: string[];
-  dietary: string[];
-  rating: number | null;
   shape: string[];
   theme: string[];
 }
@@ -37,9 +37,6 @@ const initialFilters: FilterState = {
   subtheme: [],
   priceRange: [0, 2000],
   weight: [],
-  delivery: [],
-  dietary: [],
-  rating: null,
   shape: [],
   theme: [],
 };
@@ -51,8 +48,6 @@ const defaultFilterOptions = {
   type: ["Eggless", "Egg Cake", "Vegan Cake", "Sugar-Free Cake", "Gluten-Free Cake", "Designer Cake", "Photo Cake", "Fondant Cake", "Theme Cake"],
   occasion: ["Birthday", "Anniversary", "Valentine's Day", "Baby Shower", "Graduation", "Christmas", "Diwali", "Party"],
   weight: ["500g", "1 Kg", "1.5 Kg", "2 Kg", "3 Kg+"],
-  delivery: [],
-  dietary: [],
   shape: ["Round", "Heart Shape", "Square", "Cartoon Shape", "Number Cake"],
   theme: ["Kids Theme", "Superhero Theme", "Princess Theme", "Football Theme", "Wedding Theme"],
 };
@@ -124,8 +119,6 @@ const useDynamicOptions = () => {
           type: toStrings(types),
           occasion: toStrings(occ),
           weight: toStrings(wts),
-          delivery: [],
-          dietary: [],
           shape: toStrings(shp),
           theme: toStrings(thm),
         };
@@ -140,16 +133,16 @@ const useDynamicOptions = () => {
             if (name && catVal) {
               const catsArr = Array.isArray(catVal) ? catVal : [catVal];
               catsArr.forEach(c => {
-                 let cn = '';
-                 if (typeof c === 'string') {
-                    cn = catLookup[c] || c;
-                 } else {
-                    cn = toStrings([c])[0];
-                 }
-                 if (cn) {
-                   if (!map[cn]) map[cn] = [];
-                   if (!map[cn].includes(name)) map[cn].push(name);
-                 }
+                let cn = '';
+                if (typeof c === 'string') {
+                  cn = catLookup[c] || c;
+                } else {
+                  cn = toStrings([c])[0];
+                }
+                if (cn) {
+                  if (!map[cn]) map[cn] = [];
+                  if (!map[cn].includes(name)) map[cn].push(name);
+                }
               });
             }
           });
@@ -220,8 +213,6 @@ const useDynamicOptions = () => {
               type: extract('type'),
               occasion: extract('occasion'),
               weight: extract('weight'),
-              delivery: extract('delivery'),
-              dietary: extract('dietary'),
               shape: extract('shape'),
               theme: extract('theme'),
             };
@@ -232,10 +223,10 @@ const useDynamicOptions = () => {
               const obj = p as any;
               const catVal = obj.category;
               const catNames = Array.isArray(catVal) ? toStrings(catVal) : (typeof catVal === 'string' ? [catVal] : toStrings([catVal]));
-              
+
               const flv = obj.flavor;
               const flvNames = Array.isArray(flv) ? toStrings(flv) : (typeof flv === 'string' ? [flv] : toStrings([flv]));
-              
+
               const typ = obj.type;
               const typNames = Array.isArray(typ) ? toStrings(typ) : (typeof typ === 'string' ? [typ] : toStrings([typ]));
 
@@ -283,8 +274,6 @@ const useDynamicOptions = () => {
           type: built.type.length ? built.type : defaultFilterOptions.type,
           occasion: built.occasion.length ? built.occasion : defaultFilterOptions.occasion,
           weight: built.weight.length ? built.weight : defaultFilterOptions.weight,
-          delivery: built.delivery && built.delivery.length ? built.delivery : defaultFilterOptions.delivery,
-          dietary: built.dietary && built.dietary.length ? built.dietary : defaultFilterOptions.dietary,
           shape: built.shape.length ? built.shape : defaultFilterOptions.shape,
           theme: built.theme.length ? built.theme : defaultFilterOptions.theme,
         });
@@ -318,55 +307,65 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
   // control which accordion panels are open so we can auto-open sub-sections
   const [openPanels, setOpenPanels] = useState<string[]>(["category", "price", "flavor"]);
 
+  const applyFilterSideEffects = (section: keyof FilterState, updated: string[], prev: FilterState) => {
+    const newFilters = { ...prev, [section]: updated };
+
+    // Auto-prune flavor and type when category changes
+    if (section === 'category') {
+      if (updated.length > 0) {
+        const validFlavors = computeFlavorOptions(updated);
+        const validTypes = computeTypeOptions(updated);
+        newFilters.flavor = prev.flavor.filter(f => validFlavors.includes(f));
+        newFilters.type = prev.type.filter(t => validTypes.includes(t));
+      }
+    }
+
+    // Auto-open dependent sub-section when parent selection made/cleared
+    if (section === 'occasion') {
+      const subs = computeSubOccOptions(updated);
+      if (updated.length > 0 && subs.length > 0) {
+        setOpenPanels((prevPanels) => prevPanels.includes('suboccasions') ? prevPanels : [...prevPanels, 'suboccasions']);
+      } else {
+        setOpenPanels((prevPanels) => prevPanels.filter(p => p !== 'suboccasions'));
+        if (updated.length === 0) {
+          newFilters.suboccasion = [];
+        }
+      }
+    }
+
+    if (section === 'theme') {
+      const subs = computeSubThemeOptions(updated);
+      if (updated.length > 0 && subs.length > 0) {
+        setOpenPanels((prevPanels) => prevPanels.includes('subthemes') ? prevPanels : [...prevPanels, 'subthemes']);
+      } else {
+        setOpenPanels((prevPanels) => prevPanels.filter(p => p !== 'subthemes'));
+        if (updated.length === 0) {
+          newFilters.subtheme = [];
+        }
+      }
+    }
+
+    return newFilters;
+  };
+
   const handleCheckboxChange = (section: keyof FilterState, value: string) => {
     setFilters((prev) => {
       const current = prev[section] as string[];
       const updated = current.includes(value)
         ? current.filter((item) => item !== value)
         : [...current, value];
-      
-      const newFilters = { ...prev, [section]: updated };
-      
-      // Auto-prune flavor and type when category changes
-      if (section === 'category') {
-        if (updated.length > 0) {
-          const validFlavors = computeFlavorOptions(updated);
-          const validTypes = computeTypeOptions(updated);
-          newFilters.flavor = prev.flavor.filter(f => validFlavors.includes(f));
-          newFilters.type = prev.type.filter(t => validTypes.includes(t));
-        }
-      }
 
+      const newFilters = applyFilterSideEffects(section, updated, prev);
       onFilterChange?.(newFilters);
+      return newFilters;
+    });
+  };
 
-      // Auto-open dependent sub-section when parent selection made/cleared
-      if (section === 'occasion') {
-        const subs = computeSubOccOptions(updated);
-        if (updated.length > 0 && subs.length > 0) {
-          setOpenPanels((prevPanels) => prevPanels.includes('suboccasions') ? prevPanels : [...prevPanels, 'suboccasions']);
-        } else {
-          setOpenPanels((prevPanels) => prevPanels.filter(p => p !== 'suboccasions'));
-          // clear suboccasion filters when parent cleared
-          if (updated.length === 0) {
-            newFilters.suboccasion = [];
-            onFilterChange?.(newFilters);
-          }
-        }
-      }
-      
-      if (section === 'theme') {
-        const subs = computeSubThemeOptions(updated);
-        if (updated.length > 0 && subs.length > 0) {
-          setOpenPanels((prevPanels) => prevPanels.includes('subthemes') ? prevPanels : [...prevPanels, 'subthemes']);
-        } else {
-          setOpenPanels((prevPanels) => prevPanels.filter(p => p !== 'subthemes'));
-          if (updated.length === 0) {
-            newFilters.subtheme = [];
-            onFilterChange?.(newFilters);
-          }
-        }
-      }
-
+  const handleRadioChange = (section: keyof FilterState, value: string) => {
+    setFilters((prev) => {
+      const updated = [value];
+      const newFilters = applyFilterSideEffects(section, updated, prev);
+      onFilterChange?.(newFilters);
       return newFilters;
     });
   };
@@ -377,6 +376,18 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
     onFilterChange?.(newFilters);
   };
 
+  const handleMinPriceInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value) || 0;
+    const newRange: [number, number] = [Math.min(value, filters.priceRange[1]), filters.priceRange[1]];
+    handlePriceChange(newRange);
+  };
+
+  const handleMaxPriceInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value) || 0;
+    const newRange: [number, number] = [filters.priceRange[0], Math.max(value, filters.priceRange[0])];
+    handlePriceChange(newRange);
+  };
+
   const clearFilters = () => {
     setFilters(initialFilters);
     onFilterChange?.(initialFilters);
@@ -385,7 +396,7 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
   // compute sub-occasion list to show based on selected occasion(s)
   const computeSubOccOptions = (sel?: string[]) => {
     const selArr = (typeof sel !== 'undefined') ? (sel || []) : (filters.occasion || []);
-     const set = new Set<string>();
+    const set = new Set<string>();
     if (selArr.length === 0) {
       // union of all
       Object.values(subOccMap).flat().forEach(s => s && set.add(s));
@@ -431,7 +442,7 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
       list.forEach(item => set.add(item));
     });
     const result = Array.from(set);
-    return result.length > 0 ? result : options.flavor;
+    return result;
   };
 
   const computeTypeOptions = (sel?: string[]) => {
@@ -443,7 +454,7 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
       list.forEach(item => set.add(item));
     });
     const result = Array.from(set);
-    return result.length > 0 ? result : options.type;
+    return result;
   };
 
   return (
@@ -454,7 +465,7 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
           <h2 className="font-playfair font-bold text-xl">Filters</h2>
         </div>
         <div className="flex items-center gap-2">
-           <button 
+          <button
             onClick={clearFilters}
             className="text-xs font-bold text-[#8D6E63] hover:text-[#D4A373] underline"
           >
@@ -470,7 +481,7 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
 
       <div className="p-4 space-y-2">
         <Accordion type="multiple" value={openPanels} onValueChange={(vals) => setOpenPanels(vals as string[])} className="w-full">
-          
+
           {/* Price Range */}
           <AccordionItem value="price" className="border-b border-[#D4A373]/20">
             <AccordionTrigger className="text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">Price Range</AccordionTrigger>
@@ -484,9 +495,31 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
                 onValueChange={handlePriceChange}
                 className="mb-4"
               />
-              <div className="flex justify-between text-sm font-bold text-[#8D6E63]">
-                <span className="bg-[#D4A373]/10 px-2 py-0.5 rounded-lg">${filters.priceRange[0]}</span>
-                <span className="bg-[#D4A373]/10 px-2 py-0.5 rounded-lg">${filters.priceRange[1]}</span>
+              <div className="flex items-center justify-between gap-4 mt-4">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] uppercase font-bold text-[#8D6E63] ml-1">Min Price</span>
+                  <div className="relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[#8D6E63] text-sm">$</span>
+                    <Input
+                      type="number"
+                      value={filters.priceRange[0]}
+                      onChange={handleMinPriceInputChange}
+                      className="h-9 pl-5 bg-[#D4A373]/5 border-[#D4A373]/20 focus-visible:ring-[#D4A373] text-sm font-bold text-[#3E2723]"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] uppercase font-bold text-[#8D6E63] ml-1">Max Price</span>
+                  <div className="relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[#8D6E63] text-sm">$</span>
+                    <Input
+                      type="number"
+                      value={filters.priceRange[1]}
+                      onChange={handleMaxPriceInputChange}
+                      className="h-9 pl-5 bg-[#D4A373]/5 border-[#D4A373]/20 focus-visible:ring-[#D4A373] text-sm font-bold text-[#3E2723]"
+                    />
+                  </div>
+                </div>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -497,36 +530,69 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
             if (key === 'flavor') displayOpts = computeFlavorOptions();
             if (key === 'type') displayOpts = computeTypeOptions();
 
+            if (displayOpts.length === 0) return null;
+
             return (
               <AccordionItem value={key} key={key} className="border-b border-[#D4A373]/20">
                 <AccordionTrigger className="capitalize text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">
                   {key.replace(/([A-Z])/g, ' $1').trim()}
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="grid grid-cols-1 gap-1.5 pt-1">
-                    {displayOpts.map((option) => (
-                      <div
-                        key={option}
-                        className={`flex items-center space-x-2 px-2 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                          (filters[key as keyof FilterState] as string[]).includes(option)
-                            ? "bg-[#3E2723]/8 "
-                            : "hover:bg-[#D4A373]/10"
-                        }`}
+                  <div className="pt-1">
+                    {['type', 'weight'].includes(key) ? (
+                      <RadioGroup
+                        value={(filters[key as keyof FilterState] as string[])[0] || ""}
+                        onValueChange={(val) => handleRadioChange(key as keyof FilterState, val)}
+                        className="grid grid-cols-1 gap-1.5"
                       >
-                        <Checkbox 
-                          id={`${key}-${option}`} 
-                          checked={(filters[key as keyof FilterState] as string[]).includes(option)}
-                          onCheckedChange={() => handleCheckboxChange(key as keyof FilterState, option)}
-                          className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723]"
-                        />
-                        <label
-                          htmlFor={`${key}-${option}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full"
-                        >
-                          {option}
-                        </label>
+                        {displayOpts.map((option) => (
+                          <div
+                            key={option}
+                            className={`flex items-center px-2 py-1.5 rounded-lg transition-colors ${(filters[key as keyof FilterState] as string[]).includes(option)
+                              ? "bg-[#D4A373]/10"
+                              : "hover:bg-[#D4A373]/5"
+                              }`}
+                          >
+                            <RadioGroupItem
+                              value={option}
+                              id={`${key}-${option}`}
+                              className="border-[#D4A373] text-[#3E2723] rounded-full"
+                            />
+                            <Label
+                              htmlFor={`${key}-${option}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full flex-1 py-1 ml-2"
+                            >
+                              {option}
+                            </Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
+                    ) : (
+                      <div className="grid grid-cols-1 gap-1.5">
+                        {displayOpts.map((option) => (
+                          <div
+                            key={option}
+                            className={`flex items-center px-2 py-1.5 rounded-lg transition-colors ${(filters[key as keyof FilterState] as string[]).includes(option)
+                              ? "bg-[#3E2723]/8"
+                              : "hover:bg-[#D4A373]/10"
+                              }`}
+                          >
+                            <Checkbox
+                              id={`${key}-${option}`}
+                              checked={(filters[key as keyof FilterState] as string[]).includes(option)}
+                              onCheckedChange={() => handleCheckboxChange(key as keyof FilterState, option)}
+                              className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723] rounded-none"
+                            />
+                            <label
+                              htmlFor={`${key}-${option}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full flex-1 py-1 ml-2"
+                            >
+                              {option}
+                            </label>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -534,107 +600,71 @@ export default function FilterSidebar({ onFilterChange, className, isOpen, onClo
           })}
 
           {/* Sub-Occasions (dependent on selected Occasion) */}
-          <AccordionItem value="suboccasions" className="border-b border-[#D4A373]/20">
-            <AccordionTrigger className="text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">Sub-Occasions</AccordionTrigger>
-            <AccordionContent>
-              <div className="grid grid-cols-1 gap-1.5 pt-1">
-                {computeSubOccOptions().length === 0 ? (
-                  <div className="text-sm text-[#8D6E63] italic">Select an occasion to see sub-occasions</div>
-                ) : computeSubOccOptions().map((option) => (
-                  <div
-                    key={option}
-                    className={`flex items-center space-x-2 px-2 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                      (filters.suboccasion as string[]).includes(option)
-                        ? "bg-[#3E2723]/8 "
-                        : "hover:bg-[#D4A373]/10"
-                    }`}
-                  >
-                    <Checkbox 
-                      id={`subocc-${option}`} 
-                      checked={(filters.suboccasion as string[]).includes(option)}
-                      onCheckedChange={() => handleCheckboxChange('suboccasion', option as string)}
-                      className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723]"
-                    />
-                    <label
-                      htmlFor={`subocc-${option}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full"
-                    >
-                      {option}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          {/* Sub-Themes (dependent on selected Theme) */}
-          <AccordionItem value="subthemes" className="border-b border-[#D4A373]/20">
-            <AccordionTrigger className="text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">Sub-Themes</AccordionTrigger>
-            <AccordionContent>
-              <div className="grid grid-cols-1 gap-1.5 pt-1">
-                {computeSubThemeOptions().length === 0 ? (
-                  <div className="text-sm text-[#8D6E63] italic">Select a theme to see sub-themes</div>
-                ) : computeSubThemeOptions().map((option) => (
-                  <div
-                    key={option}
-                    className={`flex items-center space-x-2 px-2 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                      (filters.subtheme as string[]).includes(option)
-                        ? "bg-[#3E2723]/8 "
-                        : "hover:bg-[#D4A373]/10"
-                    }`}
-                  >
-                    <Checkbox 
-                      id={`subtheme-${option}`} 
-                      checked={(filters.subtheme as string[]).includes(option)}
-                      onCheckedChange={() => handleCheckboxChange('subtheme', option as string)}
-                      className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723]"
-                    />
-                    <label
-                      htmlFor={`subtheme-${option}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full"
-                    >
-                      {option}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          {/* Ratings */}
-          <AccordionItem value="ratings" className="border-b-0">
-            <AccordionTrigger className="text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">Ratings</AccordionTrigger>
-            <AccordionContent>
-               <div className="space-y-1.5 pt-1">
-                  {[4, 3, 2, 1].map((rating) => (
+          {computeSubOccOptions().length > 0 && (
+            <AccordionItem value="suboccasions" className="border-b border-[#D4A373]/20">
+              <AccordionTrigger className="text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">Sub-Occasions</AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-1 gap-1.5 pt-1">
+                  {computeSubOccOptions().map((option) => (
                     <div
-                      key={rating}
-                      className={`flex items-center space-x-2 px-2 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                        filters.rating === rating ? "bg-[#3E2723]/8" : "hover:bg-[#D4A373]/10"
-                      }`}
+                      key={option}
+                      className={`flex items-center px-2 py-1.5 rounded-lg transition-colors ${(filters.suboccasion as string[]).includes(option)
+                        ? "bg-[#3E2723]/8 "
+                        : "hover:bg-[#D4A373]/10"
+                        }`}
                     >
-                      <Checkbox 
-                        id={`rating-${rating}`}
-                        checked={filters.rating === rating}
-                        onCheckedChange={(checked) => {
-                             setFilters(prev => {
-                                 const newVal = checked ? rating : null;
-                                 const newFilters = { ...prev, rating: newVal };
-                                 onFilterChange?.(newFilters);
-                                 return newFilters;
-                             });
-                        }}
-                        className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723]"
+                      <Checkbox
+                        id={`subocc-${option}`}
+                        checked={(filters.suboccasion as string[]).includes(option)}
+                        onCheckedChange={() => handleCheckboxChange('suboccasion', option as string)}
+                        className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723] rounded-none"
                       />
-                      <label htmlFor={`rating-${rating}`} className="text-sm font-medium text-[#5D4037] flex items-center gap-1 cursor-pointer w-full">
-                        <span className="text-[#FFB800]">{"★".repeat(rating)}{"☆".repeat(4 - rating)}</span>
-                        <span className="text-[#8D6E63]">& above</span>
+                      <label
+                        htmlFor={`subocc-${option}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full flex-1 py-1 ml-2"
+                      >
+                        {option}
                       </label>
                     </div>
                   ))}
-               </div>
-            </AccordionContent>
-          </AccordionItem>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+          {/* Sub-Themes (dependent on selected Theme) */}
+          {computeSubThemeOptions().length > 0 && (
+            <AccordionItem value="subthemes" className="border-b border-[#D4A373]/20">
+              <AccordionTrigger className="text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">Sub-Themes</AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-1 gap-1.5 pt-1">
+                  {computeSubThemeOptions().map((option) => (
+                    <div
+                      key={option}
+                      className={`flex items-center px-2 py-1.5 rounded-lg transition-colors ${(filters.subtheme as string[]).includes(option)
+                        ? "bg-[#3E2723]/8 "
+                        : "hover:bg-[#D4A373]/10"
+                        }`}
+                    >
+                      <Checkbox
+                        id={`subtheme-${option}`}
+                        checked={(filters.subtheme as string[]).includes(option)}
+                        onCheckedChange={() => handleCheckboxChange('subtheme', option as string)}
+                        className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723] rounded-none"
+                      />
+                      <label
+                        htmlFor={`subtheme-${option}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full flex-1 py-1 ml-2"
+                      >
+                        {option}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
 
         </Accordion>
       </div>
