@@ -67,53 +67,47 @@ export default function HeroSection() {
   // The "IMAGE WOW" Entry Animation Sequence
   useEffect(() => {
     const runAnimation = async () => {
-      // 1. Initial State - Starting at the top-left Navbar Logo position
+      // 1. Initial State - Starting precisely from the Top-Left Navbar Logo position
       await Promise.all([
         hangryControls.set({
-          x: "-48vw", y: "-120px", opacity: 0, scale: 0.1, rotate: -60, filter: "brightness(2)"
+          x: "-50vw", y: "-50vh", opacity: 0, scale: 0.1, rotate: -90, filter: "brightness(2)"
         }),
         sweetControls.set({
-          x: "-48vw", y: "-120px", opacity: 0, scale: 0.1, rotate: -60, filter: "brightness(2)"
+          x: "-50vw", y: "-50vh", opacity: 0, scale: 0.1, rotate: -90, filter: "brightness(2)"
         }),
-        restControls.set({ opacity: 0, y: 30, filter: "blur(10px)" })
+        restControls.set({ opacity: 0, y: 30, filter: "blur(12px)" })
       ]);
 
-      // 2. Flight In - Sequential (One by One) - Ultra Smooth
+      // 2. Flight In - Sequential (One by One) - Snappier
       await hangryControls.start({
         x: 0, y: 0, opacity: 1, scale: 1, rotate: 0, filter: "brightness(1)",
-        transition: { 
-          type: "spring", stiffness: 90, damping: 18, mass: 1, 
-          opacity: { duration: 0.6 }
-        }
+        transition: { duration: 0.75, ease: [0.22, 1, 0.36, 1] }
       });
 
-      await new Promise(r => setTimeout(r, 100));
+      await new Promise(r => setTimeout(r, 200));
 
       await sweetControls.start({
         x: 0, y: 0, opacity: 1, scale: 1, rotate: 0, filter: "brightness(1)",
-        transition: { 
-          type: "spring", stiffness: 90, damping: 18, mass: 1,
-          opacity: { duration: 0.6 }
-        }
+        transition: { duration: 0.75, ease: [0.22, 1, 0.36, 1] }
       });
 
-      await new Promise(r => setTimeout(r, 400));
+      await new Promise(r => setTimeout(r, 300));
 
-      // 3. Meet in Center - Side-by-Side (Hangry Left, Sweet Right)
+      // 3. Meet in Center - Fast Side-by-Side Merge
       await Promise.all([
         hangryControls.start({
-          x: "115%", // Move towards center-left
+          x: "115%", 
           y: 0,
           rotate: 0,
           scale: 1.05,
-          transition: { duration: 0.7, ease: [0.6, 0.05, 0.1, 0.9] }
+          transition: { duration: 0.6, ease: [0.6, 0.05, 0.1, 0.9] }
         }),
         sweetControls.start({
-          x: "-115%", // Move towards center-right
+          x: "-115%", 
           y: 0,
           rotate: 0,
           scale: 1.05,
-          transition: { duration: 0.7, ease: [0.6, 0.05, 0.1, 0.9] }
+          transition: { duration: 0.6, ease: [0.6, 0.05, 0.1, 0.9] }
         })
       ]);
 
@@ -123,35 +117,35 @@ export default function HeroSection() {
         hangryControls.start({
           scale: 1.3,
           filter: "brightness(1.5)",
-          transition: { duration: 0.25, ease: "easeOut" }
+          transition: { duration: 0.2, ease: "easeOut" }
         }),
         sweetControls.start({
           scale: 1.3,
           filter: "brightness(1.5)",
-          transition: { duration: 0.25, ease: "easeOut" }
+          transition: { duration: 0.2, ease: "easeOut" }
         })
       ]);
 
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise(r => setTimeout(r, 400));
       setShowBlast(false);
 
-      // 5. Final Banner Reveal - Secure Settlement
+      // 5. Final Banner Reveal - Snappy Settlement
       await Promise.all([
         hangryControls.start({
           x: 0, scale: 1, rotate: 0, filter: "brightness(1)",
           transition: { 
-            type: "spring", stiffness: 110, damping: 16
+            duration: 0.8, ease: [0.175, 0.885, 0.32, 1.2] 
           } 
         }),
         sweetControls.start({
           x: 0, scale: 1, rotate: 0, filter: "brightness(1)",
           transition: { 
-            type: "spring", stiffness: 110, damping: 16
+            duration: 0.8, ease: [0.175, 0.885, 0.32, 1.2] 
           }
         }),
         restControls.start({
           opacity: 1, y: 0, filter: "blur(0px)",
-          transition: { duration: 1.2, ease: "easeOut" }
+          transition: { duration: 0.8, ease: "easeOut" }
         })
       ]);
     };
