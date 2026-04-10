@@ -56,16 +56,16 @@ export default function HeroSection() {
   return (
     <section id="home" className="relative min-h-screen bg-parchment flex flex-col justify-center overflow-hidden pt-[72px]">
       {/* Watermark */}
-      <div
+      {/* <div
         aria-hidden="true"
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[52%] font-playfair font-extrabold tracking-widest text-navy/[0.04] whitespace-nowrap select-none pointer-events-none"
         style={{ fontSize: "clamp(6rem, 16vw, 16rem)" }}
       >
         BAKERY
-      </div>
+      </div> */}
 
       {/* Stamp */}
-      <div aria-hidden="true" className="absolute top-[13%] right-[8%] w-28 h-28 animate-spin-slow hidden md:block">
+      <div aria-hidden="true" className="absolute top-[18%] right-[8%] w-28 h-28 animate-spin-slow hidden md:block">
         <svg viewBox="0 0 120 120" className="w-full h-full">
           <defs>
             <path id="sc" d="M 60,60 m -45,0 a 45,45 0 1,1 90,0 a 45,45 0 1,1 -90,0" />
