@@ -336,7 +336,7 @@ export default function Navbar() {
           </Link>
 
           {/* ── Search Bar ── */}
-          <div ref={searchRef} className="flex-1 max-w-2xl relative hidden lg:block">
+          <div ref={searchRef} className="flex-1 ml-10 max-w-2xl relative hidden lg:block">
             <div className={`flex items-stretch rounded-2xl overflow-visible transition-all duration-300 ${searchFocused ? "shadow-[0_0_0_3px_#D4A373]" : "shadow-md hover:shadow-lg"
               }`}>
               {/* Category Selector */}
