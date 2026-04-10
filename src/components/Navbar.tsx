@@ -7,7 +7,7 @@ import { ShoppingBag, ChevronDown, Search, X, TrendingUp, Clock, ArrowRight, Use
 import CartSheet from "./CartSheet";
 import { products } from "./home/home-data";
 import logo from "../assets/Logo2.png";
-import CircleLogo from "../assets/CircleLogo.png"
+import CircleLogo from "../assets/code.png"
 
 const navLinks = [
   { label: "HOME", id: "home", path: null },
@@ -326,13 +326,13 @@ export default function Navbar() {
             </div>
 
 
-             <div className="hidden lg:block absolute top-[30%] left-0 flex items-center justify-center z-[100]">
-              <img src={CircleLogo} alt="Hangry? Sweet. Logo" className="w-32 h-32 object-contain drop-shadow-2xl hover:scale-110 transition-transform duration-300" />
+            <div className="hidden lg:block absolute top-[15%] left-[2%] flex items-center justify-center z-[100]">
+              <img src={CircleLogo} alt="Hangry? Sweet. Logo" className="w-36 h-36 object-contain drop-shadow-2xl hover:scale-110 transition-transform duration-300" />
             </div>
-            <div className="hidden md:flex flex-col leading-none">
+            {/* <div className="hidden md:flex flex-col leading-none">
               <span className="font-playfair text-xl font-bold tracking-wider text-[#1A2744] group-hover:text-[#D4A373] transition-colors">Hangry?Sweet.</span>
               <span className="text-[0.6rem] tracking-[0.3em] text-[#8D6E63] font-medium uppercase mt-1">Est. 2024</span>
-            </div>
+            </div> */}
           </Link>
 
           {/* ── Search Bar ── */}
