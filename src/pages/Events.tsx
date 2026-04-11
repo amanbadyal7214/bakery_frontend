@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, ChevronLeft, Calendar, MapPin, Music, Gift, Star, Sparkles, Instagram, Volume2, VolumeX, Music2 } from "lucide-react";
+import { Heart, ChevronLeft, Calendar, MapPin, Music, Gift, Star, Sparkles, Instagram, Volume2, VolumeX, Music2, RotateCcw } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/home/FooterSection";
 import daman from "@/assets/WhatsApp Image 2026-04-11 at 16.29.18.jpeg";
@@ -24,6 +24,7 @@ import wa13 from "@/assets/WhatsApp Image 2026-04-11 at 18.08.55 (2).jpeg";
 import wa14 from "@/assets/WhatsApp Image 2026-04-11 at 18.08.55 (1).jpeg";
 import wa15 from "@/assets/WhatsApp Image 2026-04-11 at 18.08.54.jpeg";
 import wa16 from "@/assets/WhatsApp Image 2026-04-11 at 18.16.15.jpeg";
+import wa17 from "@/assets/WhatsApp Image 2026-04-11 at 7.45.42 PM.jpeg";
 
 
 
@@ -41,6 +42,7 @@ const memories = [
   { src: wa5, rotate: "2deg" },
 
   { src: wa6, rotate: "4deg" },
+  {src:wa17,rotate:"2deg"},
   { src: wa1, rotate: "-2deg" },
   { src: wa3, rotate: "3deg" },
   { src: wa2, rotate: "-1deg" },
@@ -54,15 +56,22 @@ export default function Events() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showWishes, setShowWishes] = useState(false);
   const [currentMemoryIndex, setCurrentMemoryIndex] = useState(0);
+  const [isGalleryComplete, setIsGalleryComplete] = useState(false);
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && !isGalleryComplete) {
       const interval = setInterval(() => {
-        setCurrentMemoryIndex((prev) => (prev + 1) % memories.length);
+        setCurrentMemoryIndex((prev) => {
+          if (prev >= memories.length - 1) {
+            setIsGalleryComplete(true);
+            return prev;
+          }
+          return prev + 1;
+        });
       }, 4000);
       return () => clearInterval(interval);
     }
-  }, [loading]);
+  }, [loading, isGalleryComplete]);
   const [audio] = useState(() => {
     const a = new Audio(birthdaySong);
     a.loop = true;
@@ -171,7 +180,7 @@ export default function Events() {
   }
 
   return (
-    <div className="min-h-screen bg-[#EBE3D5] selection:bg-black selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#EBE3D5] selection:bg-black selection:text-white overflow-x-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
       <Navbar />
 
       <main className="relative pt-32  px-4 md:px-8">
@@ -257,22 +266,73 @@ export default function Events() {
                 <div className="relative p-4 bg-white shadow-2xl rounded-2xl transform rotate-2 group-hover:rotate-0 transition-transform duration-700">
                   <div className="w-[300px] h-[400px] md:w-[400px] md:h-[550px] overflow-hidden rounded-xl relative">
                     <AnimatePresence mode="wait">
-                      <motion.img
-                        key={currentMemoryIndex}
-                        src={memories[currentMemoryIndex].src}
-                        initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
-                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                        exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
-                        transition={{ duration: 1, ease: "easeInOut" }}
-                        className="w-full h-full object-cover"
-                      />
-                    </AnimatePresence>
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#2C1810]/40 to-transparent" />
+                      {!isGalleryComplete ? (
+                        <motion.img
+                          key={currentMemoryIndex}
+                          src={memories[currentMemoryIndex].src}
+                          initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
+                          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                          exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
+                          transition={{ duration: 1, ease: "easeInOut" }}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <motion.div
+                          key="special-message"
+                          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          className="w-full h-full bg-[#FCF8F1] p-6 md:p-10 flex flex-col justify-center items-center text-center overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                        >
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                            className="w-16 h-16 bg-[#2C1810] rounded-full flex items-center justify-center text-white mb-6 shadow-xl"
+                          >
+                            <Heart size={32} fill="currentColor" />
+                          </motion.div>
 
-                    {/* Retro Badge */}
-                    <div className="absolute top-6 left-6 flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30 text-white text-[0.6rem] font-black uppercase tracking-[0.2em]">
-                      <Sparkles size={10} /> Moments
-                    </div>
+                          <h3 className="font-playfair text-2xl md:text-3xl font-bold text-[#2C1810] mb-3">From Dadi ji & Family</h3>
+                          <div className="w-20 h-1 bg-[#D4A373] rounded-full mb-6" />
+
+                          <div className="space-y-4">
+                            <p className="font-playfair text-lg md:text-xl text-[#2C1810]/90 italic leading-relaxed">
+                              "Puttar, you are the heartbeat of our home. Watching you grow into such a wonderful soul has been our greatest joy."
+                            </p>
+                            <p className="text-[#2C1810]/70 text-sm md:text-base font-medium leading-relaxed">
+                              May Waheguru protect you and shower you with endless happiness. We are always cheering for you.
+                            </p>
+
+                            <div className="pt-6 border-t border-[#2C1810]/10 flex flex-col items-center">
+                              <h4 className="font-playfair text-xl md:text-2xl font-black text-[#2C1810]">Happy Birthday, Beta! 🖤</h4>
+                              <p className="text-[#D4A373] text-[0.6rem] uppercase tracking-[0.4em] mt-2 font-bold mb-6">With all our love</p>
+                              
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => {
+                                  setIsGalleryComplete(false);
+                                  setCurrentMemoryIndex(0);
+                                }}
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#2C1810] text-white text-[0.7rem] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#D4A373] transition-all shadow-lg hover:shadow-xl group"
+                              >
+                                <RotateCcw size={14} className="group-hover:rotate-[-180deg] transition-transform duration-500" />
+                                Watch Again
+                              </motion.button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    {!isGalleryComplete && (
+                      <>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#2C1810]/40 to-transparent" />
+                        {/* Retro Badge */}
+                        <div className="absolute top-6 left-6 flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30 text-white text-[0.6rem] font-black uppercase tracking-[0.2em]">
+                          <Sparkles size={10} /> Moments
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
