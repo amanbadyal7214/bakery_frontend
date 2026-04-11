@@ -50,14 +50,14 @@ export default function FreshBreadSection() {
             transition={{ duration: 0.8, delay: 0.3 }}
           >
             <p className="text-[#7A5C4F] text-lg italic mb-6 leading-relaxed">
-              Lorem ipsum dolor sit amet consectetur adipiscing elit. Utelit tellus luctus necullam corper mattis pulvinar dapibus.
+              From the first crackle of the crust to the soft, airy center, every loaf is a testament to our slow-fermentation process and stone-ground heritage flour.
             </p>
             <p className="text-[#7A5C4F] text-sm leading-relaxed mb-8 opacity-80">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip exea commodo consequat.
+              We believe that true bread takes time. Our master bakers hand-shape every single loaf using artisanal techniques and natural leaven, ensuring a depth of flavor and nutritional richness that commercial bread simply cannot match. It’s not just baking; it’s a commitment to the craft.
             </p>
             {/* Signature */}
             <div className="font-playfair font-bold text-3xl text-navy opacity-60 font-cursive" style={{ fontFamily: 'cursive' }}>
-              Calvin Richards
+              Margaret Howell
             </div>
           </motion.div>
 
@@ -77,9 +77,9 @@ export default function FreshBreadSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <h2 className="font-playfair text-4xl md:text-5xl text-navy mb-6">Book Anytime</h2>
+            <h2 className="font-playfair text-4xl md:text-5xl text-navy mb-6">Experience Quality</h2>
             <p className="text-[#7A5C4F] leading-relaxed mb-8">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              Experience the aroma of fresh baking and the warmth of our community kitchen. Whether you're stopping by for your morning sourdough or checking our daily specials, we're here to make every moment authentic and delicious.
             </p>
             <button 
               onClick={() => scrollTo("menu")} // Corrected to scroll to "menu" (lowercase) which is the id in MenuSection

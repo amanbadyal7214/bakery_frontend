@@ -589,255 +589,132 @@ export default function ProductDetails() {
                 </div>
 
 
-                {/* BOTTOM SECTION: Tabs & Details */}
-                <div className="mt-24 space-y-24">
+                {/* BOTTOM SECTION: Details */}
+                <div className="mt-12 space-y-2">
 
                     {/* Tabs for Detailed Info */}
                     <section>
-                        <Tabs defaultValue="details" className="w-full">
-                            <TabsList className="w-full justify-start bg-transparent border-b border-[#F2EBE3] rounded-none h-16 p-0 gap-8">
-                                <TabsTrigger value="details" className="bg-transparent border-none text-xl font-playfair font-bold text-[#7A5C4F] data-[state=active]:text-[#2C1810] data-[state=active]:shadow-none data-[state=active]:border-b-4 data-[state=active]:border-[#D4A373] rounded-none h-full transition-all">Details</TabsTrigger>
-                                <TabsTrigger value="ingredients" className="bg-transparent border-none text-xl font-playfair font-bold text-[#7A5C4F] data-[state=active]:text-[#2C1810] data-[state=active]:shadow-none data-[state=active]:border-b-4 data-[state=active]:border-[#D4A373] rounded-none h-full transition-all">Ingredients</TabsTrigger>
-                                <TabsTrigger value="nutrition" className="bg-transparent border-none text-xl font-playfair font-bold text-[#7A5C4F] data-[state=active]:text-[#2C1810] data-[state=active]:shadow-none data-[state=active]:border-b-4 data-[state=active]:border-[#D4A373] rounded-none h-full transition-all">Nutrition</TabsTrigger>
-                            </TabsList>
-
-                            <div className="py-12">
-                                <TabsContent value="details" className="m-0 focus-visible:ring-0">
-                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                        <div className="space-y-8">
-                                            <div className="p-10 bg-white rounded-[3rem] border border-[#F2EBE3] shadow-sm hover:shadow-xl transition-all h-full">
-                                                <h3 className="text-2xl font-playfair font-black mb-6 flex items-center gap-3"><History className="text-[#D4A373]" /> Specifications</h3>
-                                                <div className="space-y-4">
-                                                    {product.type && (
-                                                        <div className="flex justify-between items-center py-3 border-b border-[#FDFBF7]">
-                                                            <span className="text-xs font-bold text-[#B08968] uppercase tracking-wider">Type</span>
-                                                            <span className=" text-[#2C1810]">{Array.isArray(product.type) ? product.type.join(', ') : product.type}</span>
-                                                        </div>
-                                                    )}
-                                                    {product.shape && (
-                                                        <div className="flex justify-between items-center py-3 border-b border-[#FDFBF7]">
-                                                            <span className="text-xs font-bold text-[#B08968] uppercase tracking-wider">Shape</span>
-                                                            <span className=" text-[#2C1810]">{product.shape}</span>
-                                                        </div>
-                                                    )}
-                                                    {product.theme && (
-                                                        <div className="flex justify-between items-center py-3 border-b border-[#FDFBF7]">
-                                                            <span className="text-xs font-bold text-[#B08968] uppercase tracking-wider">Theme</span>
-                                                            <span className=" text-[#2C1810]">{product.theme}</span>
-                                                        </div>
-                                                    )}
-                                                    {product.occasion && product.occasion.length > 0 && (
-                                                        <div className="flex justify-between items-center py-3">
-                                                            <span className="text-xs font-bold text-[#B08968] uppercase tracking-wider">Occasions</span>
-                                                            <span className=" text-[#2C1810] text-right truncate max-w-[150px]">{product.occasion.join(', ')}</span>
-                                                        </div>
-                                                    )}
+                        <div className="border-b border-[#F2EBE3] mb-12">
+                            <h2 className="text-2xl font-playfair font-black pb-4 border-b-4 border-[#D4A373] inline-block">Product Information</h2>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            {/* Specifications Card */}
+                            <div className="space-y-8">
+                                <div className="pt-12 p-5 bg-white rounded-[3rem] border border-[#F2EBE3] shadow-sm hover:shadow-xl transition-all h-full">
+                                    <h3 className="text-2xl font-playfair font-black mb-6 flex items-center gap-3"><History className="text-[#D4A373]" /> Specifications</h3>
+                                    <div className="space-y-1">
+                                        {product.type && (
+                                            <div className="flex justify-between items-center py-3 border-b border-[#F2EBE3]">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373]/40" />
+                                                    <span className="text-[10px] font-black text-[#B08968] uppercase tracking-widest">Type</span>
                                                 </div>
+                                                <span className="text-sm font-bold text-[#2C1810] uppercase tracking-tight">{Array.isArray(product.type) ? product.type.join(', ') : product.type}</span>
                                             </div>
-                                        </div>
-
-                                        <div className="space-y-8">
-                                            <div className="p-10 bg-[#FDFBF7] rounded-[3rem] border border-[#D4A373]/20 shadow-sm h-full">
-                                                <h3 className="text-2xl font-playfair font-black mb-6 flex items-center gap-3"><PackageCheck className="text-[#D4A373]" /> Storage & Care</h3>
-                                                <div className="space-y-6">
-                                                    <div>
-                                                        <p className="text-xs font-black text-[#2C1810] uppercase tracking-widest mb-2">Optimal Freshness</p>
-                                                        <p className="text-[#7A5C4F] text-sm leading-relaxed">Best enjoyed at room temperature within 48 hours of delivery. Keep in an airtight container away from direct sunlight.</p>
-                                                    </div>
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <div className="p-4 bg-white rounded-2xl border border-[#F2EBE3]">
-                                                            <p className="text-[10px] font-bold text-[#B08968] mb-1 uppercase">Ambient</p>
-                                                            <p className="font-bold text-sm text-[#2C1810]">2-3 Days</p>
-                                                        </div>
-                                                        <div className="p-4 bg-white rounded-2xl border border-[#F2EBE3]">
-                                                            <p className="text-[10px] font-bold text-[#B08968] mb-1 uppercase">Refrigerated</p>
-                                                            <p className="font-bold text-sm text-[#2C1810]">Up to 5 Days</p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="pt-4 flex items-center gap-3 text-[#D4A373]">
-                                                        <Info size={16} />
-                                                        <p className="text-[11px] font-bold italic">Do not freeze to maintain delicate crumb structure.</p>
-                                                    </div>
+                                        )}
+                                        {product.shape && (
+                                            <div className="flex justify-between items-center py-3 border-b border-[#F2EBE3]">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373]/40" />
+                                                    <span className="text-[10px] font-black text-[#B08968] uppercase tracking-widest">Shape</span>
                                                 </div>
+                                                <span className="text-sm font-bold text-[#2C1810] uppercase tracking-tight">{product.shape}</span>
                                             </div>
-                                        </div>
-
-                                        <div className="space-y-8">
-                                            <div className="p-10 bg-white rounded-[3rem] border border-[#F2EBE3] shadow-sm h-full">
-                                                <h3 className="text-2xl font-playfair font-black mb-6 flex items-center gap-3"><Truck className="text-[#D4A373]" /> Hand-Delivery Excellence</h3>
-                                                <div className="space-y-6">
-                                                    <p className="text-[#7A5C4F] text-sm leading-relaxed">Each artisan piece is hand-carried in our signature temperature-controlled gift boxes. We guarantee it arrives as beautiful as when it left our studio.</p>
-                                                    <div className="space-y-3">
-                                                        <div className="flex items-center gap-4 text-sm font-bold text-[#2C1810]">
-                                                            <div className="w-8 h-8 rounded-full bg-[#F2FDF2] flex items-center justify-center text-[#16a34a]"><CheckCircle2 size={16} /></div>
-                                                            Signature Packaging Included
-                                                        </div>
-                                                        <div className="flex items-center gap-4 text-sm font-bold text-[#2C1810]">
-                                                            <div className="w-8 h-8 rounded-full bg-[#F2FDF2] flex items-center justify-center text-[#16a34a]"><CheckCircle2 size={16} /></div>
-                                                            Real-time Fleet Tracking
-                                                        </div>
-                                                        <div className="flex items-center gap-4 text-sm font-bold text-[#2C1810]">
-                                                            <div className="w-8 h-8 rounded-full bg-[#F2FDF2] flex items-center justify-center text-[#16a34a]"><CheckCircle2 size={16} /></div>
-                                                            BPA-Free Eco Materials
-                                                        </div>
-                                                    </div>
+                                        )}
+                                        {product.theme && (
+                                            <div className="flex justify-between items-center py-3 border-b border-[#F2EBE3]">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373]/40" />
+                                                    <span className="text-[10px] font-black text-[#B08968] uppercase tracking-widest">Theme</span>
                                                 </div>
+                                                <span className="text-sm font-bold text-[#2C1810] uppercase tracking-tight">{product.theme}</span>
                                             </div>
-                                        </div>
+                                        )}
+                                        {product.occasion && product.occasion.length > 0 && (
+                                            <div className="flex justify-between items-center py-3 border-b border-[#F2EBE3] last:border-0">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373]/40" />
+                                                    <span className="text-[10px] font-black text-[#B08968] uppercase tracking-widest">Occasions</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-[#2C1810] text-right uppercase tracking-tight">{product.occasion.join(', ')}</span>
+                                            </div>
+                                        )}
                                     </div>
-                                </TabsContent>
-
-                                <TabsContent value="ingredients" className="m-0 focus-visible:ring-0">
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                                        <div className="space-y-10">
-                                            <div className="p-12 bg-white rounded-[3.5rem] border border-[#F2EBE3] shadow-sm relative overflow-hidden">
-                                                <div className="absolute top-0 right-0 w-32 h-32 bg-[#FDFBF7] rounded-bl-full" />
-                                                <div className="relative z-10">
-                                                    <h3 className="text-3xl font-playfair font-black mb-4 flex items-center gap-3">
-                                                        <ChefHat className="text-[#D4A373]" /> Pure Composition
-                                                    </h3>
-                                                    <p className="text-[#7A5C4F] leading-relaxed italic mb-10 max-w-lg">
-                                                        {product.tasteDescription || product.description || "Our commitment to purity means zero additives, zero preservatives, and zero compromises. We trace every grain and drop back to its organic farm."}
-                                                    </p>
-
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                                                        {(product.ingredients || []).map((ing: string, i: number) => {
-                                                            const match = ing.match(/^(.*?)\s*\((.*?)\)$/);
-                                                            const name = match ? match[1] : ing;
-                                                            const label = match ? match[2] : "Natural";
-
-                                                            return (
-                                                                <div key={i} className="flex items-center justify-between pb-3 border-b border-[#FDFBF7] group">
-                                                                    <div className="flex items-center gap-3">
-                                                                        <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373] group-hover:scale-150 transition-transform" />
-                                                                        <span className=" text-[#2C1810] text-sm tracking-tight">{name}</span>
-                                                                    </div>
-                                                                    <span className="text-[10px] font-black text-[#2C1810] uppercase tracking-widest">{label}</span>
-                                                                </div>
-                                                            );
-                                                        })}
-                                                        {(!product.ingredients || product.ingredients.length === 0) && (
-                                                            <p className="text-[#7A5C4F] text-sm italic">Detailed ingredient list available upon request.</p>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-8">
-                                            <div className="p-12 bg-[#2C1810] rounded-[3.5rem] shadow-2xl relative overflow-hidden group">
-                                                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')] opacity-20" />
-                                                <div className="relative z-10">
-                                                    <div className="inline-flex items-center gap-3 px-4 py-1 bg-[#D4A373] text-[#2C1810] rounded-full text-[10px] font-black uppercase tracking-widest mb-6">
-                                                        <ShieldCheck size={14} /> Quality Assurance
-                                                    </div>
-                                                    <h4 className="text-2xl font-playfair font-black text-white mb-6">Product Description</h4>
-                                                    <div className="space-y-6">
-                                                        <p className="text-[#F2EBE3]/70 text-sm leading-relaxed italic">
-                                                            {product.tasteDescription || "A masterfully balanced flavor experience, uniquely crafted for this micro-batch."}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="p-8 bg-white rounded-[2.5rem] border border-[#F2EBE3] flex items-center justify-between group cursor-default">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 rounded-full bg-[#FDFBF7] flex items-center justify-center text-[#D4A373] shadow-inner group-hover:bg-[#D4A373] group-hover:text-white transition-all"><Leaf size={22} /></div>
-                                                    <div>
-                                                        <p className="font-black text-[#2C1810]">100% Sustainably Sourced</p>
-                                                        <p className="text-[10px] font-bold text-[#7A5C4F] uppercase tracking-widest">Ethical Farming Initiatives</p>
-                                                    </div>
-                                                </div>
-                                                <Star className="text-[#F2EBE3] group-hover:text-[#D4A373] transition-colors" size={24} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </TabsContent>
-
-                                <TabsContent value="nutrition" className="m-0 focus-visible:ring-0">
-                                    <div className="bg-white rounded-[3rem] p-12 border border-[#F2EBE3] shadow-sm max-w-4xl mx-auto">
-                                        <div className="flex items-center gap-4 mb-10">
-                                            <div className="w-14 h-14 rounded-full bg-[#FDFBF7] flex items-center justify-center text-[#D4A373]"><Info size={28} /></div>
-                                            <div>
-                                                <h3 className="text-3xl font-playfair font-black">Nutritional Transparency</h3>
-                                                <p className="text-[#7A5C4F]">Values based on a single serving (100g approx.)</p>
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
-                                            {[
-                                                {
-                                                    label: "Calories",
-                                                    val: (product.totalNutrition?.calories || product.totalNutrition?.Calories)
-                                                        ? (() => {
-                                                            const v = product.totalNutrition.calories || product.totalNutrition.Calories;
-                                                            return typeof v === 'object' ? `${v.value} ${v.unit}` : `${v} kcal`;
-                                                        })()
-                                                        : null,
-                                                    p: product.totalNutrition?.calories_dv
-                                                },
-                                                {
-                                                    label: "Total Fat",
-                                                    val: (product.totalNutrition?.fat || product.totalNutrition?.Fat)
-                                                        ? (() => {
-                                                            const v = product.totalNutrition.fat || product.totalNutrition.Fat;
-                                                            return typeof v === 'object' ? `${v.value}${v.unit}` : v;
-                                                        })()
-                                                        : null,
-                                                    p: product.totalNutrition?.fat_dv
-                                                },
-                                                {
-                                                    label: "Proteins",
-                                                    val: (product.totalNutrition?.protein || product.totalNutrition?.Protein)
-                                                        ? (() => {
-                                                            const v = product.totalNutrition.protein || product.totalNutrition.Protein;
-                                                            return typeof v === 'object' ? `${v.value}${v.unit}` : v;
-                                                        })()
-                                                        : null,
-                                                    p: product.totalNutrition?.protein_dv
-                                                },
-                                                {
-                                                    label: "Carbs",
-                                                    val: (product.totalNutrition?.carbs || product.totalNutrition?.Carbs)
-                                                        ? (() => {
-                                                            const v = product.totalNutrition.carbs || product.totalNutrition.Carbs;
-                                                            return typeof v === 'object' ? `${v.value}${v.unit}` : v;
-                                                        })()
-                                                        : null,
-                                                    p: product.totalNutrition?.carbs_dv
-                                                },
-                                            ].filter(n => n.val !== null).map((n, i) => (
-                                                <div key={i} className="text-center space-y-2 group">
-                                                    <div className="text-[15px] font-black uppercase tracking-widest text-[#B08968]">{n.label}</div>
-                                                    <div className="text-[12px] font-playfair  text-[#2C1810] group-hover:text-[#D4A373] transition-colors">{n.val}</div>
-                                                    {n.p && (
-                                                        <>
-                                                            <div className="w-full bg-[#F2EBE3] h-1.5 rounded-full overflow-hidden">
-                                                                <motion.div
-                                                                    initial={{ width: 0 }}
-                                                                    whileInView={{ width: n.p }}
-                                                                    transition={{ duration: 1, delay: i * 0.1 }}
-                                                                    className="bg-[#D4A373] h-full rounded-full"
-                                                                />
-                                                            </div>
-                                                            <div className="text-[10px] font-bold text-[#7A5C4F]">{n.p} daily value</div>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div className="mt-12 p-8 bg-[#FDFBF7] rounded-3xl border-2 border-dashed border-[#F2EBE3]">
-                                            <p className="text-sm font-bold text-[#7A5C4F] flex items-center gap-2 mb-2"><Info size={16} /> ALLERGEN INFORMATION</p>
-                                            <p className="text-[#7A5C4F] text-sm leading-relaxed">This product contains gluten, dairy, and eggs. May contain traces of tree nuts and soy. All our products are prepared in a facility that handles common food allergens.</p>
-                                        </div>
-                                    </div>
-                                </TabsContent>
+                                </div>
                             </div>
-                        </Tabs>
+
+                            {/* Ingredients Card */}
+                            <div className="space-y-8">
+                                <div className="p-10 bg-white rounded-[3rem] border border-[#F2EBE3] shadow-sm hover:shadow-xl transition-all h-full">
+                                    <h3 className="text-2xl font-playfair font-black mb-4 flex items-center gap-3"><ChefHat className="text-[#D4A373]" /> Pure Composition</h3>
+                                    <p className="text-[#7A5C4F] text-sm leading-relaxed mb-8 font-light">
+                                        {product.tasteDescription || "Our commitment to quality ensures every creation is made with the finest ingredients and baked fresh daily."}
+                                    </p>
+                                    <div className="space-y-4">
+                                        {(product.ingredients && product.ingredients.length > 0) ? (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-3">
+                                                {product.ingredients.map((ing: string, i: number) => {
+                                                    const match = ing.match(/^(.*?)\s*\((.*?)\)$/);
+                                                    const name = match ? match[1] : ing;
+                                                    const value = match ? match[2] : "Natural";
+                                                    return (
+                                                        <div key={i} className="flex items-center justify-between pb-2 border-b border-[#FDFBF7]">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373]" />
+                                                                <span className="text-[#2C1810] text-sm font-medium">{name}</span>
+                                                            </div>
+                                                            <span className="text-xs font-bold text-[#B08968] uppercase tracking-wider">{value}</span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : (
+                                            <p className="text-[#7A5C4F] text-sm italic">Detailed ingredient list available upon request.</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Nutrition Card */}
+                            <div className="space-y-8">
+                                <div className="p-10 bg-white rounded-[3rem] border border-[#F2EBE3] shadow-sm hover:shadow-xl transition-all h-full">
+                                    <div className="flex items-center gap-4 mb-2">
+                                        <div className="w-12 h-12 rounded-full bg-[#FDFBF7] flex items-center justify-center text-[#D4A373] shadow-sm"><Info size={22} /></div>
+                                        <div>
+                                            <h3 className="text-2xl font-playfair font-black">Nutritional Transparency</h3>
+                                            <p className="text-[11px] text-[#7A5C4F]">Values based on a single serving (100g approx.)</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-4 py-8">
+                                        {[
+                                            { label: "CALORIES", val: product.totalNutrition?.calories || "9 kcal" },
+                                            { label: "TOTAL FAT", val: product.totalNutrition?.fat || "70 kcal" },
+                                            { label: "CARBS", val: product.totalNutrition?.carbs || "10 kcal" }
+                                        ].map((item, idx) => {
+                                            const displayVal = typeof item.val === 'object' ? `${item.val.value}${item.val.unit}` : item.val;
+                                            return (
+                                                <div key={idx} className="text-center group">
+                                                    <div className="text-[10px] font-black uppercase tracking-widest text-[#B08968] mb-1">{item.label}</div>
+                                                    <div className="text-sm font-bold text-[#2C1810] group-hover:text-[#D4A373] transition-colors">{displayVal}</div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    <div className="p-6 bg-[#FDFBF7] rounded-[2rem] border border-dashed border-[#F2EBE3]">
+                                        <p className="text-[10px] font-bold text-[#7A5C4F] flex items-center gap-2 mb-2"><Info size={14} /> ALLERGEN INFORMATION</p>
+                                        <p className="text-[#7A5C4F] text-[11px] leading-relaxed">This product contains gluten, dairy, and eggs. May contain traces of tree nuts and soy.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </section>
 
                     {/* Related Products */}
                     {relatedProducts.length > 0 && (
-                        <section className="space-y-12">
+                        <section className="space-y-2 pb-5">
                             <div className="flex items-end justify-between border-b pb-8 border-[#F2EBE3]">
                                 <div className="space-y-2">
                                     <h2 className="text-2xl font-playfair font-black">Suggested Products</h2>
@@ -852,7 +729,7 @@ export default function ProductDetails() {
                                 </Button>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            <div className="grid grid-cols-1  sm:grid-cols-2 lg:grid-cols-4 gap-8">
                                 {relatedProducts.map((p) => (
                                     <motion.div
                                         key={p._id}
