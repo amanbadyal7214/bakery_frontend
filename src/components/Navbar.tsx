@@ -14,6 +14,7 @@ const navLinks = [
   { label: "MENU", id: "menu", path: "/menu" },
   { label: "ABOUT", id: null, path: "/about" },
   { label: "CUSTOMIZE", id: null, path: "/customize-order" },
+  { label: "EVENT", id: null, path: "/events" },
   { label: "GALLERY", id: null, path: "/gallery", section: "gallery" },
   { label: "CONTACT", id: null, path: "/contact" },
 ];

@@ -18,6 +18,7 @@ const CustomizeOrder = lazy(() => import("./pages/CustomizeOrder"));
 const Payment = lazy(() => import("./pages/Payment"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
+const Events = lazy(() => import("./pages/Events"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -65,6 +66,7 @@ const AppContent = () => {
           <Route path="/payment" element={<Payment />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/events" element={<Events />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
