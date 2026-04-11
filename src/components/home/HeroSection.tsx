@@ -7,6 +7,8 @@ import cake4 from "../../assets/cake 4.png";
 import cake5 from "../../assets/cake 5.png";
 import cake6 from "../../assets/cake 6.png";
 import cake7 from "../../assets/cake 7.png";
+import hangryImage from "../../assets/haNGERY.png";
+import sweetImage from "../../assets/sweets.png";
 
 const cakeImages = [cake1, cake2, cake3, cake4, cake5, cake6, cake7];
 
@@ -83,17 +85,17 @@ export default function HeroSection() {
         <h1 className="flex items-center justify-between w-full gap-4 leading-none m-0">
 
           {/* Left word */}
-          <span
-            className="font-playfair font-bold text-navy flex-shrink-0 self-start mt-6 leading-none tracking-tight animate-fade-up"
-            style={{ fontSize: "clamp(2.8rem, 6.5vw, 5rem)" }}
-          >
-            Hangry?
-          </span>
+          <img
+            src={hangryImage}
+            alt="Hangry?"
+            className="flex-shrink-0 self-start mt-0 animate-fade-up object-contain"
+            style={{ height: "clamp(12rem, 18vw, 18rem)" }}
+          />
 
           {/* Centre images */}
           <div
             className="relative flex-1 flex items-center justify-center"
-            style={{ height: "clamp(300px, 44vw, 500px)" }}
+            style={{ height: "clamp(400px, 55vw, 700px)" }}
             aria-hidden="true"
           >
             {/* Main centre item — all images stacked, only active one is visible */}
@@ -106,7 +108,7 @@ export default function HeroSection() {
                   alt={`Cake ${i + 1}`}
                   className="absolute object-contain drop-shadow-2xl pointer-events-none mix-blend-multiply"
                   style={{
-                    width: "clamp(350px,45vw,700px)",
+                    width: "clamp(450px,55vw,850px)",
                     top: "50%",
                     left: "50%",
                     opacity: isActive ? (animating ? 0 : 1) : 0,
@@ -145,12 +147,12 @@ export default function HeroSection() {
           </div>
 
           {/* Right word */}
-          <span
-            className="font-playfair font-bold text-navy flex-shrink-0 self-end mb-6 leading-none tracking-tight animate-fade-up"
-            style={{ fontSize: "clamp(2.8rem, 6.5vw, 5rem)", animationDelay: "0.2s" }}
-          >
-            Sweet.
-          </span>
+          <img
+            src={sweetImage}
+            alt="Sweet."
+            className="flex-shrink-0 self-end mb-6 animate-fade-up object-contain"
+            style={{ height: "clamp(12rem, 18vw, 18rem)", animationDelay: "0.2s" }}
+          />
         </h1>
       </div>
 
