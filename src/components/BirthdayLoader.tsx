@@ -78,11 +78,11 @@ export default function BirthdayLoader({ onComplete }: { onComplete: () => void 
               className="text-center"
             >
               <h1 className="font-playfair text-4xl md:text-6xl font-black text-[#2C1810] mb-4 tracking-tighter">
-                Celebrating <span className="text-[#D4A373]">Birthdays</span>
+                BIG <span className="text-[#D4A373]">SURPRISE!</span>
               </h1>
               <div className="flex items-center justify-center gap-3 text-[#2C1810]/60 uppercase tracking-[0.4em] text-[0.6rem] font-bold">
                 <Sparkles size={12} />
-                <span>Creating Sweet Memories</span>
+                <span>UNWRAPPING THE MAGIC...</span>
                 <Sparkles size={12} />
               </div>
 

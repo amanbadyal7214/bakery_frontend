@@ -60,6 +60,25 @@ export default function Events() {
 
   useEffect(() => {
     if (!loading) {
+      const attemptPlay = () => {
+        audio.play()
+          .then(() => {
+            setIsPlaying(true);
+            window.removeEventListener('click', attemptPlay);
+            window.removeEventListener('scroll', attemptPlay);
+            window.removeEventListener('touchstart', attemptPlay);
+          })
+          .catch(e => console.log("Autoplay waiting for interaction...", e));
+      };
+
+      // Initial attempt
+      attemptPlay();
+
+      // Listen for the first interaction to start audio if blocked
+      window.addEventListener('click', attemptPlay);
+      window.addEventListener('scroll', attemptPlay);
+      window.addEventListener('touchstart', attemptPlay);
+
       // Confetti burst on load
       const fire = (particleRatio: number, opts: confetti.Options) => {
         confetti({
@@ -112,8 +131,8 @@ export default function Events() {
       <Navbar />
 
       <main className="relative pt-16 pb-32 px-4 md:px-8">
-        <Link 
-          to="/" 
+        <Link
+          to="/"
           className="inline-flex items-center gap-2 text-[#2C1810]/60 hover:text-[#2C1810] transition-colors mb-6 group"
         >
           <div className="p-2 rounded-full border border-[#2C1810]/10 group-hover:bg-[#2C1810] group-hover:text-white transition-all">
@@ -125,7 +144,7 @@ export default function Events() {
         {/* The Dedication Layout */}
         <div className="max-w-7xl mx-auto relative mt-0">
           <div className="flex flex-col lg:flex-row items-center lg:items-end gap-12">
-            
+
             {/* Left Side: Dedication Text */}
             <div className="lg:w-1/2 text-center lg:text-left">
               <motion.div
@@ -133,22 +152,22 @@ export default function Events() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
               >
-                <motion.div 
-                  animate={{ scale: [1, 1.1, 1] }} 
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                   className="w-16 h-16 bg-[#2C1810] rounded-full flex items-center justify-center text-white mb-8 mx-auto lg:mx-0 shadow-xl"
                 >
                   <Heart size={32} fill="currentColor" />
                 </motion.div>
-                
+
                 <h2 className={`font-playfair text-3xl md:text-4xl italic mb-2 transition-all duration-700 ${isPlaying ? 'text-[#D4A373] scale-110 drop-shadow-[0_0_15px_rgba(212,163,115,0.5)]' : 'text-[#2C1810]/60'}`}>Happy Birthday</h2>
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-[#2C1810] tracking-tighter mb-8 leading-none"> 
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-[#2C1810] tracking-tighter mb-8 leading-none">
                   <span className="relative inline-block">
                     Damanjeet Kaur Kang
-                    <motion.div 
+                    <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: isPlaying ? "120%" : "110%" }}
-                      transition={{ 
+                      transition={{
                         width: { delay: 1.2, duration: 1 },
                         scale: isPlaying ? { duration: 1.5, repeat: Infinity, ease: "easeInOut" } : {}
                       }}
@@ -169,7 +188,7 @@ export default function Events() {
                   >
                     SEND LOVE
                   </motion.button>
-                  
+
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -201,13 +220,13 @@ export default function Events() {
               >
                 <div className="relative p-4 bg-white shadow-2xl rounded-2xl transform rotate-2 group-hover:rotate-0 transition-transform duration-700">
                   <div className="w-[300px] h-[400px] md:w-[400px] md:h-[550px] overflow-hidden rounded-xl relative">
-                    <img 
-                      src={daman} 
-                      alt="Best Friends" 
+                    <img
+                      src={daman}
+                      alt="Best Friends"
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#2C1810]/40 to-transparent" />
-                    
+
                     {/* Retro Badge */}
                     <div className="absolute top-6 left-6 flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30 text-white text-[0.6rem] font-black uppercase tracking-[0.2em]">
                       <Sparkles size={10} /> Moments
@@ -216,14 +235,14 @@ export default function Events() {
                 </div>
 
                 {/* Floating Heart Decorations (Hand-drawn look/vibe) */}
-                <motion.div 
+                <motion.div
                   animate={{ y: [0, -20, 0], opacity: [0.5, 1, 0.5] }}
                   transition={{ duration: 3, repeat: Infinity }}
                   className="absolute -top-10 -right-10 text-[#D4A373]"
                 >
                   <Heart size={80} strokeWidth={1} />
                 </motion.div>
-                <motion.div 
+                <motion.div
                   animate={{ y: [0, 20, 0], opacity: [0.5, 1, 0.5] }}
                   transition={{ duration: 4, repeat: Infinity, delay: 1 }}
                   className="absolute -bottom-10 -left-10 text-[#2C1810]"
@@ -233,7 +252,7 @@ export default function Events() {
               </motion.div>
 
               {/* Decorative Element Behind */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 1.2 }}
@@ -260,7 +279,7 @@ export default function Events() {
               <h4 className="font-playfair text-2xl font-bold mb-3">Red Carpet Entry</h4>
               <p className="text-[#2C1810]/70 leading-relaxed">Join us for a glamorous entrance at the main bakery lounge with specialized photo ops.</p>
             </div>
-            
+
             <div className="flex flex-col items-center text-center group">
               <div className="w-20 h-20 rounded-3xl bg-[#EBE3D5] flex items-center justify-center text-[#2C1810] mb-6 group-hover:bg-[#2C1810] group-hover:text-white transition-all duration-500 transform group-hover:-rotate-12">
                 <Gift size={32} />
@@ -277,7 +296,7 @@ export default function Events() {
               <p className="text-[#2C1810]/70 leading-relaxed">Live acoustic band performing until midnight with signature mocktails and dessert bar.</p>
             </div>
           </div>
-          
+
           <div className="mt-20 p-12 bg-[#2C1810] rounded-[3rem] text-center relative overflow-hidden group">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
             <div className="relative z-10">
@@ -302,22 +321,22 @@ export default function Events() {
               return (
                 <motion.div
                   key={i}
-                  initial={{ 
-                    opacity: 0, 
-                    y: "110vh", 
+                  initial={{
+                    opacity: 0,
+                    y: "110vh",
                     x: `${Math.random() * 100}vw`,
                     scale: 0.5,
-                    rotate: 0 
+                    rotate: 0
                   }}
-                  animate={{ 
+                  animate={{
                     opacity: [0, 0.8, 0],
                     y: "-10vh",
                     x: `${(Math.random() * 100) + (Math.sin(i) * 20)}vw`,
                     scale: [0.5, 1.2, 0.8],
-                    rotate: 360 
+                    rotate: 360
                   }}
                   exit={{ opacity: 0 }}
-                  transition={{ 
+                  transition={{
                     duration: 4 + Math.random() * 3,
                     repeat: Infinity,
                     delay: Math.random() * 5,

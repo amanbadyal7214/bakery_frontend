@@ -7,7 +7,7 @@ import cake4 from "../../assets/cake 4.png";
 import cake5 from "../../assets/cake 5.png";
 import cake6 from "../../assets/cake 6.png";
 import cake7 from "../../assets/cake 7.png";
-import hangryImage from "../../assets/haNGERY.png";
+import hangryImage from "../../assets/Hangry_22.png";
 import sweetImage from "../../assets/sweets.png";
 
 const cakeImages = [cake1, cake2, cake3, cake4, cake5, cake6, cake7];
@@ -88,7 +88,7 @@ export default function HeroSection() {
           <img
             src={hangryImage}
             alt="Hangry?"
-            className="flex-shrink-0 self-start mt-0 animate-fade-up object-contain"
+            className="flex-shrink-0 self-start mt-6 animate-fade-up object-contain"
             style={{ height: "clamp(8rem, 12vw, 14rem)" }}
           />
 
