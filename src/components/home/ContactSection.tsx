@@ -98,7 +98,7 @@ export default function ContactSection() {
   };
 
   return (
-    <section id="contact" className="py-24 px-6 bg-[#FEFBF5] relative overflow-hidden">
+    <section id="contact" className="py-12 px-6 bg-[#FEFBF5] relative overflow-hidden">
       {/* Decorative background elements */}
       <motion.div 
         animate={{ 
@@ -132,10 +132,10 @@ export default function ContactSection() {
                <Star className="w-3 h-3 fill-gold" /> Contact Us <Star className="w-3 h-3 fill-gold" />
              </span>
           </div>
-          <h2 className="font-playfair text-4xl md:text-6xl font-bold text-bread-dark mb-6 leading-tight">
+          <h2 className="font-playfair text-2xl md:text-3xl font-bold text-bread-dark mb-6 leading-tight">
             We&apos;d Love to <span className="text-gold italic">Hear</span> from You
           </h2>
-          <p className="text-bread-brown/80 max-w-2xl mx-auto text-lg">
+          <p className="text-bread-brown/80 max-w-2xl mx-auto text-md">
             Have a custom order in mind? Or just want to say hello? Drop us a line and let&apos;s bake something special together!
           </p>
         </motion.div>

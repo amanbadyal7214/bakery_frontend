@@ -31,7 +31,7 @@ export default function TestimonialsSection() {
   }, []);
 
   return (
-    <section id="testimonials" className="py-24 px-6 bg-[#FDF6EC]">
+    <section id="testimonials" className="py-12 px-6 bg-[#FDF6EC]">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -41,7 +41,7 @@ export default function TestimonialsSection() {
           className="text-center mb-14"
         >
           <p className="text-[0.8rem] font-bold tracking-[0.2em] uppercase text-gold mb-3">Testimonials</p>
-          <h2 className="font-playfair text-4xl md:text-5xl font-bold text-bread-dark mb-4">What Our Customers Say</h2>
+          <h2 className="font-playfair text-2xl md:text-3xl font-bold text-bread-dark mb-4">What Our Customers Say</h2>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
           {items.length === 0 && !loading ? (

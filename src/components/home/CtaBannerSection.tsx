@@ -5,7 +5,7 @@ export default function CtaBannerSection() {
   const { scrollTo } = useProductActions();
 
   return (
-    <section className="bg-gradient-to-br from-bread-dark to-bread-brown py-20 px-6 text-center relative overflow-hidden">
+    <section className="bg-gradient-to-br from-bread-dark to-bread-brown py-10 px-6 text-center relative overflow-hidden">
       <motion.div 
         initial={{ rotate: -15, scale: 0.8, opacity: 0 }}
         whileInView={{ rotate: 10, scale: 1, opacity: 0.04 }}
@@ -21,7 +21,7 @@ export default function CtaBannerSection() {
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="font-playfair text-3xl md:text-5xl text-white font-bold mb-4 leading-tight"
+          className="font-playfair text-2xl md:text-3xl text-white font-bold mb-4 leading-tight"
         >
           Ready to Order Something Delicious?
         </motion.h2>

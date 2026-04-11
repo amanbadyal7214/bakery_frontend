@@ -8,7 +8,7 @@ export default function FooterSection() {
   const { scrollTo } = useProductActions();
 
   return (
-    <footer className="relative bg-[#0F0F0F] text-white pt-12 pb-12 overflow-hidden">
+    <footer className="relative bg-[#0F0F0F] text-white pt-6 pb-6 overflow-hidden">
         {/* Background Texture */}
         <div 
             className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay invert"
@@ -25,10 +25,10 @@ export default function FooterSection() {
                   transition={{ duration: 0.8 }}
                   className="max-w-2xl"
                 >
-                    <h2 className="font-playfair text-7xl md:text-8xl leading-[0.85] mb-10 text-white tracking-tighter">
+                    <h2 className="font-playfair text-3xl md:text-4xl leading-[0.85] mb-10 text-white tracking-tighter">
                         Taste the <br/>
                         <span className="text-gold italic pr-4">Magic</span>
-                        <span className="text-4xl align-middle tracking-normal opacity-50 font-sans font-light block mt-4 max-w-md">
+                        <span className="text-md align-middle tracking-normal opacity-50 font-sans font-light block mt-4 max-w-md">
                            Artisan pastries baked with passion since 2024.
                         </span>
                     </h2>
@@ -59,19 +59,7 @@ export default function FooterSection() {
                         ))}
                     </div>
 
-                    <div className="flex flex-col gap-6 mt-4">
-                        <span className="text-xs font-bold text-white/90 uppercase tracking-widest">Newsletter</span>
-                        <div className="flex items-center border-b border-white/20 pb-4 focus-within:border-gold transition-colors w-full group">
-                            <input 
-                                type="email" 
-                                placeholder="Enter your email address" 
-                                className="bg-transparent border-none outline-none text-white placeholder:text-white/30 w-full text-lg font-light" 
-                            />
-                            <button className="bg-transparent border-none cursor-pointer text-white/50 group-focus-within:text-gold hover:text-white transition-colors">
-                                <ArrowRight className="w-6 h-6" />
-                            </button>
-                        </div>
-                    </div>
+                   
                 </motion.div>
             </div>
 
@@ -86,6 +74,9 @@ export default function FooterSection() {
                 <div className="flex flex-col gap-3">
                     <span className="font-playfair text-3xl font-bold tracking-wider">Hangary? Sweet.</span>
                     <p className="text-white/30 text-xs tracking-wide">© 2024 Hangary? Sweet. Inc. All rights reserved.</p>
+                    <p className="text-white/30 text-xs tracking-wide mt-1">
+                        Developed by <a href="https://www.pisoftinformatics.com/" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-gold transition-colors no-underline">Pisoft Informatics</a>
+                    </p>
                     <div className="flex gap-4 mt-2 text-[0.65rem] text-white/20 uppercase tracking-widest">
                          <Link to="/login" className="hover:text-gold transition-colors no-underline">Admin</Link>
                          <a href="#" className="hover:text-gold transition-colors no-underline">Privacy</a>

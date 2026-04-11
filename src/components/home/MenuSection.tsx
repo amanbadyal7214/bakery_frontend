@@ -135,7 +135,7 @@ export default function MenuSection() {
   };
 
   return (
-    <section id="menu" className="py-24 px-6">
+    <section id="menu" className="py-6">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -145,8 +145,8 @@ export default function MenuSection() {
           className="text-center mb-14"
         >
           <p className="text-[0.8rem] font-bold tracking-[0.2em] uppercase text-gold mb-3">Our Menu</p>
-          <h2 className="font-playfair text-4xl md:text-5xl font-bold text-bread-dark mb-4">Made to Delight</h2>
-          <p className="text-[#7A5C4F] max-w-xl mx-auto text-base leading-relaxed">
+          <h2 className="font-playfair text-xl md:text-2xl font-bold text-bread-dark mb-4">Made to Delight</h2>
+          <p className="text-[#7A5C4F] text-sm max-w-xl mx-auto text-base leading-relaxed">
             From flaky morning croissants to celebration cakes — something for every craving.
           </p>
         </motion.div>

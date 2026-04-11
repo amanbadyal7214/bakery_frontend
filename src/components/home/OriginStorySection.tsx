@@ -31,7 +31,7 @@ export default function OriginStorySection() {
   }, []);
 
   return (
-    <section id="story" className="py-28 bg-white overflow-hidden">
+    <section id="story" className="py-12 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           {/* Visual side */}
@@ -75,7 +75,7 @@ export default function OriginStorySection() {
           {/* Text side */}
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}>
             <motion.div variants={fadeUp}>
-              <h2 className="font-playfair text-5xl md:text-6xl font-bold text-[#3E2723] leading-[1.1] mb-4">
+              <h2 className="font-playfair text-3xl md:text-4xl font-bold text-[#3E2723] leading-[1.1] mb-4">
                 {(originStory?.title ?? 'A Kitchen,\nA Dream, &\nA Wooden Spoon.').split('\n').map((line: string, i: number) => (
                   <span key={i}>
                     {line}
