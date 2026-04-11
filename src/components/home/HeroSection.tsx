@@ -8,7 +8,7 @@ import cake5 from "../../assets/cake 5.png";
 import cake6 from "../../assets/cake 6.png";
 import cake7 from "../../assets/cake 7.png";
 import hangryImage from "../../assets/Hangry_22.png";
-import sweetImage from "../../assets/sweets.png";
+import sweetImage from "../../assets/sweetsa.png";
 
 const cakeImages = [cake1, cake2, cake3, cake4, cake5, cake6, cake7];
 
@@ -88,7 +88,7 @@ export default function HeroSection() {
           <img
             src={hangryImage}
             alt="Hangry?"
-            className="flex-shrink-0 self-start mt-6 animate-fade-up object-contain"
+            className="flex-shrink-0 self-start mt-12 animate-fade-up object-contain"
             style={{ height: "clamp(8rem, 12vw, 14rem)" }}
           />
 
@@ -140,10 +140,10 @@ export default function HeroSection() {
             `}</style>
 
             {/* Seed dots */}
-            <span className="absolute w-2.5 h-2.5 rounded-full bg-gold/60" style={{ top: "20%", left: "22%" }} />
-            <span className="absolute w-1.5 h-1.5 rounded-full bg-gold/60" style={{ top: "65%", left: "15%" }} />
-            <span className="absolute w-3   h-3   rounded-full bg-gold/35" style={{ bottom: "25%", right: "28%" }} />
-            <span className="absolute w-2   h-2   rounded-full bg-gold/60" style={{ top: "30%", right: "22%" }} />
+            <span className="absolute w-2.5 h-2.5 rounded-full bg-[#1A2744]/40" style={{ top: "20%", left: "22%" }} />
+            <span className="absolute w-1.5 h-1.5 rounded-full bg-[#1A2744]/40" style={{ top: "65%", left: "15%" }} />
+            <span className="absolute w-3   h-3   rounded-full bg-[#1A2744]/25" style={{ bottom: "25%", right: "28%" }} />
+            <span className="absolute w-2   h-2   rounded-full bg-[#1A2744]/40" style={{ top: "30%", right: "22%" }} />
           </div>
 
           {/* Right word */}

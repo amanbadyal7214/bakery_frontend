@@ -2,29 +2,43 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, ChevronLeft, Calendar, MapPin, Music, Gift, Star, Sparkles, Instagram, Volume2, VolumeX, Music2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/home/FooterSection";
-import daman from "@/assets/girl.png";
+import daman from "@/assets/WhatsApp Image 2026-04-11 at 16.29.18.jpeg";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
 import BirthdayLoader from "@/components/BirthdayLoader";
 import birthdaySong from "@/assets/nastelbom-happy-birthday-471481.mp3";
+import wa1 from "@/assets/WhatsApp Image 2026-04-11 at 15.45.52.jpeg";
+import wa2 from "@/assets/WhatsApp Image 2026-04-11 at 15.46.32.jpeg";
+import wa3 from "@/assets/WhatsApp Image 2026-04-11 at 15.50.00.jpeg";
+import wa4 from "@/assets/CS1.png";
+import wa5 from "@/assets/CS2.png";
+import wa6 from "@/assets/CS3.png";
+import wa7 from "@/assets/CS4.png";
+import wa8 from "@/assets/girl.png";
+
+import wa10 from "@/assets/WhatsApp Image 2026-04-11 at 16.30.01.jpeg";
+
+
 
 const memories = [
-  "/bestie1.png",
-  "/bestie2.png",
-  "/bestie3.png",
-  "https://images.unsplash.com/photo-1517433367423-c7e5b0f35086?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1535141123063-3bb615822649?q=80&w=2069&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1974&auto=format&fit=crop",
-  "/birthday.png",
-  "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2072&auto=format&fit=crop",
-  "/bestie1.png",
+  { src: daman , rotate: "-2deg" },
+  { src: wa10, rotate: "3deg" },
+  { src: wa4, rotate: "-1deg" },
+  { src: wa5, rotate: "2deg" },
+   { src: wa6, rotate: "4deg" },
+  { src: wa1, rotate: "-2deg" },
+  { src: wa3, rotate: "3deg" },
+  { src: wa2, rotate: "-1deg" },
+  { src: wa7, rotate: "1deg" },
+  { src: wa8, rotate: "-2deg" },
 ];
 const musicNotes = [Music, Music2, Heart, Star, Sparkles];
 
 export default function Events() {
   const [loading, setLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showWishes, setShowWishes] = useState(false);
   const [audio] = useState(() => {
     const a = new Audio(birthdaySong);
     a.loop = true;
@@ -130,7 +144,7 @@ export default function Events() {
     <div className="min-h-screen bg-[#EBE3D5] selection:bg-black selection:text-white overflow-x-hidden">
       <Navbar />
 
-      <main className="relative pt-16 pb-32 px-4 md:px-8">
+      <main className="relative pt-20 pb-32 px-4 md:px-8">
         <Link
           to="/"
           className="inline-flex items-center gap-2 text-[#2C1810]/60 hover:text-[#2C1810] transition-colors mb-6 group"
@@ -184,6 +198,7 @@ export default function Events() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowWishes(true)}
                     className="bg-[#2C1810] text-white px-8 py-4 rounded-full font-bold text-sm tracking-widest shadow-2xl shadow-[#2C1810]/20 hover:bg-[#3E2723] transition-all"
                   >
                     SEND LOVE
@@ -238,7 +253,7 @@ export default function Events() {
                 <motion.div
                   animate={{ y: [0, -20, 0], opacity: [0.5, 1, 0.5] }}
                   transition={{ duration: 3, repeat: Infinity }}
-                  className="absolute -top-10 -right-10 text-[#D4A373]"
+                  className="absolute -top-10 -right-10 text-[#2C1810]"
                 >
                   <Heart size={80} strokeWidth={1} />
                 </motion.div>
@@ -256,56 +271,148 @@ export default function Events() {
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 1.2 }}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border-4 border-[#2C1810]/5 rounded-full -z-10 animate-pulse"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border-4 border-[#2C1810]/15 rounded-full -z-10 animate-pulse"
               />
             </div>
           </div>
         </div>
       </main>
 
-      {/* Birthday Celebration Info Section */}
-      <section className="bg-white py-24 px-4">
-        <div className="max-w-6xl mx-auto">
+     
+
+       <AnimatePresence>
+        {showWishes && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-black/60 backdrop-blur-md"
+            onClick={() => setShowWishes(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0, y: 50, rotate: -5 }}
+              animate={{ scale: 1, opacity: 1, y: 0, rotate: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50, rotate: 5 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-lg w-full bg-[#FCF8F1] p-8 md:p-12 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden"
+            >
+              {/* Decorative background elements */}
+              <div className="absolute top-0 right-0 p-4">
+                <Heart className="text-[#D4A373]/10" size={120} fill="currentColor" />
+              </div>
+              <div className="absolute -bottom-8 -left-8">
+                <Sparkles className="text-[#D4A373]/20" size={100} />
+              </div>
+
+              {/* Header */}
+              <div className="relative z-10 text-center mb-8">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring" }}
+                  className="w-20 h-20 bg-[#2C1810] rounded-full flex items-center justify-center text-white mx-auto mb-6 shadow-xl"
+                >
+                  <Heart size={32} fill="currentColor" />
+                </motion.div>
+                <h3 className="font-playfair text-3xl md:text-4xl font-bold text-[#2C1810] mb-2">From Mummy & Daddy</h3>
+                <div className="w-24 h-1 bg-[#D4A373] mx-auto rounded-full" />
+              </div>
+
+              {/* Message */}
+              <div className="relative z-10 space-y-6">
+                <p className="font-playfair text-xl md:text-2xl text-[#2C1810]/80 italic leading-relaxed text-center">
+                  "Puttar, you are the heartbeat of our home. Watching you grow into such a wonderful, kind-hearted soul has been our life's greatest joy."
+                </p>
+                <p className="text-[#2C1810]/70 text-lg md:text-xl font-medium leading-relaxed text-center">
+                  May Waheguru always protect you and shower you with endless happiness. We are always here for you, cheering the loudest for every success.
+                </p>
+                <div className="pt-6 border-t border-[#2C1810]/10 text-center">
+                  <p className="font-playfair text-2xl font-black text-[#2C1810]">Happy Birthday, Beta! 🖤</p>
+                  <p className="text-[#2C1810]/40 text-sm uppercase tracking-widest mt-2">With all our love forever</p>
+                </div>
+              </div>
+
+              {/* Close button with love */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowWishes(false)}
+                className="mt-10 w-full py-4 bg-[#2C1810] text-white rounded-xl font-bold tracking-widest hover:bg-[#3E2723] transition-all relative z-10 shadow-lg"
+              >
+                CLOSE WITH LOVE
+              </motion.button>
+
+              <div className="absolute -bottom-2 right-8 opacity-10 pointer-events-none">
+                 <img src={daman} alt="" className="w-32 rotate-12" />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Captured Memories Gallery */}
+      <section className="py-24 px-4 bg-[#EBE3D5]">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h3 className="font-playfair text-4xl font-bold text-[#2C1810] mb-4 underline decoration-[#D4A373]/30 underline-offset-8">Birthday Celebration Event</h3>
-            <p className="text-[#2C1810]/60 uppercase tracking-[0.3em] text-xs font-black">August 12th, 2024 • 12:00 PM onwards</p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2C1810]/5 border border-[#2C1810]/10 text-[#2C1810] text-[0.7rem] font-bold uppercase tracking-widest mb-6"
+            >
+              <Sparkles size={14} className="text-[#D4A373]" /> Digital Scrapbook
+            </motion.div>
+            <h2 className="font-playfair text-4xl md:text-5xl font-bold text-[#2C1810] mb-4">Captured Memories</h2>
+            <p className="text-[#2C1810]/60 max-w-xl mx-auto">A collection of moments that make our bakery more than just a place to eat—it's a place to belong.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-12">
-            <div className="flex flex-col items-center text-center group">
-              <div className="w-20 h-20 rounded-3xl bg-[#EBE3D5] flex items-center justify-center text-[#2C1810] mb-6 group-hover:bg-[#2C1810] group-hover:text-white transition-all duration-500 transform group-hover:rotate-12">
-                <Star size={32} />
-              </div>
-              <h4 className="font-playfair text-2xl font-bold mb-3">Red Carpet Entry</h4>
-              <p className="text-[#2C1810]/70 leading-relaxed">Join us for a glamorous entrance at the main bakery lounge with specialized photo ops.</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-32 pt-20">
+            {memories.map((photo, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                animate={{
+                   y: [0, -15, 0],
+                   rotate: [photo.rotate, (parseFloat(photo.rotate) + 2) + "deg", photo.rotate]
+                }}
+                transition={{
+                   y: { duration: 3 + Math.random() * 2, repeat: Infinity, ease: "easeInOut", delay: index * 0.1 },
+                   rotate: { duration: 4 + Math.random() * 2, repeat: Infinity, ease: "easeInOut", delay: index * 0.1 },
+                   opacity: { duration: 0.5, delay: index * 0.1 }
+                }}
+                className="group relative"
+              >
+                {/* Balloon assembly */}
+                <div className="absolute -top-24 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
+                   <motion.div
+                     animate={{ 
+                       rotate: [-5, 5, -5],
+                       x: [-2, 2, -2]
+                     }}
+                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                   >
+                     <svg width="50" height="60" viewBox="0 0 30 40" fill={["#D4A373", "#2C1810", "#EBC49F", "#A37B5C"][index % 4]} className="drop-shadow-xl">
+                        <path d="M15 0C6.716 0 0 6.716 0 15C0 23.284 6.716 30 15 30C23.284 30 30 23.284 30 15C30 6.716 23.284 0 15 0Z" />
+                        <path d="M15 30L12 34H18L15 30Z" />
+                     </svg>
+                   </motion.div>
+                   {/* String */}
+                   <div className="w-[1px] h-24 bg-[#2C1810]/20 -mt-2" />
+                </div>
 
-            <div className="flex flex-col items-center text-center group">
-              <div className="w-20 h-20 rounded-3xl bg-[#EBE3D5] flex items-center justify-center text-[#2C1810] mb-6 group-hover:bg-[#2C1810] group-hover:text-white transition-all duration-500 transform group-hover:-rotate-12">
-                <Gift size={32} />
-              </div>
-              <h4 className="font-playfair text-2xl font-bold mb-3">Bespoke Gifting</h4>
-              <p className="text-[#2C1810]/70 leading-relaxed">Customized gift boxes for all attendees featuring our founder's favorite treats.</p>
-            </div>
-
-            <div className="flex flex-col items-center text-center group">
-              <div className="w-20 h-20 rounded-3xl bg-[#EBE3D5] flex items-center justify-center text-[#2C1810] mb-6 group-hover:bg-[#2C1810] group-hover:text-white transition-all duration-500 transform group-hover:rotate-12">
-                <Music size={32} />
-              </div>
-              <h4 className="font-playfair text-2xl font-bold mb-3">The After Party</h4>
-              <p className="text-[#2C1810]/70 leading-relaxed">Live acoustic band performing until midnight with signature mocktails and dessert bar.</p>
-            </div>
-          </div>
-
-          <div className="mt-20 p-12 bg-[#2C1810] rounded-[3rem] text-center relative overflow-hidden group">
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
-            <div className="relative z-10">
-              <h2 className="font-playfair text-4xl md:text-5xl text-white font-bold mb-6">Want to Book a Similar Event?</h2>
-              <p className="text-white/60 mb-10 max-w-2xl mx-auto">We specialize in making your special days unforgettable. From intimate birthday dinners to grand celebrations.</p>
-              <button className="bg-[#D4A373] text-[#2C1810] px-12 py-4 rounded-full font-bold text-sm tracking-widest hover:bg-white hover:scale-110 transition-all duration-500">
-                GET IN TOUCH
-              </button>
-            </div>
+                <div className="relative p-3 bg-white shadow-xl rounded-sm transform transition-all duration-500 group-hover:shadow-2xl z-20">
+                  <div className="aspect-[4/5] overflow-hidden rounded-sm relative mb-4">
+                    <img
+                      src={photo.src}
+                      alt="Captured Moment"
+                      className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
+                    />
+                    <div className="absolute inset-0 bg-[#2C1810]/10 group-hover:bg-transparent transition-colors" />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -342,7 +449,7 @@ export default function Events() {
                     delay: Math.random() * 5,
                     ease: "linear"
                   }}
-                  className="absolute text-[#D4A373]/40"
+                  className="absolute text-[#2C1810]/60"
                 >
                   <Icon size={Math.random() * 20 + 20} fill={i % 2 === 0 ? "currentColor" : "none"} />
                 </motion.div>
@@ -351,6 +458,7 @@ export default function Events() {
           </div>
         )}
       </AnimatePresence>
+
     </div>
   );
 }
