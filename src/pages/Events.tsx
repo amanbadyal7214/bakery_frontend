@@ -166,7 +166,7 @@ export default function Events() {
     <div className="min-h-screen bg-[#EBE3D5] selection:bg-black selection:text-white overflow-x-hidden">
       <Navbar />
 
-      <main className="relative pt-32 pb-32 px-4 md:px-8">
+      <main className="relative pt-32  px-4 md:px-8">
         <Link
           to="/"
           className="inline-flex items-center gap-2 text-[#2C1810]/60 hover:text-[#2C1810] transition-colors mb-6 group"
@@ -216,21 +216,52 @@ export default function Events() {
                   "May your special day be as sweet as the treats we bake, and as beautiful as the heart you share with the world. Wishing you a year of endless smiles, big dreams, and all the love you deserve. Happy Birthday! 🖤🎂✨"
                 </p>
 
-                <div className="flex items-center justify-center lg:justify-start gap-4">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setShowWishes(true)}
-                    className="bg-[#2C1810] text-white px-8 py-4 rounded-full font-bold text-sm tracking-widest shadow-2xl shadow-[#2C1810]/20 hover:bg-[#3E2723] transition-all"
-                  >
-                    Click Here
-                  </motion.button>
+                <div className="flex items-center justify-center lg:justify-start gap-8">
+                  <div className="relative">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setShowWishes(true)}
+                      className="relative z-10 bg-[#2C1810] text-white px-8 py-4 rounded-full font-bold text-sm tracking-widest shadow-2xl shadow-[#2C1810]/20 hover:bg-[#3E2723] transition-all"
+                    >
+                      Click Here
+                    </motion.button>
+                    
+                    {/* Animated Pulse */}
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.4, 1],
+                        opacity: [0.4, 0, 0.4],
+                      }}
+                      transition={{ 
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                      className="absolute inset-0 bg-[#2C1810] rounded-full z-0"
+                    />
+
+                    {/* Badge/Note Indicator */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, rotate: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1, duration: 0.5 }}
+                      className="absolute -top-14 -right-10 pointer-events-none hidden md:block"
+                    >
+                      <div className="bg-[#D4A373] text-[#2C1810] text-[0.6rem] font-bold px-3 py-1 rounded-full shadow-lg whitespace-nowrap rotate-6 border border-[#2C1810]/10">
+                        Open Surprise Note ✉️
+                      </div>
+                      <svg width="30" height="20" viewBox="0 0 30 20" fill="none" className="text-[#D4A373] mt-1 ml-4 -scale-x-100 rotate-[40deg]">
+                        <path d="M2,18 Q15,15 25,2 M25,2 L18,5 M25,2 L23,10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                    </motion.div>
+                  </div>
 
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={toggleMusic}
-                    className="w-14 h-14 rounded-full border-2 border-[#2C1810]/10 flex items-center justify-center text-[#2C1810] hover:bg-[#2C1810] hover:text-white transition-all shadow-lg bg-white/50 backdrop-blur-sm"
+                    className="w-14 h-14 rounded-full border-2 border-[#2C1810]/10 flex items-center justify-center text-[#2C1810] hover:bg-[#2C1810] hover:text-white transition-all shadow-lg bg-white/50 backdrop-blur-sm relative z-10"
                   >
                     {isPlaying ? <Volume2 size={24} /> : <VolumeX size={24} />}
                   </motion.button>
@@ -382,14 +413,7 @@ export default function Events() {
       <section className="py-24 px-4 bg-[#EBE3D5]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2C1810]/5 border border-[#2C1810]/10 text-[#2C1810] text-[0.7rem] font-bold uppercase tracking-widest mb-6"
-            >
-              <Sparkles size={14} className="text-[#D4A373]" /> Digital Scrapbook
-            </motion.div>
+           
             <h2 className="font-playfair text-4xl md:text-5xl font-bold text-[#2C1810] mb-4">Captured Memories</h2>
             <p className="text-[#2C1810]/60 max-w-xl mx-auto">A collection of moments that make our bakery more than just a place to eat—it's a place to belong.</p>
           </div>
