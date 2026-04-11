@@ -323,7 +323,7 @@ export default function Navbar() {
           {/* ── Logo ── */}
           <Link to="/" className="flex items-center gap-3 group no-underline select-none shrink-0">
             <div className="relative lg:hidden w-14 h-14 bg-[#eaccd1] rounded-xl rotate-3 group-hover:rotate-12 transition-all duration-300 flex items-center justify-center shadow-lg">
-              <img src={logo} alt="Hangary? Sweet. Logo" className="w-12 h-12 object-cover rounded-xl" />
+              <img src={CircleLogo} alt="Hangry? Sweet. Logo" className="w-12 h-12 object-contain rounded-xl bg-white" />
             </div>
 
 
