@@ -5,14 +5,19 @@ import { Heart, Cake, Gift, Sparkles } from "lucide-react";
 export default function BirthdayLoader({ onComplete }: { onComplete: () => void }) {
   const [isVisible, setIsVisible] = useState(true);
 
+  const [showButton, setShowButton] = useState(false);
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(onComplete, 1000);
-    }, 4000); // 4 seconds loading
-
+      setShowButton(true);
+    }, 3000);
     return () => clearTimeout(timer);
-  }, [onComplete]);
+  }, []);
+
+  const handleOpen = () => {
+    setIsVisible(false);
+    setTimeout(onComplete, 1000);
+  };
 
   return (
     <AnimatePresence>
@@ -86,14 +91,29 @@ export default function BirthdayLoader({ onComplete }: { onComplete: () => void 
                 <Sparkles size={12} />
               </div>
 
-              {/* Progress Line */}
-              <div className="mt-8 w-48 h-1 bg-[#2C1810]/10 rounded-full overflow-hidden mx-auto">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: "100%" }}
-                  transition={{ duration: 3.5, ease: "easeInOut" }}
-                  className="h-full bg-[#D4A373]"
-                />
+              {/* Progress Line or Button */}
+              <div className="mt-8 relative h-14 flex items-center justify-center">
+                {!showButton ? (
+                  <div className="w-48 h-1 bg-[#2C1810]/10 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: "100%" }}
+                      transition={{ duration: 3, ease: "easeInOut" }}
+                      className="h-full bg-[#D4A373]"
+                    />
+                  </div>
+                ) : (
+                  <motion.button
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleOpen}
+                    className="bg-[#2C1810] text-white px-8 py-4 rounded-full font-bold text-xs tracking-[0.3em] shadow-2xl flex items-center gap-2 hover:bg-[#3E2723] transition-all"
+                  >
+                    OPEN SURPRISE <Gift size={16} />
+                  </motion.button>
+                )}
               </div>
             </motion.div>
           </motion.div>

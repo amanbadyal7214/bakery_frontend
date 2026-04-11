@@ -18,15 +18,21 @@ import wa7 from "@/assets/CS4.png";
 import wa8 from "@/assets/girl.png";
 
 import wa10 from "@/assets/WhatsApp Image 2026-04-11 at 16.30.01.jpeg";
+import wa11 from "@/assets/WhatsApp Image 2026-04-11 at 16.58.54.jpeg";
+import wa12 from "@/assets/cs5.png";
 
 
 
 const memories = [
-  { src: daman , rotate: "-2deg" },
+  { src: daman, rotate: "-2deg" },
   { src: wa10, rotate: "3deg" },
   { src: wa4, rotate: "-1deg" },
+
+  { src: wa11, rotate: "1deg" },
+  { src: wa12, rotate: "2deg" },
   { src: wa5, rotate: "2deg" },
-   { src: wa6, rotate: "4deg" },
+
+  { src: wa6, rotate: "4deg" },
   { src: wa1, rotate: "-2deg" },
   { src: wa3, rotate: "3deg" },
   { src: wa2, rotate: "-1deg" },
@@ -39,6 +45,16 @@ export default function Events() {
   const [loading, setLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showWishes, setShowWishes] = useState(false);
+  const [currentMemoryIndex, setCurrentMemoryIndex] = useState(0);
+
+  useEffect(() => {
+    if (!loading) {
+      const interval = setInterval(() => {
+        setCurrentMemoryIndex((prev) => (prev + 1) % memories.length);
+      }, 4000);
+      return () => clearInterval(interval);
+    }
+  }, [loading]);
   const [audio] = useState(() => {
     const a = new Audio(birthdaySong);
     a.loop = true;
@@ -78,11 +94,16 @@ export default function Events() {
         audio.play()
           .then(() => {
             setIsPlaying(true);
-            window.removeEventListener('click', attemptPlay);
-            window.removeEventListener('scroll', attemptPlay);
-            window.removeEventListener('touchstart', attemptPlay);
+            removeListeners();
           })
           .catch(e => console.log("Autoplay waiting for interaction...", e));
+      };
+
+      const removeListeners = () => {
+        window.removeEventListener('click', attemptPlay);
+        window.removeEventListener('scroll', attemptPlay);
+        window.removeEventListener('touchstart', attemptPlay);
+        window.removeEventListener('mousedown', attemptPlay);
       };
 
       // Initial attempt
@@ -90,8 +111,9 @@ export default function Events() {
 
       // Listen for the first interaction to start audio if blocked
       window.addEventListener('click', attemptPlay);
-      window.addEventListener('scroll', attemptPlay);
-      window.addEventListener('touchstart', attemptPlay);
+      window.addEventListener('scroll', attemptPlay, { passive: true });
+      window.addEventListener('touchstart', attemptPlay, { passive: true });
+      window.addEventListener('mousedown', attemptPlay);
 
       // Confetti burst on load
       const fire = (particleRatio: number, opts: confetti.Options) => {
@@ -144,7 +166,7 @@ export default function Events() {
     <div className="min-h-screen bg-[#EBE3D5] selection:bg-black selection:text-white overflow-x-hidden">
       <Navbar />
 
-      <main className="relative pt-20 pb-32 px-4 md:px-8">
+      <main className="relative pt-32 pb-32 px-4 md:px-8">
         <Link
           to="/"
           className="inline-flex items-center gap-2 text-[#2C1810]/60 hover:text-[#2C1810] transition-colors mb-6 group"
@@ -177,7 +199,7 @@ export default function Events() {
                 <h2 className={`font-playfair text-3xl md:text-4xl italic mb-2 transition-all duration-700 ${isPlaying ? 'text-[#D4A373] scale-110 drop-shadow-[0_0_15px_rgba(212,163,115,0.5)]' : 'text-[#2C1810]/60'}`}>Happy Birthday</h2>
                 <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-[#2C1810] tracking-tighter mb-8 leading-none">
                   <span className="relative inline-block">
-                    Damanjeet Kaur Kang
+                    Damanjit Kaur Kang
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: isPlaying ? "120%" : "110%" }}
@@ -190,8 +212,8 @@ export default function Events() {
                   </span>
                 </h1>
 
-                <p className="text-[#2C1810]/70 text-xl md:text-2xl font-medium max-w-lg mb-8 italic">
-                  "Wish you all the best!! 🖤🖤🖤"
+                <p className="text-[#2C1810]/70 text-xl md:text-2xl font-medium max-w-lg mb-8 italic leading-relaxed">
+                  "May your special day be as sweet as the treats we bake, and as beautiful as the heart you share with the world. Wishing you a year of endless smiles, big dreams, and all the love you deserve. Happy Birthday! 🖤🎂✨"
                 </p>
 
                 <div className="flex items-center justify-center lg:justify-start gap-4">
@@ -201,7 +223,7 @@ export default function Events() {
                     onClick={() => setShowWishes(true)}
                     className="bg-[#2C1810] text-white px-8 py-4 rounded-full font-bold text-sm tracking-widest shadow-2xl shadow-[#2C1810]/20 hover:bg-[#3E2723] transition-all"
                   >
-                    SEND LOVE
+                    Click Here
                   </motion.button>
 
                   <motion.button
@@ -235,11 +257,17 @@ export default function Events() {
               >
                 <div className="relative p-4 bg-white shadow-2xl rounded-2xl transform rotate-2 group-hover:rotate-0 transition-transform duration-700">
                   <div className="w-[300px] h-[400px] md:w-[400px] md:h-[550px] overflow-hidden rounded-xl relative">
-                    <img
-                      src={daman}
-                      alt="Best Friends"
-                      className="w-full h-full object-cover"
-                    />
+                    <AnimatePresence mode="wait">
+                      <motion.img
+                        key={currentMemoryIndex}
+                        src={memories[currentMemoryIndex].src}
+                        initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
+                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                        exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
+                        transition={{ duration: 1, ease: "easeInOut" }}
+                        className="w-full h-full object-cover"
+                      />
+                    </AnimatePresence>
                     <div className="absolute inset-0 bg-gradient-to-t from-[#2C1810]/40 to-transparent" />
 
                     {/* Retro Badge */}
@@ -278,9 +306,9 @@ export default function Events() {
         </div>
       </main>
 
-     
 
-       <AnimatePresence>
+
+      <AnimatePresence>
         {showWishes && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -343,7 +371,7 @@ export default function Events() {
               </motion.button>
 
               <div className="absolute -bottom-2 right-8 opacity-10 pointer-events-none">
-                 <img src={daman} alt="" className="w-32 rotate-12" />
+                <img src={daman} alt="" className="w-32 rotate-12" />
               </div>
             </motion.div>
           </motion.div>
@@ -373,32 +401,32 @@ export default function Events() {
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 animate={{
-                   y: [0, -15, 0],
-                   rotate: [photo.rotate, (parseFloat(photo.rotate) + 2) + "deg", photo.rotate]
+                  y: [0, -15, 0],
+                  rotate: [photo.rotate, (parseFloat(photo.rotate) + 2) + "deg", photo.rotate]
                 }}
                 transition={{
-                   y: { duration: 3 + Math.random() * 2, repeat: Infinity, ease: "easeInOut", delay: index * 0.1 },
-                   rotate: { duration: 4 + Math.random() * 2, repeat: Infinity, ease: "easeInOut", delay: index * 0.1 },
-                   opacity: { duration: 0.5, delay: index * 0.1 }
+                  y: { duration: 3 + Math.random() * 2, repeat: Infinity, ease: "easeInOut", delay: index * 0.1 },
+                  rotate: { duration: 4 + Math.random() * 2, repeat: Infinity, ease: "easeInOut", delay: index * 0.1 },
+                  opacity: { duration: 0.5, delay: index * 0.1 }
                 }}
                 className="group relative"
               >
                 {/* Balloon assembly */}
                 <div className="absolute -top-24 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
-                   <motion.div
-                     animate={{ 
-                       rotate: [-5, 5, -5],
-                       x: [-2, 2, -2]
-                     }}
-                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                   >
-                     <svg width="50" height="60" viewBox="0 0 30 40" fill={["#D4A373", "#2C1810", "#EBC49F", "#A37B5C"][index % 4]} className="drop-shadow-xl">
-                        <path d="M15 0C6.716 0 0 6.716 0 15C0 23.284 6.716 30 15 30C23.284 30 30 23.284 30 15C30 6.716 23.284 0 15 0Z" />
-                        <path d="M15 30L12 34H18L15 30Z" />
-                     </svg>
-                   </motion.div>
-                   {/* String */}
-                   <div className="w-[1px] h-24 bg-[#2C1810]/20 -mt-2" />
+                  <motion.div
+                    animate={{
+                      rotate: [-5, 5, -5],
+                      x: [-2, 2, -2]
+                    }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <svg width="50" height="60" viewBox="0 0 30 40" fill={["#D4A373", "#2C1810", "#EBC49F", "#A37B5C"][index % 4]} className="drop-shadow-xl">
+                      <path d="M15 0C6.716 0 0 6.716 0 15C0 23.284 6.716 30 15 30C23.284 30 30 23.284 30 15C30 6.716 23.284 0 15 0Z" />
+                      <path d="M15 30L12 34H18L15 30Z" />
+                    </svg>
+                  </motion.div>
+                  {/* String */}
+                  <div className="w-[1px] h-24 bg-[#2C1810]/20 -mt-2" />
                 </div>
 
                 <div className="relative p-3 bg-white shadow-xl rounded-sm transform transition-all duration-500 group-hover:shadow-2xl z-20">
