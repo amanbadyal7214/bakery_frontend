@@ -235,10 +235,10 @@ export default function Gallery() {
       </div>
 
       {/* ══════ GRID — same card style as MenuSection ══════ */}
-      <main className="max-w-8xl mx-auto px-6 py-10">
+      <main className="max-w-7xl mx-auto px-6 py-10">
         <motion.div
           layout
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8"
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6"
         >
           <AnimatePresence mode="popLayout">
             {filtered.map((item, idx) => (
@@ -251,7 +251,7 @@ export default function Gallery() {
                 animate="show"
                 exit="exit"
                 onClick={() => openLb(item.id)}
-                className="group relative h-[420px] rounded-3xl overflow-hidden shadow-lg cursor-pointer transform transition-all duration-500 hover:scale-105 hover:shadow-2xl border border-transparent hover:border-white/10"
+                className="group relative h-[320px] rounded-2xl overflow-hidden shadow-lg cursor-pointer transform transition-all duration-500 hover:scale-105 hover:shadow-2xl border border-transparent hover:border-white/10"
               >
                 {/* full-bleed background image */}
                 <div className="absolute inset-0 w-full h-full">
@@ -267,17 +267,17 @@ export default function Gallery() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a0f0a] via-[#3E2723]/40 to-transparent opacity-60" />
 
                 {/* content — always visible with smooth transitions */}
-                <div className="absolute inset-0 p-6 flex flex-col justify-end text-white z-10">
+                <div className="absolute inset-0 p-4 flex flex-col justify-end text-white z-10">
                   <div className="transform transition-all duration-300 translate-y-0">
                     <div className="flex justify-between items-end mb-2">
                       <div className="flex flex-col gap-1">
                         {item.badge && (
-                          <span className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-[#D4A373] text-[#2C1810] text-[0.7rem] font-bold uppercase tracking-wider mb-1 shadow-sm">
+                          <span className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-[#D4A373] text-[#2C1810] text-[0.65rem] font-bold uppercase tracking-wider mb-1 shadow-sm">
                             <span className="w-1.5 h-1.5 rounded-full bg-[#2C1810]" />
                             {item.badge}
                           </span>
                         )}
-                        <h3 className="font-playfair text-xl font-bold leading-tight transition-colors">
+                        <h3 className="font-playfair text-lg font-bold leading-tight transition-colors">
                           {item.title}
                         </h3>
                       </div>

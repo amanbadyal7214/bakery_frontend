@@ -21,7 +21,7 @@ export default function CtaBannerSection() {
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="font-playfair text-2xl md:text-3xl text-white font-bold mb-4 leading-tight"
+          className="font-playfair text-xl md:text-2xl text-white font-bold mb-4 leading-tight"
         >
           Ready to Order Something Delicious?
         </motion.h2>

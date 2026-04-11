@@ -77,7 +77,7 @@ export default function FreshBreadSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <h2 className="font-playfair text-2xl md:text-3xl text-navy mb-6">Experience Quality</h2>
+            <h2 className="font-playfair text-xl md:text-2xl text-navy mb-6">Experience Quality</h2>
             <p className="text-[#7A5C4F] leading-relaxed mb-8">
               Experience the aroma of fresh baking and the warmth of our community kitchen. Whether you're stopping by for your morning sourdough or checking our daily specials, we're here to make every moment authentic and delicious.
             </p>

@@ -89,7 +89,7 @@ export default function HeroSection() {
             src={hangryImage}
             alt="Hangry?"
             className="flex-shrink-0 self-start mt-0 animate-fade-up object-contain"
-            style={{ height: "clamp(12rem, 18vw, 18rem)" }}
+            style={{ height: "clamp(8rem, 12vw, 14rem)" }}
           />
 
           {/* Centre images */}
@@ -108,7 +108,7 @@ export default function HeroSection() {
                   alt={`Cake ${i + 1}`}
                   className="absolute object-contain drop-shadow-2xl pointer-events-none mix-blend-multiply"
                   style={{
-                    width: "clamp(450px,55vw,850px)",
+                    width: "clamp(350px,45vw,650px)",
                     top: "50%",
                     left: "50%",
                     opacity: isActive ? (animating ? 0 : 1) : 0,
@@ -151,7 +151,7 @@ export default function HeroSection() {
             src={sweetImage}
             alt="Sweet."
             className="flex-shrink-0 self-end mb-6 animate-fade-up object-contain"
-            style={{ height: "clamp(12rem, 18vw, 18rem)", animationDelay: "0.2s" }}
+            style={{ height: "clamp(8rem, 12vw, 14rem)", animationDelay: "0.2s" }}
           />
         </h1>
       </div>

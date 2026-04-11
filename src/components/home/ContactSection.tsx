@@ -132,7 +132,7 @@ export default function ContactSection() {
                <Star className="w-3 h-3 fill-gold" /> Contact Us <Star className="w-3 h-3 fill-gold" />
              </span>
           </div>
-          <h2 className="font-playfair text-2xl md:text-3xl font-bold text-bread-dark mb-6 leading-tight">
+          <h2 className="font-playfair text-xl md:text-2xl font-bold text-bread-dark mb-6 leading-tight">
             We&apos;d Love to <span className="text-gold italic">Hear</span> from You
           </h2>
           <p className="text-bread-brown/80 max-w-2xl mx-auto text-md">
@@ -152,7 +152,7 @@ export default function ContactSection() {
             <div className="bg-white p-8 rounded-3xl shadow-xl shadow-bread-brown/5 border border-bread-brown/5 relative overflow-hidden group hover:shadow-2xl transition-all duration-500 h-full">
                <div className="absolute top-0 right-0 w-32 h-32 bg-[#FDF6EC] rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110 duration-500"></div>
                
-               <h3 className="font-playfair text-2xl font-bold text-bread-dark mb-8 relative z-10">Get in Touch</h3>
+               <h3 className="font-playfair text-lg font-bold text-bread-dark mb-8 relative z-10">Get in Touch</h3>
                
                {/* Only show backend data. If loading, show skeleton. If no profile, show not available message. */}
                {loading ? (
