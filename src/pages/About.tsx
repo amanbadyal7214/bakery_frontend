@@ -373,14 +373,14 @@ export default function About() {
       <OriginStorySection />
 
       {/* ══ OUR VALUES ══ */}
-      <section className="py-28 bg-[#FAF6E6]">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="py-12 bg-[#FAF6E6]">
+        <div className="max-w-7xl mx-auto px-2">
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="text-center mb-16">
             <span className="inline-flex items-center gap-2 text-[#D4A373] text-xs font-bold tracking-[0.3em] uppercase mb-4">
               <span className="h-px w-8 bg-[#D4A373]" /> What We Stand For <span className="h-px w-8 bg-[#D4A373]" />
             </span>
-            <h2 className="font-playfair text-5xl md:text-6xl font-bold text-[#3E2723] mb-4">Our Core Values</h2>
-            <p className="text-[#8D6E63] text-lg max-w-xl mx-auto leading-relaxed">
+            <h2 className="font-playfair text-2xl md:text-3xl font-bold text-[#3E2723] mb-4">Our Core Values</h2>
+            <p className="text-[#8D6E63] text-md max-w-xl mx-auto leading-relaxed">
               Everything we do is guided by a simple belief — that good food, made honestly, changes lives.
             </p>
           </motion.div>
@@ -406,12 +406,12 @@ export default function About() {
       </section>
 
       {/* ══ BAKING PROCESS ══ */}
-      <section className="py-28 bg-white overflow-hidden">
+      <section className="py-12 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="text-center mb-16">
             <span className="text-[#D4A373] text-xs font-bold tracking-[0.3em] uppercase mb-3 block">A Day in Our Bakery</span>
-            <h2 className="font-playfair text-5xl md:text-6xl font-bold text-[#3E2723]">From Oven to Table</h2>
-            <p className="text-[#8D6E63] mt-4 max-w-xl mx-auto text-lg leading-relaxed">
+            <h2 className="font-playfair text-2xl md:text-3xl font-bold text-[#3E2723]">From Oven to Table</h2>
+            <p className="text-[#8D6E63] mt-4 max-w-xl mx-auto text-md leading-relaxed">
               What happens before the doors open at 7 AM? A lot. Here's a peek behind the scenes.
             </p>
           </motion.div>
@@ -444,12 +444,12 @@ export default function About() {
       </section>
 
       {/* ══ TEAM ══ */}
-      <section className="py-28 bg-[#FAF6E6]">
+      <section className="py-12 bg-[#FAF6E6]">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="text-center mb-16">
             <span className="text-[#D4A373] text-xs font-bold tracking-[0.3em] uppercase mb-3 block">The People Behind the Magic</span>
-            <h2 className="font-playfair text-5xl md:text-6xl font-bold text-[#3E2723]">Meet Our Team</h2>
-            <p className="text-[#8D6E63] mt-4 max-w-xl mx-auto text-lg leading-relaxed">
+            <h2 className="font-playfair text-2xl md:text-3xl font-bold text-[#3E2723]">Meet Our Team</h2>
+            <p className="text-[#8D6E63] mt-4 max-w-xl mx-auto text-md leading-relaxed">
               Every great bakery is built on passionate people. These are the talented humans who make Hangary? Sweet. extraordinary.
             </p>
           </motion.div>
@@ -497,7 +497,7 @@ export default function About() {
       </section>
 
       {/* ══ TIMELINE ══ */}
-      <section className="py-28 bg-[#FAF6E6] overflow-hidden relative">
+      <section className="py-12 bg-[#FAF6E6] overflow-hidden relative">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#D4A373]/8 rounded-full blur-[140px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#E11D48]/5 rounded-full blur-[120px] pointer-events-none" />
 
@@ -507,8 +507,8 @@ export default function About() {
             <span className="inline-flex items-center gap-2 text-[#D4A373] text-xs font-bold tracking-[0.3em] uppercase mb-4">
               <span className="h-px w-8 bg-[#D4A373]" /> 40 Years in the Making <span className="h-px w-8 bg-[#D4A373]" />
             </span>
-            <h2 className="font-playfair text-5xl md:text-6xl font-bold text-[#3E2723]">Our Journey</h2>
-            <p className="text-[#8D6E63] mt-4 text-lg max-w-xl mx-auto leading-relaxed">
+            <h2 className="font-playfair text-2xl md:text-3xl font-bold text-[#3E2723]">Our Journey</h2>
+            <p className="text-[#8D6E63] mt-4 text-md max-w-xl mx-auto leading-relaxed">
               Every great bakery has a story. Here's ours — told one milestone at a time.
             </p>
           </motion.div>
@@ -564,14 +564,14 @@ export default function About() {
       <TestimonialsSection />
 
       {/* ══ VISIT US ══ */}
-      <section className="py-28 bg-white overflow-hidden">
+      <section className="py-12 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-16 items-center">
             <div className="lg:col-span-3">
               <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="mb-12">
                 <span className="text-[#D4A373] text-xs font-bold tracking-[0.3em] uppercase mb-3 block">Come Say Hello</span>
-                <h2 className="font-playfair text-5xl md:text-6xl font-bold text-[#3E2723]">Visit Us</h2>
-                <p className="text-[#8D6E63] mt-4 text-lg leading-relaxed max-w-lg">
+                <h2 className="font-playfair text-2xl md:text-3xl font-bold text-[#3E2723]">Visit Us</h2>
+                <p className="text-[#8D6E63] mt-4 text-md leading-relaxed max-w-lg">
                   We'd love to see you in person. Pull up a chair, smell the bread baking, and let us create something special for you.
                 </p>
               </motion.div>

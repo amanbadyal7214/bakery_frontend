@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/home/FooterSection";
 import { X, ChevronLeft, ChevronRight, ArrowRight, Star } from "lucide-react";
-import cakeJpg      from "../assets/cake.jpg";
+import cakeJpg from "../assets/cake.jpg";
 import chocolateJpg from "../assets/choclate.jpg";
-import pastryJpg    from "../assets/pastery.jpg";
-import doJpg        from "../assets/DO.jpg";
-import GEpng        from "../assets/GE.png";
+import pastryJpg from "../assets/pastery.jpg";
+import doJpg from "../assets/DO.jpg";
+import GEpng from "../assets/GE.png";
 import { api } from "@/services/api";
 
 /* ─────────────────── types ─────────────────── */
@@ -27,18 +27,18 @@ interface GalleryItem {
 
 /* ─────────────────── data ──────────────────── */
 const galleryItems: GalleryItem[] = [
-  { id: 1,  src: "/cake.png",        alt: "Strawberry Dream Cake",  category: "Cakes",              title: "Strawberry Dream Cake",    desc: "Handcrafted with fresh strawberries & Belgian cream",        badge: "Bestseller", price: "$28" },
-  { id: 2,  src: "/croissant.png",   alt: "Butter Croissants",      category: "Pastries",           title: "Golden Butter Croissants", desc: "72 flaky layers of pure French butter perfection",           badge: "Fresh",      price: "$3.50" },
-  { id: 3,  src: "/bread.png",       alt: "Rustic Sourdough",       category: "Breads",             title: "Rustic Sourdough Loaf",    desc: "72-hour cold-fermented artisan sourdough",                  badge: "Artisan",    price: "$9" },
-  { id: 4,  src: cakeJpg,            alt: "Blueberry Muffin",       category: "Muffins",            title: "Blueberry Morning Muffin", desc: "Bursting with wild blueberries, baked fresh daily",         badge: "New",        price: "$3" },
-  { id: 5,  src: "/hero-bg.png",     alt: "Bakery Kitchen",         category: "Behind the Scenes",  title: "Our Craft Kitchen",        desc: "Where every morning magic begins at 3 AM",                               },
-  { id: 6,  src: chocolateJpg,       alt: "Choco Chip Cookies",     category: "Cookies",            title: "Choco Chip Cookies",       desc: "Crispy edges, gooey warm centre — always irresistible",     badge: "Classic",    price: "$2.50" },
-  { id: 7,  src: pastryJpg,          alt: "Cinnamon Swirl",         category: "Pastries",           title: "Cinnamon Swirl Roll",      desc: "Rolled in brown sugar, glazed with cream cheese drizzle",   badge: "Hot",        price: "$4" },
-  { id: 8,  src: doJpg,              alt: "NY Cheesecake",          category: "Cakes",              title: "New York Cheesecake",      desc: "Velvety smooth, baked slow on a buttery graham crust",      badge: "Creamy",     price: "$5" },
-  { id: 9,  src: "/about-baker.png", alt: "Baker at work",          category: "Behind the Scenes",  title: "Artisan at Work",          desc: "Passion dusted in flour — our baker every sunrise",                      },
-  { id: 10, src: GEpng,              alt: "Chef's Special Pastry",  category: "Pastries",           title: "Chef's Seasonal Special",  desc: "A limited creation with seasonal fruits & florals",         badge: "Limited",    price: "$6" },
-  { id: 11, src: "/cake.png",        alt: "Custom Birthday Cake",   category: "Cakes",              title: "Custom Birthday Cake",     desc: "Personalised cakes designed just the way you dream",        badge: "Custom",     price: "$35" },
-  { id: 12, src: "/croissant.png",   alt: "Almond Croissant",       category: "Pastries",           title: "Almond Croissant",         desc: "Twice-baked with almond cream & toasted flake topping",     badge: "Popular",    price: "$4.50" },
+  { id: 1, src: "/cake.png", alt: "Strawberry Dream Cake", category: "Cakes", title: "Strawberry Dream Cake", desc: "Handcrafted with fresh strawberries & Belgian cream", badge: "Bestseller", price: "$28" },
+  { id: 2, src: "/croissant.png", alt: "Butter Croissants", category: "Pastries", title: "Golden Butter Croissants", desc: "72 flaky layers of pure French butter perfection", badge: "Fresh", price: "$3.50" },
+  { id: 3, src: "/bread.png", alt: "Rustic Sourdough", category: "Breads", title: "Rustic Sourdough Loaf", desc: "72-hour cold-fermented artisan sourdough", badge: "Artisan", price: "$9" },
+  { id: 4, src: cakeJpg, alt: "Blueberry Muffin", category: "Muffins", title: "Blueberry Morning Muffin", desc: "Bursting with wild blueberries, baked fresh daily", badge: "New", price: "$3" },
+  { id: 5, src: "/hero-bg.png", alt: "Bakery Kitchen", category: "Behind the Scenes", title: "Our Craft Kitchen", desc: "Where every morning magic begins at 3 AM", },
+  { id: 6, src: chocolateJpg, alt: "Choco Chip Cookies", category: "Cookies", title: "Choco Chip Cookies", desc: "Crispy edges, gooey warm centre — always irresistible", badge: "Classic", price: "$2.50" },
+  { id: 7, src: pastryJpg, alt: "Cinnamon Swirl", category: "Pastries", title: "Cinnamon Swirl Roll", desc: "Rolled in brown sugar, glazed with cream cheese drizzle", badge: "Hot", price: "$4" },
+  { id: 8, src: doJpg, alt: "NY Cheesecake", category: "Cakes", title: "New York Cheesecake", desc: "Velvety smooth, baked slow on a buttery graham crust", badge: "Creamy", price: "$5" },
+  { id: 9, src: "/about-baker.png", alt: "Baker at work", category: "Behind the Scenes", title: "Artisan at Work", desc: "Passion dusted in flour — our baker every sunrise", },
+  { id: 10, src: GEpng, alt: "Chef's Special Pastry", category: "Pastries", title: "Chef's Seasonal Special", desc: "A limited creation with seasonal fruits & florals", badge: "Limited", price: "$6" },
+  { id: 11, src: "/cake.png", alt: "Custom Birthday Cake", category: "Cakes", title: "Custom Birthday Cake", desc: "Personalised cakes designed just the way you dream", badge: "Custom", price: "$35" },
+  { id: 12, src: "/croissant.png", alt: "Almond Croissant", category: "Pastries", title: "Almond Croissant", desc: "Twice-baked with almond cream & toasted flake topping", badge: "Popular", price: "$4.50" },
 ];
 
 const CATEGORIES = ["All", "Cakes", "Pastries", "Breads", "Cookies", "Muffins", "Behind the Scenes"];
@@ -58,7 +58,7 @@ const cardV = {
 /* ═══════════════════════════════════════════════════════ */
 export default function Gallery() {
   const [activeFilter, setActiveFilter] = useState("All");
-  const [lightbox,     setLightbox]     = useState<number | string | null>(null);
+  const [lightbox, setLightbox] = useState<number | string | null>(null);
   // use items state fetched from backend; start with static seed
   const [items, setItems] = useState<GalleryItem[]>(galleryItems);
   const objectUrlsRef = useRef<string[]>([]);
@@ -132,7 +132,7 @@ export default function Gallery() {
       objectUrlsRef.current = [];
     };
   }, []);
-  
+
   // compute category counts from current items and show only categories present
   const categoryCounts = items.reduce((acc: Record<string, number>, it) => {
     const c = (it.category || 'Misc') as string;
@@ -143,17 +143,17 @@ export default function Gallery() {
   const availableCategories = ['All', ...Object.keys(categoryCounts).filter(c => categoryCounts[c] > 0)];
 
   const filtered = activeFilter === "All" ? items : items.filter(i => i.category === activeFilter);
-  const lbIdx  = lightbox !== null ? filtered.findIndex(i => i.id === lightbox) : -1;
+  const lbIdx = lightbox !== null ? filtered.findIndex(i => i.id === lightbox) : -1;
   const lbItem = lbIdx !== -1 ? filtered[lbIdx] : null;
 
-  const openLb  = useCallback((id: number | string) => setLightbox(id), []);
+  const openLb = useCallback((id: number | string) => setLightbox(id), []);
   const closeLb = useCallback(() => setLightbox(null), []);
-  const prevLb  = () => lbIdx > 0 && setLightbox(filtered[lbIdx - 1].id);
-  const nextLb  = () => lbIdx < filtered.length - 1 && setLightbox(filtered[lbIdx + 1].id);
+  const prevLb = () => lbIdx > 0 && setLightbox(filtered[lbIdx - 1].id);
+  const nextLb = () => lbIdx < filtered.length - 1 && setLightbox(filtered[lbIdx + 1].id);
   const handleLbKey = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft")  prevLb();
+    if (e.key === "ArrowLeft") prevLb();
     if (e.key === "ArrowRight") nextLb();
-    if (e.key === "Escape")     closeLb();
+    if (e.key === "Escape") closeLb();
   };
 
   return (
@@ -172,7 +172,7 @@ export default function Gallery() {
         </div>
 
         {/* spinning stamp — same as HeroSection */}
-        <div aria-hidden className="absolute top-[10%] right-[6%] w-24 h-24 animate-spin-slow hidden md:block">
+        <div aria-hidden className="absolute top-[30%] right-[6%] w-24 h-24 animate-spin-slow hidden md:block">
           <svg viewBox="0 0 120 120" className="w-full h-full">
             <defs>
               <path id="gc" d="M 60,60 m -45,0 a 45,45 0 1,1 90,0 a 45,45 0 1,1 -90,0" />
@@ -193,7 +193,7 @@ export default function Gallery() {
           className="relative z-10 text-center max-w-2xl mx-auto px-6"
         >
           <p className="text-[0.8rem] font-bold tracking-[0.2em] uppercase text-gold mb-3">Our Gallery</p>
-          <h1 className="font-playfair text-4xl md:text-5xl lg:text-6xl font-bold text-bread-dark mb-4 leading-tight">
+          <h1 className="font-playfair text-3xl md:text-4xl lg:text-6xl font-bold text-bread-dark mb-4 leading-tight">
             Baked with Love,<br />Shot with Pride
           </h1>
           <p className="text-[#7A5C4F] text-base leading-relaxed max-w-xl mx-auto">
@@ -217,11 +217,10 @@ export default function Gallery() {
                 <button
                   key={cat}
                   onClick={() => setActiveFilter(cat)}
-                  className={`px-4 py-2 rounded-full text-sm font-bold tracking-[0.12em] uppercase transition-all duration-300 flex items-center gap-2 ${
-                    activeFilter === cat
+                  className={`px-4 py-2 rounded-full text-sm font-bold tracking-[0.12em] uppercase transition-all duration-300 flex items-center gap-2 ${activeFilter === cat
                       ? "bg-bread-brown text-white shadow-md shadow-bread-brown/20 ring-1 ring-bread-brown/30"
                       : "bg-white text-navy border border-gold/20 hover:border-bread-brown hover:text-bread-brown"
-                  }`}
+                    }`}
                 >
                   <span className="inline-block w-2 h-2 rounded-full bg-gold/80" />
                   {cat} {count > 0 ? <span className="text-xs opacity-80">({count})</span> : null}
@@ -236,10 +235,10 @@ export default function Gallery() {
       </div>
 
       {/* ══════ GRID — same card style as MenuSection ══════ */}
-      <main className="max-w-6xl mx-auto px-6 py-16">
+      <main className="max-w-8xl mx-auto px-6 py-10">
         <motion.div
           layout
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8"
         >
           <AnimatePresence mode="popLayout">
             {filtered.map((item, idx) => (
@@ -301,7 +300,7 @@ export default function Gallery() {
                     </div>
                   </div>
                 </div>
-               </motion.article>
+              </motion.article>
             ))}
           </AnimatePresence>
         </motion.div>
