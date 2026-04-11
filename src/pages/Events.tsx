@@ -20,15 +20,23 @@ import wa8 from "@/assets/girl.png";
 import wa10 from "@/assets/WhatsApp Image 2026-04-11 at 16.30.01.jpeg";
 import wa11 from "@/assets/WhatsApp Image 2026-04-11 at 16.58.54.jpeg";
 import wa12 from "@/assets/cs5.png";
+import wa13 from "@/assets/WhatsApp Image 2026-04-11 at 18.08.55 (2).jpeg";
+import wa14 from "@/assets/WhatsApp Image 2026-04-11 at 18.08.55 (1).jpeg";
+import wa15 from "@/assets/WhatsApp Image 2026-04-11 at 18.08.54.jpeg";
+import wa16 from "@/assets/WhatsApp Image 2026-04-11 at 18.16.15.jpeg";
 
 
 
 const memories = [
   { src: daman, rotate: "-2deg" },
+  { src: wa13, rotate: "3deg" },
+  { src: wa14, rotate: "-1deg" },
+
   { src: wa10, rotate: "3deg" },
   { src: wa4, rotate: "-1deg" },
-
+  { src: wa15, rotate: "2deg" },
   { src: wa11, rotate: "1deg" },
+  { src: wa16, rotate: "-2deg" },
   { src: wa12, rotate: "2deg" },
   { src: wa5, rotate: "2deg" },
 
@@ -217,46 +225,6 @@ export default function Events() {
                 </p>
 
                 <div className="flex items-center justify-center lg:justify-start gap-8">
-                  <div className="relative">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setShowWishes(true)}
-                      className="relative z-10 bg-[#2C1810] text-white px-8 py-4 rounded-full font-bold text-sm tracking-widest shadow-2xl shadow-[#2C1810]/20 hover:bg-[#3E2723] transition-all"
-                    >
-                      Click Here
-                    </motion.button>
-                    
-                    {/* Animated Pulse */}
-                    <motion.div
-                      animate={{ 
-                        scale: [1, 1.4, 1],
-                        opacity: [0.4, 0, 0.4],
-                      }}
-                      transition={{ 
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                      className="absolute inset-0 bg-[#2C1810] rounded-full z-0"
-                    />
-
-                    {/* Badge/Note Indicator */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, rotate: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 1, duration: 0.5 }}
-                      className="absolute -top-14 -right-10 pointer-events-none hidden md:block"
-                    >
-                      <div className="bg-[#D4A373] text-[#2C1810] text-[0.6rem] font-bold px-3 py-1 rounded-full shadow-lg whitespace-nowrap rotate-6 border border-[#2C1810]/10">
-                        Open Surprise Note ✉️
-                      </div>
-                      <svg width="30" height="20" viewBox="0 0 30 20" fill="none" className="text-[#D4A373] mt-1 ml-4 -scale-x-100 rotate-[40deg]">
-                        <path d="M2,18 Q15,15 25,2 M25,2 L18,5 M25,2 L23,10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                    </motion.div>
-                  </div>
-
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -335,138 +303,120 @@ export default function Events() {
             </div>
           </div>
         </div>
+
+        {/* Captured Memories Gallery */}
+        <section className="py-24 px-4 bg-[#EBE3D5]">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="font-playfair text-4xl md:text-5xl font-bold text-[#2C1810] mb-4">Captured Memories</h2>
+              <p className="text-[#2C1810]/60 max-w-xl mx-auto">A collection of moments that make our bakery more than just a place to eat—it's a place to belong.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-32 pt-20">
+              {memories.map((photo, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  animate={{
+                    y: [0, -15, 0],
+                    rotate: [photo.rotate, (parseFloat(photo.rotate) + 2) + "deg", photo.rotate]
+                  }}
+                  transition={{
+                    y: { duration: 3 + Math.random() * 2, repeat: Infinity, ease: "easeInOut", delay: index * 0.1 },
+                    rotate: { duration: 4 + Math.random() * 2, repeat: Infinity, ease: "easeInOut", delay: index * 0.1 },
+                    opacity: { duration: 0.5, delay: index * 0.1 }
+                  }}
+                  className="group relative"
+                >
+                  {/* Balloon assembly */}
+                  <div className="absolute -top-24 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
+                    <motion.div
+                      animate={{
+                        rotate: [-5, 5, -5],
+                        x: [-2, 2, -2]
+                      }}
+                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <svg width="50" height="60" viewBox="0 0 30 40" fill={["#D4A373", "#2C1810", "#EBC49F", "#A37B5C"][index % 4]} className="drop-shadow-xl">
+                        <path d="M15 0C6.716 0 0 6.716 0 15C0 23.284 6.716 30 15 30C23.284 30 30 23.284 30 15C30 6.716 23.284 0 15 0Z" />
+                        <path d="M15 30L12 34H18L15 30Z" />
+                      </svg>
+                    </motion.div>
+                    {/* String */}
+                    <div className="w-[1px] h-24 bg-[#2C1810]/20 -mt-2" />
+                  </div>
+
+                  <div className="relative p-3 bg-white shadow-xl rounded-sm transform transition-all duration-500 group-hover:shadow-2xl z-20">
+                    <div className="aspect-[4/5] overflow-hidden rounded-sm relative mb-4">
+                      <img
+                        src={photo.src}
+                        alt="Captured Moment"
+                        className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
+                      />
+                      <div className="absolute inset-0 bg-[#2C1810]/10 group-hover:bg-transparent transition-colors" />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
 
 
 
-      <AnimatePresence>
-        {showWishes && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-black/60 backdrop-blur-md"
-            onClick={() => setShowWishes(false)}
-          >
+
+      {/* Special Message Section */}
+      <section className="py-32 px-4 bg-[#EBE3D5] flex justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="relative max-w-4xl w-full bg-[#FCF8F1] p-12 md:p-24 rounded-[3rem] shadow-[0_20px_50px_rgba(44,24,16,0.1)] overflow-hidden text-center"
+        >
+          {/* Decorative background elements */}
+          <div className="absolute top-0 right-0 p-8 transform translate-x-1/4 -translate-y-1/4">
+            <Heart className="text-[#D4A373]/5" size={250} fill="currentColor" />
+          </div>
+          <div className="absolute bottom-0 left-0 p-8 transform -translate-x-1/4 translate-y-1/4">
+            <Sparkles className="text-[#D4A373]/10" size={200} />
+          </div>
+
+          <div className="relative z-10">
             <motion.div
-              initial={{ scale: 0.8, opacity: 0, y: 50, rotate: -5 }}
-              animate={{ scale: 1, opacity: 1, y: 0, rotate: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 50, rotate: 5 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative max-w-lg w-full bg-[#FCF8F1] p-8 md:p-12 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden"
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              transition={{ delay: 0.3, type: "spring" }}
+              className="w-24 h-24 bg-[#2C1810] rounded-full flex items-center justify-center text-white mx-auto mb-10 shadow-2xl"
             >
-              {/* Decorative background elements */}
-              <div className="absolute top-0 right-0 p-4">
-                <Heart className="text-[#D4A373]/10" size={120} fill="currentColor" />
-              </div>
-              <div className="absolute -bottom-8 -left-8">
-                <Sparkles className="text-[#D4A373]/20" size={100} />
-              </div>
-
-              {/* Header */}
-              <div className="relative z-10 text-center mb-8">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.3, type: "spring" }}
-                  className="w-20 h-20 bg-[#2C1810] rounded-full flex items-center justify-center text-white mx-auto mb-6 shadow-xl"
-                >
-                  <Heart size={32} fill="currentColor" />
-                </motion.div>
-                <h3 className="font-playfair text-3xl md:text-4xl font-bold text-[#2C1810] mb-2">From Mummy & Daddy</h3>
-                <div className="w-24 h-1 bg-[#D4A373] mx-auto rounded-full" />
-              </div>
-
-              {/* Message */}
-              <div className="relative z-10 space-y-6">
-                <p className="font-playfair text-xl md:text-2xl text-[#2C1810]/80 italic leading-relaxed text-center">
-                  "Puttar, you are the heartbeat of our home. Watching you grow into such a wonderful, kind-hearted soul has been our life's greatest joy."
-                </p>
-                <p className="text-[#2C1810]/70 text-lg md:text-xl font-medium leading-relaxed text-center">
-                  May Waheguru always protect you and shower you with endless happiness. We are always here for you, cheering the loudest for every success.
-                </p>
-                <div className="pt-6 border-t border-[#2C1810]/10 text-center">
-                  <p className="font-playfair text-2xl font-black text-[#2C1810]">Happy Birthday, Beta! 🖤</p>
-                  <p className="text-[#2C1810]/40 text-sm uppercase tracking-widest mt-2">With all our love forever</p>
-                </div>
-              </div>
-
-              {/* Close button with love */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowWishes(false)}
-                className="mt-10 w-full py-4 bg-[#2C1810] text-white rounded-xl font-bold tracking-widest hover:bg-[#3E2723] transition-all relative z-10 shadow-lg"
-              >
-                CLOSE WITH LOVE
-              </motion.button>
-
-              <div className="absolute -bottom-2 right-8 opacity-10 pointer-events-none">
-                <img src={daman} alt="" className="w-32 rotate-12" />
-              </div>
+              <Heart size={40} fill="currentColor" />
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            
+            <h3 className="font-playfair text-4xl md:text-5xl font-bold text-[#2C1810] mb-4">From Dadi ji & Family</h3>
+            <div className="w-32 h-1.5 bg-[#D4A373] mx-auto rounded-full mb-12" />
 
-      {/* Captured Memories Gallery */}
-      <section className="py-24 px-4 bg-[#EBE3D5]">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-           
-            <h2 className="font-playfair text-4xl md:text-5xl font-bold text-[#2C1810] mb-4">Captured Memories</h2>
-            <p className="text-[#2C1810]/60 max-w-xl mx-auto">A collection of moments that make our bakery more than just a place to eat—it's a place to belong.</p>
+            <div className="space-y-8">
+              <p className="font-playfair text-2xl md:text-3xl text-[#2C1810]/80 italic leading-relaxed max-w-2xl mx-auto">
+                "Puttar, you are the heartbeat of our home. Watching you grow into such a wonderful, kind-hearted soul has been our life's greatest joy."
+              </p>
+              <p className="text-[#2C1810]/70 text-xl md:text-2xl font-medium leading-relaxed max-w-2xl mx-auto">
+                May Waheguru always protect you and shower you with endless happiness. We are always here for you, cheering the loudest for every success.
+              </p>
+              
+              <div className="pt-12 border-t border-[#2C1810]/10 mt-12">
+                <h4 className="font-playfair text-3xl md:text-4xl font-black text-[#2C1810]">Happy Birthday, Beta! 🖤</h4>
+                <p className="text-[#D4A373] text-sm md:text-base uppercase tracking-[0.5em] mt-4 font-bold">With all our love forever</p>
+              </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-32 pt-20">
-            {memories.map((photo, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                animate={{
-                  y: [0, -15, 0],
-                  rotate: [photo.rotate, (parseFloat(photo.rotate) + 2) + "deg", photo.rotate]
-                }}
-                transition={{
-                  y: { duration: 3 + Math.random() * 2, repeat: Infinity, ease: "easeInOut", delay: index * 0.1 },
-                  rotate: { duration: 4 + Math.random() * 2, repeat: Infinity, ease: "easeInOut", delay: index * 0.1 },
-                  opacity: { duration: 0.5, delay: index * 0.1 }
-                }}
-                className="group relative"
-              >
-                {/* Balloon assembly */}
-                <div className="absolute -top-24 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
-                  <motion.div
-                    animate={{
-                      rotate: [-5, 5, -5],
-                      x: [-2, 2, -2]
-                    }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    <svg width="50" height="60" viewBox="0 0 30 40" fill={["#D4A373", "#2C1810", "#EBC49F", "#A37B5C"][index % 4]} className="drop-shadow-xl">
-                      <path d="M15 0C6.716 0 0 6.716 0 15C0 23.284 6.716 30 15 30C23.284 30 30 23.284 30 15C30 6.716 23.284 0 15 0Z" />
-                      <path d="M15 30L12 34H18L15 30Z" />
-                    </svg>
-                  </motion.div>
-                  {/* String */}
-                  <div className="w-[1px] h-24 bg-[#2C1810]/20 -mt-2" />
-                </div>
-
-                <div className="relative p-3 bg-white shadow-xl rounded-sm transform transition-all duration-500 group-hover:shadow-2xl z-20">
-                  <div className="aspect-[4/5] overflow-hidden rounded-sm relative mb-4">
-                    <img
-                      src={photo.src}
-                      alt="Captured Moment"
-                      className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
-                    />
-                    <div className="absolute inset-0 bg-[#2C1810]/10 group-hover:bg-transparent transition-colors" />
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+          {/* Floating photo decoration */}
+          <div className="absolute -bottom-4 right-12 opacity-20 pointer-events-none hidden lg:block">
+            <img src={daman} alt="" className="w-48 rotate-12 rounded-2xl grayscale" />
           </div>
-        </div>
+        </motion.div>
       </section>
 
       <FooterSection />
