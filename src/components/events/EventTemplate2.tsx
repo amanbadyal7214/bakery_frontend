@@ -180,15 +180,15 @@ export default function EventTemplate2({ config: c }: Props) {
         </motion.div>
       </div>
 
-      <main style={{background: bg}}>
+      <main style={{background: darkChocolate}}>
         {/* SECTION 3 — Immersive Feature Showcase */}
-        <section>
+        <section style={{ background: darkChocolate }}>
           <div className="max-w-7xl mx-auto">
             <div className="mb-2">
-              <span className="text-[11px] font-black tracking-[0.4em] uppercase opacity-40 mb-4 block" style={{color: accent + '99'}}>Exclusives</span>
-              <h2 className="text-3xl md:text-5xl font-black tracking-tighter leading-[0.9] font-playfair italic" style={{color: dark}}>The Highlights</h2>
+              <span className="text-[11px] font-black tracking-[0.4em] uppercase opacity-40 mb-4 block" style={{color: bg + '99'}}>Exclusives</span>
+              <h2 className="text-3xl md:text-5xl font-black tracking-tighter leading-[0.9] font-playfair italic" style={{color: bg}}>The Highlights</h2>
             </div>
-            <div className="grid lg:grid-cols-2 gap-px" style={{background: accent + '20'}}>
+            <div className="grid lg:grid-cols-2 gap-px" style={{background: bg}}>
               {c.highlights.map((item, i) => (
                 <motion.div
                   key={i}
