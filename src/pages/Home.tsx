@@ -13,7 +13,7 @@ import OriginStorySection from "@/components/home/OriginStorySection";
 export default function Home() {
 
   return (
-    <div className="font-inter text-navy overflow-x-hidden">
+    <div className="font-inter text-[#D4A373] overflow-x-hidden">
       <Navbar /> {/* Ensure Navbar is present if it handles layout, but CartSheet is separate */}
 
       <HeroSection />

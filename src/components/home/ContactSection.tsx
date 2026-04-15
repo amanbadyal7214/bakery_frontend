@@ -128,7 +128,7 @@ export default function ContactSection() {
           className="text-center mb-16"
         >
           <div className="inline-block p-2 px-4 rounded-full bg-white border border-gold/20 shadow-sm mb-4">
-             <span className="text-xs font-bold tracking-[0.2em] uppercase text-gold flex items-center gap-2">
+             <span className="text-xs font-playfair tracking-[0.2em] uppercase text-gold flex items-center gap-2">
                <Star className="w-3 h-3 fill-gold" /> Contact Us <Star className="w-3 h-3 fill-gold" />
              </span>
           </div>
@@ -186,8 +186,8 @@ export default function ContactSection() {
                         <c.icon className={`w-5 h-5 ${c.color}`} />
                       </span>
                       <div>
-                        <strong className="block text-xs font-bold tracking-widest uppercase text-gold mb-1">{c.label}</strong>
-                        <div className="text-bread-dark/80 text-[0.95rem] m-0 leading-relaxed whitespace-pre-line font-medium">{c.val ?? 'Not available'}</div>
+                        <strong className="block text-xs font-playfair tracking-widest uppercase text-gold mb-1">{c.label}</strong>
+                        <div className="text-bread-dark/80 text-[0.95rem] m-0 leading-relaxed whitespace-pre-line font-playfair">{c.val ?? 'Not available'}</div>
                       </div>
                     </motion.div>
                   )) }
@@ -250,14 +250,14 @@ export default function ContactSection() {
             > 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2 group">
-                  <label htmlFor="cf-name" className="text-sm font-bold text-bread-dark ml-1 group-focus-within:text-gold transition-colors">Your Name</label>
+                  <label htmlFor="cf-name" className="text-sm font-playfair text-bread-dark ml-1 group-focus-within:text-gold transition-colors">Your Name</label>
                   <input id="cf-name" name="cf-name" type="text" placeholder="Jane Doe" required
                     value={nameValue}
                     onChange={(e) => setNameValue(e.target.value)}
                     className="w-full bg-gray-50 border border-transparent rounded-xl px-5 py-4 text-bread-dark outline-none focus:bg-white focus:border-gold/30 focus:ring-4 focus:ring-gold/10 transition-all duration-300 placeholder:text-gray-400" />
                 </div>
                 <div className="flex flex-col gap-2 group">
-                  <label htmlFor="cf-phone" className="text-sm font-bold text-bread-dark ml-1 group-focus-within:text-gold transition-colors">Phone Number</label>
+                  <label htmlFor="cf-phone" className="text-sm font-playfair text-bread-dark ml-1 group-focus-within:text-gold transition-colors">Phone Number</label>
                   <input id="cf-phone" name="cf-phone" type="tel" placeholder="(123) 456-7890" required
                     value={phoneValue}
                     onChange={(e) => setPhoneValue(e.target.value)}
@@ -266,7 +266,7 @@ export default function ContactSection() {
               </div>
 
               <div className="flex flex-col gap-2 group">
-                <label htmlFor="cf-subject" className="text-sm font-bold text-bread-dark ml-1 group-focus-within:text-gold transition-colors">Subject</label>
+                <label htmlFor="cf-subject" className="text-sm font-playfair text-bread-dark ml-1 group-focus-within:text-gold transition-colors">Subject</label>
                 <select id="cf-subject" name="cf-subject" defaultValue="" 
                   className="w-full bg-gray-50 border border-transparent rounded-xl px-5 py-4 text-bread-dark outline-none focus:bg-white focus:border-gold/30 focus:ring-4 focus:ring-gold/10 transition-all duration-300 cursor-pointer appearance-none">
                     <option value="" disabled>Select a topic...</option>
@@ -278,13 +278,13 @@ export default function ContactSection() {
               </div>
 
               <div className="flex flex-col gap-2 group">
-                <label htmlFor="cf-message" className="text-sm font-bold text-bread-dark ml-1 group-focus-within:text-gold transition-colors">Message</label>
+                <label htmlFor="cf-message" className="text-sm font-playfair text-bread-dark ml-1 group-focus-within:text-gold transition-colors">Message</label>
                 <textarea id="cf-message" name="cf-message" rows={5} placeholder="Tell us what you need…" required
                   className="w-full bg-gray-50 border border-transparent rounded-xl px-5 py-4 text-bread-dark outline-none focus:bg-white focus:border-gold/30 focus:ring-4 focus:ring-gold/10 transition-all duration-300 resize-y placeholder:text-gray-400 min-h-[150px]" />
               </div>
 
               <button type="submit"
-                className="group relative w-full bg-bread-brown text-white border-none py-5 rounded-xl font-bold text-lg cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-bread-brown/30 mt-2">
+                className="group relative w-full bg-bread-brown text-white border-none py-5 rounded-xl font-playfair text-lg cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-bread-brown/30 mt-2">
                 <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
                 <span className="relative flex items-center justify-center gap-3 transition-transform group-hover:-translate-y-0.5">
                   Send Message <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />

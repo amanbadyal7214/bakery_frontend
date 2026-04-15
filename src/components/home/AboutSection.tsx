@@ -51,7 +51,7 @@ export default function AboutSection() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.5 + (index * 0.1) }}
-              className="flex gap-3 items-center text-[0.95rem] text-navy"
+              className="flex gap-3 items-center text-[0.95rem] text-[#D4A373]"
             >
               <span className="text-gold font-bold text-base">✓</span> {i}
             </motion.li>

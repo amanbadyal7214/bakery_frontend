@@ -15,7 +15,7 @@ export default function FreshBreadSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="font-playfair text-3xl md:text-4xl text-navy leading-[1.1]"
+            className="font-playfair text-3xl md:text-4xl text-[#D4A373] leading-[1.1]"
           >
             Serving Fresh Bread <span className="italic block mt-2">Every Day</span>
           </motion.h2>
@@ -56,7 +56,7 @@ export default function FreshBreadSection() {
               We believe that true bread takes time. Our master bakers hand-shape every single loaf using artisanal techniques and natural leaven, ensuring a depth of flavor and nutritional richness that commercial bread simply cannot match. It’s not just baking; it’s a commitment to the craft.
             </p>
             {/* Signature */}
-            <div className="font-playfair font-bold text-xl text-navy opacity-60 font-cursive" style={{ fontFamily: 'cursive' }}>
+            <div className="font-playfair font-bold text-xl text-[#D4A373] opacity-60 font-cursive" style={{ fontFamily: 'cursive' }}>
               Margaret Howell
             </div>
           </motion.div>
@@ -77,13 +77,13 @@ export default function FreshBreadSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <h2 className="font-playfair text-xl md:text-2xl text-navy mb-6">Experience Quality</h2>
+            <h2 className="font-playfair text-xl md:text-2xl text-[#D4A373] mb-6">Experience Quality</h2>
             <p className="text-[#7A5C4F] leading-relaxed mb-8">
               Experience the aroma of fresh baking and the warmth of our community kitchen. Whether you're stopping by for your morning sourdough or checking our daily specials, we're here to make every moment authentic and delicious.
             </p>
             <button 
               onClick={() => scrollTo("menu")} // Corrected to scroll to "menu" (lowercase) which is the id in MenuSection
-              className="bg-navy text-white px-10 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:bg-navy/90 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+              className="bg-[#D4A373] text-white px-10 py-4 text-xs font-playfair tracking-[0.2em] uppercase hover:bg-[#D4A373]/90 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
             >
               View Menu
             </button>

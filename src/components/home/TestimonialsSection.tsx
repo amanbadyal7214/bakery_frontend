@@ -40,7 +40,7 @@ export default function TestimonialsSection() {
           transition={{ duration: 0.8 }}
           className="text-center mb-14"
         >
-          <p className="text-[0.8rem] font-bold tracking-[0.2em] uppercase text-gold mb-3">Testimonials</p>
+          <p className="text-[0.8rem] font-playfair tracking-[0.2em] uppercase text-gold mb-3">Testimonials</p>
           <h2 className="font-playfair text-xl md:text-2xl font-bold text-bread-dark mb-4">What Our Customers Say</h2>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
@@ -57,11 +57,11 @@ export default function TestimonialsSection() {
                 <div className="text-gold text-base tracking-wide mb-4">{"★".repeat(t.stars || 5)}</div>
                 <p className="text-[#7A5C4F] italic leading-[1.75] mb-6 text-[0.975rem]">"{t.text}"</p>
                 <div className="flex items-center gap-3.5">
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-bread-brown to-gold text-white font-bold text-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-bread-brown to-gold text-white font-playfair text-lg flex items-center justify-center flex-shrink-0">
                     {t.name ? t.name[0] : 'U'}
                   </div>
                   <div>
-                    <strong className="block text-[0.925rem] font-bold text-bread-dark">{t.name}</strong>
+                    <strong className="block text-[0.925rem] font-playfair text-bread-dark">{t.name}</strong>
                     <span className="block text-[0.78rem] text-[#7A5C4F] mt-0.5">{t.role}</span>
                   </div>
                 </div>

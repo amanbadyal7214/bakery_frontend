@@ -60,7 +60,7 @@ export default function HeroSection() {
       {/* Watermark */}
       {/* <div
         aria-hidden="true"
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[52%] font-playfair font-extrabold tracking-widest text-navy/[0.04] whitespace-nowrap select-none pointer-events-none"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[52%] font-playfair font-bold tracking-widest text-[#D4A373]/[0.04] whitespace-nowrap select-none pointer-events-none"
         style={{ fontSize: "clamp(6rem, 16vw, 16rem)" }}
       >
         BAKERY
@@ -157,7 +157,7 @@ export default function HeroSection() {
       </div>
 
       {/* Bottom-left info card */}
-      <div className="absolute bottom-[5%] left-[5%] z-20 bg-navy text-white rounded-xl p-4 hidden sm:flex items-center gap-4 max-w-sm shadow-2xl shadow-navy/40 animate-fade-up">
+      <div className="absolute bottom-[5%] left-[5%] z-20 bg-[#D4A373] text-white rounded-xl p-4 hidden sm:flex items-center gap-4 max-w-sm shadow-2xl shadow-[#D4A373]/40 animate-fade-up">
         <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
           <img src="/bread.png" alt="Organic bread" className="w-full h-full object-cover brightness-[0.65]" />
           <button
@@ -172,7 +172,7 @@ export default function HeroSection() {
           </p>
           <button
             onClick={() => scrollTo("About")}
-            className="bg-transparent border-none text-gold text-[0.7rem] font-bold tracking-widest uppercase cursor-pointer p-0 hover:opacity-75 transition-opacity"
+            className="bg-transparent border-none text-gold text-[0.7rem] font-playfair tracking-widest uppercase cursor-pointer p-0 hover:opacity-75 transition-opacity"
           >
             READ MORE →
           </button>
@@ -183,7 +183,7 @@ export default function HeroSection() {
       <button
         onClick={() => scrollTo("Menu")}
         aria-label="Scroll down"
-        className="absolute bottom-[5%] right-[5%] z-20 w-12 h-12 bg-navy text-white rounded-xl text-xl flex items-center justify-center border-none cursor-pointer shadow-xl shadow-navy/30 hover:bg-navy-lt hover:-translate-y-1 transition-all animate-bob"
+        className="absolute bottom-[5%] right-[5%] z-20 w-12 h-12 bg-[#D4A373] text-white rounded-xl text-xl flex items-center justify-center border-none cursor-pointer shadow-xl shadow-[#D4A373]/30 hover:bg-[#D4A373]-lt hover:-translate-y-1 transition-all animate-bob"
       >
         ↓
       </button>

@@ -41,7 +41,7 @@ export default function OriginStorySection() {
               <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#2C1810]/70 to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
                 <p className="text-white font-playfair text-lg font-bold">{originStory?.founder?.name ?? 'Margaret Howell'}</p>
-                <p className="text-[#D4A373] text-xs tracking-widest uppercase font-semibold mt-0.5">{originStory?.founder?.since ?? 'Founder, since 2024'}</p>
+                <p className="text-[#D4A373] text-xs tracking-widest uppercase font-playfair mt-0.5">{originStory?.founder?.since ?? 'Founder, since 2024'}</p>
               </div>
             </div>
 
@@ -50,7 +50,7 @@ export default function OriginStorySection() {
               className="absolute -top-7 -left-7 bg-[#3E2723] rounded-2xl px-6 py-5 shadow-2xl"
             >
               <div className="font-playfair text-4xl font-bold text-[#D4A373]">40+</div>
-              <div className="text-[#F5ECD7]/70 text-[0.65rem] font-bold tracking-widest uppercase mt-0.5">Years of Craft</div>
+              <div className="text-[#F5ECD7]/70 text-[0.65rem] font-playfair tracking-widest uppercase mt-0.5">Years of Craft</div>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, scale: 0.8, rotate: 6 }} whileInView={{ opacity: 1, scale: 1, rotate: 3 }}
@@ -58,7 +58,7 @@ export default function OriginStorySection() {
               className="absolute -bottom-7 -right-7 bg-[#D4A373] rounded-2xl px-6 py-5 shadow-2xl"
             >
               <div className="font-playfair text-4xl font-bold text-[#2C1810]">50K+</div>
-              <div className="text-[#2C1810]/70 text-[0.65rem] font-bold tracking-widest uppercase mt-0.5">Happy Customers</div>
+              <div className="text-[#2C1810]/70 text-[0.65rem] font-playfair tracking-widest uppercase mt-0.5">Happy Customers</div>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
@@ -84,7 +84,7 @@ export default function OriginStorySection() {
                 ))}
               </h2>
 
-              <div className="inline-flex items-center gap-2 text-[#D4A373] text-xs font-bold tracking-[0.3em] uppercase mt-3">
+              <div className="inline-flex items-center gap-2 text-[#D4A373] text-xs font-playfair tracking-[0.3em] uppercase mt-3">
                 <span className="h-px w-8 bg-[#D4A373]" /> {originStory?.subtitle ?? 'How It All Began'}
               </div>
             </motion.div>
@@ -119,7 +119,7 @@ export default function OriginStorySection() {
                 "Family recipes passed down for 4 generations",
                 "Fresh-baked daily — nothing stored overnight",
               ].map((item) => (
-                <div key={item} className="flex items-center gap-3 text-[#3E2723] text-sm font-medium">
+                <div key={item} className="flex items-center gap-3 text-[#3E2723] text-sm font-playfair">
                   <div className="w-5 h-5 bg-[#D4A373]/15 rounded-full flex items-center justify-center shrink-0">
                     <CheckCircle2 size={13} className="text-[#D4A373]" />
                   </div>
@@ -131,7 +131,7 @@ export default function OriginStorySection() {
             <motion.div variants={fadeUp}>
               <blockquote className="border-l-4 border-[#D4A373] pl-6 italic text-[#7A5C4F] text-base leading-[1.9]">
                 "{originStory?.founder?.quote ?? 'I never wanted to run a bakery. I just wanted to feed people food that was honest and made with love. Everything else followed naturally.'}"
-                <footer className="mt-3 not-italic font-bold text-[#3E2723] text-sm">— {originStory?.founder?.name ?? 'Margaret Howell'}, Founder</footer>
+                <footer className="mt-3 not-italic font-playfair text-[#3E2723] text-sm">— {originStory?.founder?.name ?? 'Margaret Howell'}, Founder</footer>
               </blockquote>
             </motion.div>
           </motion.div>

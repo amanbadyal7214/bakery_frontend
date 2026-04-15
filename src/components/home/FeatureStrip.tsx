@@ -42,7 +42,7 @@ export default function FeatureStrip() {
               className="w-10 h-10 object-contain opacity-80"
             />
           </div>
-          <h3 className="font-playfair text-xl font-bold text-navy mb-3">
+          <h3 className="font-playfair text-xl font-bold text-[#D4A373] mb-3">
             Professional Baker
           </h3>
           <p className="text-gray-600 text-sm leading-relaxed px-4">
@@ -58,7 +58,7 @@ export default function FeatureStrip() {
           <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform duration-300">
             <Star className="w-8 h-8 text-gold" strokeWidth={1.5} />
           </div>
-          <h3 className="font-playfair text-xl font-bold text-navy mb-3">
+          <h3 className="font-playfair text-xl font-bold text-[#D4A373] mb-3">
             Unique Pastry
           </h3>
           <p className="text-gray-600 text-sm leading-relaxed px-4">
@@ -74,7 +74,7 @@ export default function FeatureStrip() {
           <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform duration-300">
             <Truck className="w-8 h-8 text-gold" strokeWidth={1.5} />
           </div>
-          <h3 className="font-playfair text-xl font-bold text-navy mb-3">
+          <h3 className="font-playfair text-xl font-bold text-[#D4A373] mb-3">
             Door Delivery
           </h3>
           <p className="text-gray-600 text-sm leading-relaxed px-4">
@@ -90,7 +90,7 @@ export default function FeatureStrip() {
           <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform duration-300">
             <Leaf className="w-8 h-8 text-gold" strokeWidth={1.5} />
           </div>
-          <h3 className="font-playfair text-xl font-bold text-navy mb-3">
+          <h3 className="font-playfair text-xl font-bold text-[#D4A373] mb-3">
             Healthy Food
           </h3>
           <p className="text-gray-600 text-sm leading-relaxed px-4">

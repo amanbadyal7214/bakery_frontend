@@ -45,7 +45,7 @@ export default function CtaBannerSection() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => scrollTo("Contact")}
-            className="bg-white text-bread-dark border-2 border-white px-8 py-3.5 rounded-full font-semibold hover:bg-[#FDF6EC] shadow-lg transition-all cursor-pointer"
+            className="bg-white text-bread-dark border-2 border-white px-8 py-3.5 rounded-full font-playfair hover:bg-[#FDF6EC] shadow-lg transition-all cursor-pointer"
           >
             Get in Touch
           </motion.button>
@@ -53,7 +53,7 @@ export default function CtaBannerSection() {
             whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
             whileTap={{ scale: 0.95 }}
             onClick={() => scrollTo("Menu")}
-            className="bg-transparent text-white border-2 border-white/50 px-8 py-3.5 rounded-full font-semibold transition-all cursor-pointer"
+            className="bg-transparent text-white border-2 border-white/50 px-8 py-3.5 rounded-full font-playfair transition-all cursor-pointer"
           >
             View Menu
           </motion.button>

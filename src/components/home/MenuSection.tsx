@@ -144,7 +144,7 @@ export default function MenuSection() {
           viewport={{ once: true }}
           className="text-center mb-14"
         >
-          <p className="text-[0.8rem] font-bold tracking-[0.2em] uppercase text-gold mb-3">Our Menu</p>
+          <p className="text-[0.8rem] font-bold font-playfair tracking-[0.2em] uppercase text-gold mb-3">Our Menu</p>
           <h2 className="font-playfair text-xl md:text-2xl font-bold text-bread-dark mb-4">Made to Delight</h2>
           <p className="text-[#7A5C4F] text-sm max-w-xl mx-auto text-base leading-relaxed">
             From flaky morning croissants to celebration cakes — something for every craving.
@@ -204,7 +204,7 @@ export default function MenuSection() {
                   {p.badge && (
                     <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1">
                       <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
-                      <span className="text-[#3E2723] text-[0.6rem] font-bold uppercase tracking-wider">
+                      <span className="text-[#3E2723] text-[0.6rem] font-playfair uppercase tracking-wider">
                         {p.badge}
                       </span>
                     </div>
@@ -221,15 +221,15 @@ export default function MenuSection() {
 
                   <div className="flex items-center gap-1.5 mb-2 text-[#D4A373]">
                     <Star size={12} className="fill-[#D4A373] text-[#D4A373]" />
-                    <span className="text-[#3E2723] text-xs font-bold">4.8</span>
-                    <span className="text-[#3E2723]/40 text-[10px] uppercase font-bold tracking-widest ml-auto">{p.category}</span>
+                    <span className="text-[#3E2723] text-xs font-playfair">4.8</span>
+                    <span className="text-[#3E2723]/40 text-[10px] uppercase font-playfair tracking-widest ml-auto">{p.category}</span>
                   </div>
 
                   {/* Price & Action */}
                   <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
                     <div className="flex flex-col">
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
-                      <span className="text-sm font-bold text-[#3E2723]">${p.price.toFixed(2)}</span>
+                      <span className="text-[9px] font-playfair uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
+                      <span className="text-sm font-playfair text-[#3E2723]">${p.price.toFixed(2)}</span>
                     </div>
 
                     {(() => {
@@ -237,8 +237,8 @@ export default function MenuSection() {
                       const disabled = outOfStock;
                       const label = outOfStock ? 'Soon' : 'Add To Cart';
                       const btnClass = disabled
-                        ? 'bg-gray-100 text-gray-400 font-bold py-2 px-4 text-[9px] rounded-xl cursor-not-allowed uppercase tracking-widest'
-                        : 'bg-[#3E2723] text-white font-bold py-2 px-4 text-[9px] rounded-xl hover:bg-[#D4A373] hover:text-[#3E2723] transition-all shadow-md hover:shadow-lg active:scale-95 duration-200 uppercase tracking-widest';
+                        ? 'bg-gray-100 text-gray-400 font-playfair py-2 px-4 text-[9px] rounded-xl cursor-not-allowed uppercase tracking-widest'
+                        : 'bg-[#3E2723] text-white font-playfair py-2 px-4 text-[9px] rounded-xl hover:bg-[#D4A373] hover:text-[#3E2723] transition-all shadow-md hover:shadow-lg active:scale-95 duration-200 uppercase tracking-widest';
 
                       return (
                         <button
@@ -274,7 +274,7 @@ export default function MenuSection() {
         >
           <button
             onClick={() => scrollTo("Contact")}
-            className="border-2 border-bread-brown text-bread-brown bg-transparent px-8 py-3.5 rounded-full font-semibold hover:bg-bread-brown hover:text-white transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
+            className="border-2 border-bread-brown text-bread-brown bg-transparent px-8 py-3.5 rounded-full font-playfair hover:bg-bread-brown hover:text-white transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
           >
             See Full Menu
           </button>
