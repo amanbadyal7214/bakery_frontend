@@ -373,7 +373,7 @@ export default function Contact() {
             </div>
 
             {/* Social Media */}
-            <div className="bg-navy rounded-3xl p-6 shadow-md relative overflow-hidden">
+            <div className="bg-[#D4A373] rounded-3xl p-6 shadow-md relative overflow-hidden">
               <div aria-hidden className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/5" />
               <div aria-hidden className="absolute -bottom-8 -left-4 w-32 h-32 rounded-full bg-white/5" />
               <h3 className="font-playfair text-lg font-bold text-white mb-2 relative z-10">Follow Our Journey</h3>
@@ -439,7 +439,7 @@ export default function Contact() {
               <a
                 href="https://maps.google.com"
                 target="_blank" rel="noreferrer"
-                className="mt-2 px-6 py-2.5 rounded-full bg-navy text-white text-xs font-bold hover:bg-navy-lt transition-colors no-underline"
+                className="mt-2 px-6 py-2.5 rounded-full bg-[#D4A373] text-white text-xs font-bold hover:bg-[#D4A373]-lt transition-colors no-underline"
               >
                 Open in Google Maps
               </a>
@@ -492,7 +492,7 @@ export default function Contact() {
       </section>
 
       {/* ══════════════════ CTA BAND ══════════════════ */}
-      <section className="bg-navy py-20 px-6 text-center relative overflow-hidden">
+      <section className="bg-bread-brown py-20 px-6 text-center relative overflow-hidden">
         <div aria-hidden className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-playfair font-extrabold text-white/[0.03] whitespace-nowrap pointer-events-none select-none" style={{ fontSize: "clamp(4rem,12vw,11rem)" }}>BAKE</div>
         <div className="relative z-10 max-w-xl mx-auto">
           <p className="text-[0.8rem] font-bold tracking-[0.2em] uppercase text-gold mb-3">Ready to Order?</p>
