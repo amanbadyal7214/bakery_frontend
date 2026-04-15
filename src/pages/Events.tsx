@@ -1,5 +1,5 @@
 import { Tag, Gift, Ticket, Star } from "lucide-react";
-import EventTemplate1, { EventConfig } from "@/components/events/EventTemplate1";
+import EventTemplate1, { EventConfig } from "@/components/events/EventTemplate2";
 import EventTemplate2, {EventConfig} from "@/components/events/EventTemplate2";
 
 // ─────────────────────────────────────────────────────────────────────────────
