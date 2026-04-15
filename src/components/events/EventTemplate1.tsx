@@ -243,7 +243,27 @@ export default function EventTemplate1({ config: c }: Props) {
           </div>
         </section>
 
-        {/* Highlights Grid */}
+        {/* Marquee Strip for Highlights (distinct style) */}
+        <section className="py-6 bg-gradient-to-r from-[#fff8f0] to-[#f7e7d1] border-y border-[#D4A373]/20 overflow-hidden">
+          <motion.div
+            className="flex gap-16 whitespace-nowrap animate-marquee"
+            initial={{ x: 0 }}
+            animate={{ x: [0, -400] }}
+            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          >
+            {[...c.highlights, ...c.highlights].map((item, i) => (
+              <div key={i} className="flex items-center gap-6">
+                <span className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/80 border border-[#D4A373]/30 text-[#D4A373] font-black text-xs uppercase tracking-widest shadow-sm">
+                  <item.icon size={14} />
+                  {item.title}
+                </span>
+                <span className="text-xs opacity-40 font-bold">{item.desc.split('.')[0]}</span>
+              </div>
+            ))}
+          </motion.div>
+        </section>
+
+        {/* Highlights Grid (with animated cards and SVG divider) */}
         <section className="py-20 px-4 md:px-8 bg-white/50 backdrop-blur-xl relative">
           <AccentBg color={c.accentColor} className="top-1/2 left-1/2 w-[180px] h-[180px] -translate-x-1/2 -translate-y-1/2 opacity-10" />
           <div className="max-w-6xl mx-auto">
@@ -256,7 +276,13 @@ export default function EventTemplate1({ config: c }: Props) {
                 We've curated these special features to make this event truly unforgettable for you.
               </p>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Decorative SVG divider */}
+            <div className="w-full flex justify-center -mb-8">
+              <svg width="120" height="24" viewBox="0 0 120 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 12 Q60 32 120 12" stroke={c.accentColor} strokeWidth="3" fill="none" />
+              </svg>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-12">
               {c.highlights.map((item, i) => (
                 <motion.div
                   key={i}
@@ -281,7 +307,7 @@ export default function EventTemplate1({ config: c }: Props) {
           </div>
         </section>
 
-        {/* Featured Offers */}
+        {/* Featured Offers (modernized, animated cards) */}
         <section className="py-20 px-4 md:px-8">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-14">
@@ -299,14 +325,17 @@ export default function EventTemplate1({ config: c }: Props) {
             {/* Responsive grid for Featured Items */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
               {c.offers.map((offer, i) => (
-                <div
+                <motion.div
                   key={i}
+                  whileHover={{ scale: 1.03, boxShadow: "0 8px 32px rgba(62,39,35,0.18)" }}
+                  transition={{ type: "spring", stiffness: 300 }}
                   className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] hover:shadow-[0_20px_50px_rgba(62,39,35,0.12)] transition-all duration-500 border border-[#3E2723]/5 flex flex-col h-full group"
                 >
                   {/* Emoji or Image */}
                   <div className="relative aspect-square w-full rounded-t-[2rem] overflow-hidden mb-4 bg-[#F5F1ED] flex items-center justify-center text-5xl">
-                    {offer.emoji}
-                    {/* If you want to use an image, replace above with: <img src={offer.image} ... /> */}
+                    {offer.emoji ? offer.emoji : (
+                      <img src={offer.image} alt={offer.name} className="w-full h-full object-cover" />
+                    )}
                     {offer.label && (
                       <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1">
                         <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
@@ -342,42 +371,14 @@ export default function EventTemplate1({ config: c }: Props) {
                       </button>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
         </section>
 
         {/* FAQ */}
-        <section className="py-20 px-4 md:px-8">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-xl md:text-3xl font-playfair font-black mb-3 flex items-center justify-center gap-2"><Ticket size={18} className="text-[#D4A373]" />Frequently Asked</h2>
-              <p className="text-xs opacity-50 font-medium">Everything you need to know about order processing and delivery.</p>
-            </div>
-            <div className="space-y-2">
-              {c.faqs.map((faq, i) => (
-                <div 
-                  key={i}
-                  className="rounded-xl border border-black/5 bg-white/40 overflow-hidden transition-all duration-300 shadow-sm"
-                >
-                  <button
-                    className="w-full flex justify-between items-center px-6 py-4 text-left font-black text-base tracking-tight group hover:bg-[#D4A373]/10 transition-all"
-                    onClick={() => setActiveFaq(activeFaq === i ? null : i)}
-                  >
-                    <span>{faq.q}</span>
-                    <ChevronLeft size={16} className={`transition-transform ${activeFaq === i ? '-rotate-90' : 'rotate-0'}`} />
-                  </button>
-                  <div
-                    className={`px-6 pb-4 text-black/70 text-sm transition-all duration-400 ${activeFaq === i ? 'block' : 'hidden'}`}
-                  >
-                    {faq.a}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+      
 
         {/* Final CTA */}
         <section className="py-20 px-4">

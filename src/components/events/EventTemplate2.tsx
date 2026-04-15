@@ -74,12 +74,12 @@ export default function EventTemplate2({ config: c }: Props) {
         {/* Background Image with Parallax-like feel */}
         <div className="absolute inset-0 z-0">
           <img 
-            src={c.heroImage} 
+            src={c.heroImage || '../../assets/logo.jpg'} // Use sale image if provided, fallback to default
             className="w-full h-full object-cover" 
             style={{ filter: 'brightness(0.4) contrast(1.1)' }}
             alt="Hero"
           />
-          <div className="absolute inset-0" style={{background: `linear-gradient(to bottom, ${dark}CC, transparent, ${dark})`}} />
+          <div className="absolute inset-0" style={{background: `linear-gradient(120deg, ${accent}88 0%, ${dark}CC 100%)`}} />
         </div>
 
         {/* Back Link */}
@@ -135,9 +135,10 @@ export default function EventTemplate2({ config: c }: Props) {
               ))}
             </div>
 
+            {/* Main CTA Button with glowing effect */}
             <motion.a
                 href={c.ctaLink}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, boxShadow: `0 0 0 4px ${accent}55` }}
                 whileTap={{ scale: 0.95 }}
                 className="inline-flex items-center gap-3 px-10 py-4 rounded-full font-black uppercase tracking-widest text-[10px] shadow transition-all hover:brightness-110"
                 style={{ backgroundColor: accent, color: bg }}
@@ -188,6 +189,14 @@ export default function EventTemplate2({ config: c }: Props) {
               <span className="text-[11px] font-black tracking-[0.4em] uppercase opacity-40 mb-4 block" style={{color: bg + '99'}}>Exclusives</span>
               <h2 className="text-3xl md:text-5xl font-black tracking-tighter leading-[0.9] font-playfair italic" style={{color: bg}}>The Highlights</h2>
             </div>
+
+            {/* Decorative SVG divider */}
+            <div className="w-full flex justify-center -mb-8">
+              <svg width="120" height="24" viewBox="0 0 120 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 12 Q60 32 120 12" stroke={accent} strokeWidth="3" fill="none" />
+              </svg>
+            </div>
+
             <div className="grid lg:grid-cols-2 gap-px" style={{background: bg}}>
               {c.highlights.map((item, i) => (
                 <motion.div
@@ -234,8 +243,10 @@ export default function EventTemplate2({ config: c }: Props) {
             {/* Responsive grid for Curated Delights cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
               {c.offers.map((offer, i) => (
-                <div
+                <motion.div
                   key={i}
+                  whileHover={{ scale: 1.03, boxShadow: "0 8px 32px rgba(62,39,35,0.18)" }}
+                  transition={{ type: "spring", stiffness: 300 }}
                   className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] hover:shadow-[0_20px_50px_rgba(62,39,35,0.12)] transition-all duration-500 border border-[#3E2723]/5 flex flex-col h-full group"
                 >
                   {/* Emoji or Image */}
@@ -278,7 +289,7 @@ export default function EventTemplate2({ config: c }: Props) {
                       </button>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
