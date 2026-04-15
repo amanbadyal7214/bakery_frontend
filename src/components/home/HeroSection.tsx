@@ -157,7 +157,7 @@ export default function HeroSection() {
       </div>
 
       {/* Bottom-left info card */}
-      <div className="absolute bottom-[5%] left-[5%] z-20 bg-[#D4A373] text-white rounded-xl p-4 hidden sm:flex items-center gap-4 max-w-sm shadow-2xl shadow-[#D4A373]/40 animate-fade-up">
+      <div className="absolute bottom-[5%] left-[5%] z-20 bg-[#3e2723] text-white rounded-xl p-4 hidden sm:flex items-center gap-4 max-w-sm shadow-2xl shadow-[#D4A373]/40 animate-fade-up">
         <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
           <img src="/bread.png" alt="Organic bread" className="w-full h-full object-cover brightness-[0.65]" />
           <button
