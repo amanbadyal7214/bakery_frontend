@@ -226,7 +226,7 @@ export default function EventTemplate2({ config: c }: Props) {
           </div>
         </section>
 
-        <section className="py-16 px-6 md:px-12 rounded-t-[5rem]" style={{ background: accent, color: bg }}>
+        <section className=" py-2 px-6 md:px-12 rounded-t-[5rem]" style={{ background: accent, color: bg }}>
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-12">
               <div className="max-w-2xl">
