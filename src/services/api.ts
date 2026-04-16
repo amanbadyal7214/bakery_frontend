@@ -99,6 +99,13 @@ export const api = {
     get: (): Promise<any[]> => axiosInstance.get('/values').then(res => normalize<any[]>(res)),
     update: (values: any[]) => axiosInstance.put('/values', { values }).then(res => normalize<any[]>(res)),
   },
+  events: {
+    getActive: () => axiosInstance.get('/events/active').then(res => normalize(res)),
+    getAll: () => axiosInstance.get('/events').then(res => normalize(res)),
+    create: (event: object) => axiosInstance.post('/events', event).then(res => normalize(res)),
+    update: (id: string, event: object) => axiosInstance.put(`/events/${id}`, event).then(res => normalize(res)),
+    delete: (id: string) => axiosInstance.delete(`/events/${id}`).then(() => undefined),
+  },
 };
 
 export default axiosInstance;

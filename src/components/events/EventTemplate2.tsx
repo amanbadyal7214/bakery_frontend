@@ -7,11 +7,14 @@ import {
   ArrowRight,
   Star,
   Quote,
-  ChevronLeft as Prev,
-  ChevronRight as Next,
+  ChevronRight,
   Zap,
   Ticket,
   Percent,
+  Sparkles,
+  Gift,
+  Tag,
+  Clock3,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/home/FooterSection";
@@ -19,9 +22,6 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import type { EventConfig } from "@/components/events/EventTemplate1";
 
-// ─────────────────────────────────────────────
-// Re-export the type so pages can import from either template
-// ─────────────────────────────────────────────
 export type { EventConfig };
 
 interface Props {
@@ -29,32 +29,34 @@ interface Props {
 }
 
 export default function EventTemplate2({ config: c }: Props) {
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [hoveredOffer, setHoveredOffer] = useState<number | null>(null);
 
-  const prev = () =>
-    setActiveTestimonial((p) => (p === 0 ? c.testimonials.length - 1 : p - 1));
-  const next = () =>
-    setActiveTestimonial((p) => (p === c.testimonials.length - 1 ? 0 : p + 1));
-
-  // Define dark chocolate color
   const darkChocolate = '#3E2723';
-  const accent = c.accentColor || '#D2B48C'; // tan/gold accent fallback
+  const accent = c.accentColor || '#D2B48C'; 
   const dark = c.darkColor || darkChocolate;
   const bg = c.bgColor || darkChocolate;
 
-  // Marquee items
-  const marqueeItems = [...c.highlights, ...c.highlights];
+  const ICON_MAP = {
+    Calendar,
+    Clock,
+    MapPin,
+    Star,
+    Ticket,
+    Percent,
+    Zap,
+    Sparkles,
+    Gift,
+    Tag,
+    Clock3,
+  };
 
-  // Remove unwanted testimonial if present
-  if (Array.isArray(c.testimonials)) {
-    c.testimonials = c.testimonials.filter(t =>
-      !(
-        (t.quote && t.quote.includes("The festival cakes were absolutely divine") && t.name && t.name.includes("Priya S")) ||
-        (t.quote && t.quote.includes("Amazing deals and packaging. Will definitely order every year!") && t.name && t.name.includes("Rahul M."))
-      )
-    );
-  }
+  const getIcon = (iconName: string, fallback = Star) => {
+    if (!iconName) return fallback;
+    const Icon = ICON_MAP[iconName as keyof typeof ICON_MAP];
+    return Icon || fallback;
+  };
+
+  const marqueeItems = [...c.highlights, ...c.highlights];
 
   return (
     <div
@@ -69,12 +71,10 @@ export default function EventTemplate2({ config: c }: Props) {
     >
       <Navbar />
 
-      {/* SECTION 1 — Cinematic Hero */}
       <section className="relative min-h-screen flex items-center justify-center pt-20">
-        {/* Background Image with Parallax-like feel */}
         <div className="absolute inset-0 z-0">
           <img 
-            src={c.heroImage || '../../assets/logo.jpg'} // Use sale image if provided, fallback to default
+            src={c.heroImage || '../../assets/logo.jpg'} 
             className="w-full h-full object-cover" 
             style={{ filter: 'brightness(0.4) contrast(1.1)' }}
             alt="Hero"
@@ -82,7 +82,6 @@ export default function EventTemplate2({ config: c }: Props) {
           <div className="absolute inset-0" style={{background: `linear-gradient(120deg, ${accent}88 0%, ${dark}CC 100%)`}} />
         </div>
 
-        {/* Back Link */}
         <div className="absolute top-32 left-8 md:left-16 z-20">
           <Link
             to="/"
@@ -117,25 +116,26 @@ export default function EventTemplate2({ config: c }: Props) {
               {c.subtitle}
             </p>
 
-            {/* Glass Info Chips */}
             <div className="flex flex-wrap justify-center gap-3 mb-12">
               {[
                 { icon: Calendar, text: `${c.startDate} — ${c.endDate}` },
                 { icon: Clock, text: c.time },
                 { icon: MapPin, text: c.location },
-              ].map((item, i) => (
-                <div 
-                  key={i}
-                  className="px-5 py-2 rounded-full backdrop-blur-2xl border flex items-center gap-2 group transition-all"
-                  style={{background: bg + 'CC', borderColor: accent + '40'}}
-                >
-                  <item.icon size={13} style={{ color: accent }} />
-                  <span className="text-[10px] font-black uppercase tracking-widest" style={{color: dark}}>{item.text}</span>
-                </div>
-              ))}
+              ].map((item, i) => {
+                const ItemIcon = item.icon;
+                return (
+                    <div 
+                    key={i}
+                    className="px-5 py-2 rounded-full backdrop-blur-2xl border flex items-center gap-2 group transition-all"
+                    style={{background: bg + 'CC', borderColor: accent + '40'}}
+                    >
+                    <ItemIcon size={13} style={{ color: accent }} />
+                    <span className="text-[10px] font-black uppercase tracking-widest" style={{color: dark}}>{item.text}</span>
+                    </div>
+                );
+              })}
             </div>
 
-            {/* Main CTA Button with glowing effect */}
             <motion.a
                 href={c.ctaLink}
                 whileHover={{ scale: 1.05, boxShadow: `0 0 0 4px ${accent}55` }}
@@ -149,7 +149,6 @@ export default function EventTemplate2({ config: c }: Props) {
           </motion.div>
         </div>
 
-        {/* Scroll Hint */}
         <motion.div 
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 2 }}
@@ -160,7 +159,6 @@ export default function EventTemplate2({ config: c }: Props) {
         </motion.div>
       </section>
 
-      {/* SECTION 2 — Bold Marquee Strip */}
       <div 
         className="py-8 overflow-hidden border-y"
         style={{background: bg, borderColor: accent + '20'}}
@@ -182,7 +180,6 @@ export default function EventTemplate2({ config: c }: Props) {
       </div>
 
       <main style={{background: darkChocolate}}>
-        {/* SECTION 3 — Immersive Feature Showcase */}
         <section style={{ background: darkChocolate }}>
           <div className="max-w-7xl mx-auto">
             <div className="mb-2">
@@ -190,7 +187,6 @@ export default function EventTemplate2({ config: c }: Props) {
               <h2 className="text-3xl md:text-5xl font-black tracking-tighter leading-[0.9] font-playfair italic" style={{color: bg}}>The Highlights</h2>
             </div>
 
-            {/* Decorative SVG divider */}
             <div className="w-full flex justify-center -mb-8">
               <svg width="120" height="24" viewBox="0 0 120 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0 12 Q60 32 120 12" stroke={accent} strokeWidth="3" fill="none" />
@@ -198,36 +194,38 @@ export default function EventTemplate2({ config: c }: Props) {
             </div>
 
             <div className="grid lg:grid-cols-2 gap-px" style={{background: bg}}>
-              {c.highlights.map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  className="p-8 md:p-10 flex flex-col justify-between aspect-square lg:aspect-auto min-h-[250px] group transition-all"
-                  style={{background: darkChocolate, color: accent}}
-                >
-                  <div 
-                    className="w-14 h-14 rounded-full border flex items-center justify-center mb-6 group-hover:bg-white group-hover:text-black transition-all duration-500"
-                    style={{borderColor: accent + '40', color: accent, background: darkChocolate}}
+              {c.highlights.map((item, i) => {
+                const HighlightIcon = getIcon((item as any).icon);
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    className="p-8 md:p-10 flex flex-col justify-between aspect-square lg:aspect-auto min-h-[250px] group transition-all"
+                    style={{background: darkChocolate, color: accent}}
                   >
-                    <item.icon size={24} strokeWidth={1} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-playfair font-black mb-2 italic">{item.title}</h3>
-                    <p className="text-sm leading-relaxed font-medium max-w-md" style={{color: accent + '99'}}>{item.desc}</p>
-                  </div>
-                  <div className="mt-8 flex items-center justify-between">
-                    <span className="text-xs font-black uppercase tracking-[0.4em] opacity-20 group-hover:opacity-100 transition-all">Feature 0{i+1}</span>
-                    <div className="w-8 h-px group-hover:w-16 transition-all duration-500" style={{background: accent + '40'}} />
-                  </div>
-                </motion.div>
-              ))}
+                    <div 
+                      className="w-14 h-14 rounded-full border flex items-center justify-center mb-6 group-hover:bg-white group-hover:text-black transition-all duration-500"
+                      style={{borderColor: accent + '40', color: accent, background: darkChocolate}}
+                    >
+                      <HighlightIcon size={24} strokeWidth={1} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-playfair font-black mb-2 italic">{item.title}</h3>
+                      <p className="text-sm leading-relaxed font-medium max-w-md" style={{color: accent + '99'}}>{item.desc}</p>
+                    </div>
+                    <div className="mt-8 flex items-center justify-between">
+                      <span className="text-xs font-black uppercase tracking-[0.4em] opacity-20 group-hover:opacity-100 transition-all">Feature 0{i+1}</span>
+                      <div className="w-8 h-px group-hover:w-16 transition-all duration-500" style={{background: accent + '40'}} />
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>
 
-        {/* SECTION 4 — Bento Grid Offers */}
         <section className="py-16 px-6 md:px-12 rounded-t-[5rem]" style={{background: accent, color: bg}}>
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-12">
@@ -240,109 +238,73 @@ export default function EventTemplate2({ config: c }: Props) {
               </p>
             </div>
 
-            {/* Responsive grid for Curated Delights cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-              {c.offers.map((offer, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ scale: 1.03, boxShadow: "0 8px 32px rgba(62,39,35,0.18)" }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] hover:shadow-[0_20px_50px_rgba(62,39,35,0.12)] transition-all duration-500 border border-[#3E2723]/5 flex flex-col h-full group"
-                >
-                  {/* Emoji or Image */}
-                  <div className="relative aspect-square w-full rounded-t-[2rem] overflow-hidden mb-4 bg-[#F5F1ED] flex items-center justify-center text-5xl">
-                    {offer.emoji ? offer.emoji : (
-                      <img src={offer.image} alt={offer.name} className="w-full h-full object-cover" />
-                    )}
-                    {offer.label && (
-                      <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1">
-                        <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
-                        <span className="text-[#3E2723] text-[0.6rem] font-playfair uppercase tracking-wider">
-                          {offer.label}
-                        </span>
+              {c.offers.map((offer, i) => {
+                const product = offer.productId;
+                const displayName = product?.name || offer.name;
+                const displayImage = product?.img || offer.image;
+                const displayPrice = offer.price;
+                const displayOriginal = offer.originalPrice;
+                const productId = product?._id || product?.id;
+
+                return (
+                  <motion.div
+                    key={i}
+                    whileHover={{ scale: 1.03, boxShadow: "0 8px 32px rgba(62,39,35,0.18)" }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                    className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] hover:shadow-[0_20px_50px_rgba(62,39,35,0.12)] transition-all duration-500 border border-[#3E2723]/5 flex flex-col h-full group"
+                  >
+                    <Link to={productId ? `/product/${productId}` : "#"} className="block">
+                      <div className="relative aspect-square w-full rounded-t-[2rem] overflow-hidden mb-4 bg-[#F5F1ED] flex items-center justify-center text-5xl">
+                        {displayImage ? (
+                          <img src={displayImage} alt={displayName} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        ) : (
+                          offer.emoji || "🧁"
+                        )}
+                        {offer.badge && (
+                          <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1 z-10">
+                            <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
+                            <span className="text-[#3E2723] text-[0.6rem] font-playfair uppercase tracking-wider">
+                              {offer.badge}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  {/* Content Section */}
-                  <div className="flex-1 flex flex-col px-4 pb-4">
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-playfair text-base font-bold text-[#3E2723] group-hover:text-[#D4A373] transition-colors line-clamp-1">
-                        {offer.name}
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-1.5 mb-2 text-[#D4A373]">
-                      <Star size={12} className="fill-[#D4A373] text-[#D4A373]" />
-                      <span className="text-[#3E2723] text-xs font-playfair">4.8</span>
-                    </div>
-                    {/* Price & Action */}
-                    <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-playfair uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
-                        <span className="text-sm font-playfair text-[#3E2723]">{offer.price}</span>
-                        <span className="text-xs opacity-40 line-through">{offer.originalPrice}</span>
-                        <span className="px-2 py-0.5 rounded-full bg-red-500 text-[9px] font-black uppercase tracking-widest text-white mt-1">{offer.discount}</span>
+                    </Link>
+                    <div className="flex-1 flex flex-col px-4 pb-4">
+                      <div className="flex justify-between items-start mb-1">
+                        <Link to={productId ? `/product/${productId}` : "#"}>
+                          <h3 className="font-playfair text-base font-bold text-[#3E2723] group-hover:text-[#D4A373] transition-colors line-clamp-1">
+                            {displayName}
+                          </h3>
+                        </Link>
                       </div>
-                      <button
-                        className="bg-[#3E2723] text-white font-playfair py-2 px-4 text-[9px] rounded-xl hover:bg-[#D4A373] hover:text-[#3E2723] transition-all shadow-md hover:shadow-lg active:scale-95 duration-200 uppercase tracking-widest"
-                      >
-                        Add To Cart
-                      </button>
+                      <div className="flex items-center gap-1.5 mb-2 text-[#D4A373]">
+                        <Star size={12} className="fill-[#D4A373] text-[#D4A373]" />
+                        <span className="text-[#3E2723] text-xs font-playfair">4.8</span>
+                      </div>
+                      <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] font-playfair uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
+                          <span className="text-sm font-playfair text-[#3E2723]">{displayPrice}</span>
+                          <span className="text-xs opacity-40 line-through">{displayOriginal}</span>
+                          <span className="px-2 py-0.5 rounded-full bg-red-500 text-[9px] font-black uppercase tracking-widest text-white mt-1">{offer.discount}</span>
+                        </div>
+                        <Link 
+                          to={productId ? `/product/${productId}` : "#"}
+                          className="bg-[#3E2723] text-white font-playfair py-2 px-4 text-[9px] rounded-xl hover:bg-[#D4A373] hover:text-[#3E2723] transition-all shadow-md hover:shadow-lg active:scale-95 duration-200 uppercase tracking-widest text-center"
+                        >
+                          View
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>
 
-        {/* SECTION 5 — Fullscreen Testimonial Carousel */}
-        {/* <section className="relative py-40 overflow-hidden" style={{background: bg}}>
-          <div className="max-w-5xl mx-auto px-6 text-center">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTestimonial}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-              >
-                <Quote size={60} className="mx-auto mb-16" style={{color: accent + '20'}} />
-                <h2 className="text-2xl md:text-3xl font-playfair italic font-black leading-tight mb-10" style={{color: dark}}>
-                   "{c.testimonials[activeTestimonial].quote}"
-                </h2>
-                
-                <div className="flex flex-col items-center gap-4">
-                  <div className="w-px h-12 mb-4" style={{background: accent + '40'}} />
-                  <p className="text-xs font-black uppercase tracking-[0.5em]" style={{color: accent + '99'}}>{c.testimonials[activeTestimonial].name}</p>
-                  <div className="flex gap-2">
-                    {[1,2,3,4,5].map(s => (
-                      <Star key={s} size={12} fill={s <= c.testimonials[activeTestimonial].stars ? accent : 'transparent'} color={accent} />
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-
-            <div className="flex justify-center items-center gap-12 mt-24">
-              <button onClick={prev} className="p-4 rounded-full border hover:bg-white/10 transition-all" style={{borderColor: accent + '40', color: accent}}><Prev size={20} /></button>
-              <div className="flex gap-3">
-                {c.testimonials.map((_, i) => (
-                  <div 
-                    key={i} 
-                    className="w-2 h-2 rounded-full transition-all duration-500"
-                    style={{ 
-                      backgroundColor: activeTestimonial === i ? accent : accent + '20',
-                      transform: activeTestimonial === i ? 'scale(1.5)' : 'scale(1)'
-                    }}
-                  />
-                ))}
-              </div>
-              <button onClick={next} className="p-4 rounded-full border hover:bg-white/10 transition-all" style={{borderColor: accent + '40', color: accent}}><Next size={20} /></button>
-            </div>
-          </div>
-        </section> */}
-
-        {/* SECTION 6 — Split Design Exit */}
         <section className="flex flex-col lg:flex-row" style={{background: dark}}>
           <div className="lg:w-1/2 p-6 md:p-10 flex flex-col justify-center">
              <span className="text-[10px] font-black tracking-[0.4em] uppercase opacity-40 mb-4 block" style={{color: accent + '99'}}>End Story</span>
@@ -377,23 +339,5 @@ export default function EventTemplate2({ config: c }: Props) {
 
       <FooterSection />
     </div>
-  );
-}
-
-// Internal icons helper
-function ShoppingBag({ size }: { size: number }) {
-  return (
-    <svg 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="1.5" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    >
-      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
-    </svg>
   );
 }

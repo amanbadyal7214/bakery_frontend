@@ -11,7 +11,11 @@ import {
   ArrowRight,
   ChevronLeft,
   Quote,
-  ShoppingBag as LucideShoppingBag,
+  ShoppingBag,
+  Heart,
+  User,
+  HelpCircle,
+  type LucideIcon,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/home/FooterSection";
@@ -29,25 +33,14 @@ export interface EventHighlight {
 }
 
 export interface EventOffer {
-  label: string;
+  productId?: any;
+  badge: string;
   name: string;
   price: string;
   originalPrice: string;
   discount: string;
   image: string;
   emoji?: string;
-}
-
-export interface EventTestimonial {
-  name: string;
-  quote: string;
-  avatar?: string;
-  stars: number;
-}
-
-export interface EventFaq {
-  q: string;
-  a: string;
 }
 
 export interface EventConfig {
@@ -71,20 +64,14 @@ export interface EventConfig {
   // Countdown
   countdown: { days: number; hours: number; mins: number; secs: number };
 
-  // Floating decorative emojis (4 items)
-  floatingEmojis: [string, string, string, string];
+  // Floating decorative emojis
+  floatingEmojis: string[];
 
   // Highlight cards (up to 4)
   highlights: EventHighlight[];
 
   // Featured product/offer cards
   offers: EventOffer[];
-
-  // Testimonials
-  testimonials: EventTestimonial[];
-
-  // FAQ
-  faqs: EventFaq[];
 }
 
 // ─────────────────────────────────────────────
@@ -103,9 +90,29 @@ const AccentBg = ({ color, className = "" }: { color: string; className?: string
   />
 );
 
-export default function EventTemplate1({ config: c }: Props) {
-  const [activeFaq, setActiveFaq] = useState<number | null>(null);
+const ICON_MAP = {
+  Sparkles,
+  Gift,
+  Tag,
+  Ticket,
+  Star,
+  Calendar,
+  Clock3,
+  MapPin,
+  ArrowRight,
+  ShoppingBag,
+  Heart,
+  User,
+  HelpCircle,
+};
 
+const getIcon = (iconName: string, fallback = Star) => {
+  if (!iconName) return fallback;
+  const Icon = ICON_MAP[iconName as keyof typeof ICON_MAP];
+  return Icon || fallback;
+};
+
+export default function EventTemplate1({ config: c }: Props) {
   return (
     <div
       className="min-h-screen overflow-x-hidden selection:bg-opacity-30 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden font-sans relative"
@@ -187,15 +194,18 @@ export default function EventTemplate1({ config: c }: Props) {
                 {/* Event Stats Pills */}
                 <div className="flex flex-wrap gap-2">
                   {[
-                    { icon: Calendar, text: `${c.startDate} - ${c.endDate}` },
-                    { icon: Clock3, text: c.time },
-                    { icon: MapPin, text: c.location },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-1 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-md border border-black/10 text-[10px] font-black uppercase tracking-widest shadow-sm">
-                      <item.icon size={12} className="text-[#D4A373]" />
-                      {item.text}
-                    </div>
-                  ))}
+                    { icon: 'Calendar', text: `${c.startDate} - ${c.endDate}` },
+                    { icon: 'Clock3', text: c.time },
+                    { icon: 'MapPin', text: c.location },
+                  ].map((item, i) => {
+                    const Icon = getIcon(item.icon);
+                    return (
+                      <div key={i} className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-md border border-black/10 text-[10px] font-black uppercase tracking-widest shadow-sm">
+                        <Icon size={12} className="text-[#D4A373]" />
+                        {item.text}
+                      </div>
+                    );
+                  })}
                 </div>
               </motion.div>
               {/* Right Hero Image Card */}
@@ -251,15 +261,18 @@ export default function EventTemplate1({ config: c }: Props) {
             animate={{ x: [0, -400] }}
             transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
           >
-            {[...c.highlights, ...c.highlights].map((item, i) => (
-              <div key={i} className="flex items-center gap-6">
-                <span className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/80 border border-[#D4A373]/30 text-[#D4A373] font-black text-xs uppercase tracking-widest shadow-sm">
-                  <item.icon size={14} />
-                  {item.title}
-                </span>
-                <span className="text-xs opacity-40 font-bold">{item.desc.split('.')[0]}</span>
-              </div>
-            ))}
+            {[...c.highlights, ...c.highlights].map((item, i) => {
+              const MarqueeIcon = getIcon((item as any).icon);
+              return (
+                <div key={i} className="flex items-center gap-6">
+                  <span className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/80 border border-[#D4A373]/30 text-[#D4A373] font-black text-xs uppercase tracking-widest shadow-sm">
+                    <MarqueeIcon size={14} />
+                    {item.title}
+                  </span>
+                  <span className="text-xs opacity-40 font-bold">{item.desc.split('.')[0]}</span>
+                </div>
+              );
+            })}
           </motion.div>
         </section>
 
@@ -296,7 +309,10 @@ export default function EventTemplate1({ config: c }: Props) {
                     className="w-10 h-10 rounded-xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110 group-hover:rotate-6 duration-400 bg-white/80 border border-[#D4A373]"
                     style={{ color: c.accentColor }}
                   >
-                    <item.icon size={18} strokeWidth={1.5} />
+                    {(() => {
+                        const HighlightIcon = getIcon((item as any).icon);
+                        return <HighlightIcon size={18} strokeWidth={1.5} />;
+                    })()}
                   </div>
                   <h3 className="text-base font-bold mb-2 tracking-tight">{item.title}</h3>
                   <p className="text-xs opacity-50 leading-relaxed font-medium mb-3">{item.desc}</p>
@@ -314,7 +330,7 @@ export default function EventTemplate1({ config: c }: Props) {
               <div 
                 className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-4 bg-gradient-to-r from-[#D4A373] to-[#b07d4a] text-white shadow-lg"
               >
-                <LucideShoppingBag size={12} />
+                <ShoppingBag size={12} />
                 <span className="text-[9px] font-black uppercase tracking-widest">Limited Series</span>
               </div>
               <h2 className="text-2xl md:text-4xl font-playfair font-black leading-tight mb-3">Featured Items</h2>
@@ -324,61 +340,74 @@ export default function EventTemplate1({ config: c }: Props) {
             </div>
             {/* Responsive grid for Featured Items */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-              {c.offers.map((offer, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ scale: 1.03, boxShadow: "0 8px 32px rgba(62,39,35,0.18)" }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] hover:shadow-[0_20px_50px_rgba(62,39,35,0.12)] transition-all duration-500 border border-[#3E2723]/5 flex flex-col h-full group"
-                >
-                  {/* Emoji or Image */}
-                  <div className="relative aspect-square w-full rounded-t-[2rem] overflow-hidden mb-4 bg-[#F5F1ED] flex items-center justify-center text-5xl">
-                    {offer.emoji ? offer.emoji : (
-                      <img src={offer.image} alt={offer.name} className="w-full h-full object-cover" />
-                    )}
-                    {offer.label && (
-                      <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1">
-                        <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
-                        <span className="text-[#3E2723] text-[0.6rem] font-playfair uppercase tracking-wider">
-                          {offer.label}
-                        </span>
+              {c.offers.map((offer, i) => {
+                const product = offer.productId;
+                const displayName = product?.name || offer.name;
+                const displayImage = product?.img || offer.image;
+                const displayPrice = offer.price;
+                const displayOriginal = offer.originalPrice;
+                const productId = product?._id || product?.id;
+
+                return (
+                  <motion.div
+                    key={i}
+                    whileHover={{ scale: 1.03, boxShadow: "0 8px 32px rgba(62,39,35,0.18)" }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                    className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] hover:shadow-[0_20px_50px_rgba(62,39,35,0.12)] transition-all duration-500 border border-[#3E2723]/5 flex flex-col h-full group"
+                  >
+                    <Link to={productId ? `/product/${productId}` : "#"} className="block">
+                      {/* Emoji or Image */}
+                      <div className="relative aspect-square w-full rounded-t-[2rem] overflow-hidden mb-4 bg-[#F5F1ED] flex items-center justify-center text-5xl">
+                        {displayImage ? (
+                          <img src={displayImage} alt={displayName} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        ) : (
+                          offer.emoji || "🧁"
+                        )}
+                        {offer.badge && (
+                          <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1 z-10">
+                            <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
+                            <span className="text-[#3E2723] text-[0.6rem] font-playfair uppercase tracking-wider">
+                              {offer.badge}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  {/* Content Section */}
-                  <div className="flex-1 flex flex-col px-4 pb-4">
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-playfair text-base font-bold text-[#3E2723] group-hover:text-[#D4A373] transition-colors line-clamp-1">
-                        {offer.name}
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-1.5 mb-2 text-[#D4A373]">
-                      <Star size={12} className="fill-[#D4A373] text-[#D4A373]" />
-                      <span className="text-[#3E2723] text-xs font-playfair">4.8</span>
-                    </div>
-                    {/* Price & Action */}
-                    <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-playfair uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
-                        <span className="text-sm font-playfair text-[#3E2723]">{offer.price}</span>
-                        <span className="text-xs opacity-40 line-through">{offer.originalPrice}</span>
-                        <span className="px-2 py-0.5 rounded-full bg-red-500 text-[9px] font-black uppercase tracking-widest text-white mt-1">{offer.discount}</span>
+                    </Link>
+                    {/* Content Section */}
+                    <div className="flex-1 flex flex-col px-4 pb-4">
+                      <div className="flex justify-between items-start mb-1">
+                        <Link to={productId ? `/product/${productId}` : "#"}>
+                          <h3 className="font-playfair text-base font-bold text-[#3E2723] group-hover:text-[#D4A373] transition-colors line-clamp-1">
+                            {displayName}
+                          </h3>
+                        </Link>
                       </div>
-                      <button
-                        className="bg-[#3E2723] text-white font-playfair py-2 px-4 text-[9px] rounded-xl hover:bg-[#D4A373] hover:text-[#3E2723] transition-all shadow-md hover:shadow-lg active:scale-95 duration-200 uppercase tracking-widest"
-                      >
-                        Add To Cart
-                      </button>
+                      <div className="flex items-center gap-1.5 mb-2 text-[#D4A373]">
+                        <Star size={12} className="fill-[#D4A373] text-[#D4A373]" />
+                        <span className="text-[#3E2723] text-xs font-playfair">4.8</span>
+                      </div>
+                      {/* Price & Action */}
+                      <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] font-playfair uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
+                          <span className="text-sm font-playfair text-[#3E2723]">{displayPrice}</span>
+                          <span className="text-xs opacity-40 line-through">{displayOriginal}</span>
+                          <span className="px-2 py-0.5 rounded-full bg-red-500 text-[9px] font-black uppercase tracking-widest text-white mt-1">{offer.discount}</span>
+                        </div>
+                        <Link 
+                          to={productId ? `/product/${productId}` : "#"}
+                          className="bg-[#3E2723] text-white font-playfair py-2 px-4 text-[9px] rounded-xl hover:bg-[#D4A373] hover:text-[#3E2723] transition-all shadow-md hover:shadow-lg active:scale-95 duration-200 uppercase tracking-widest text-center"
+                        >
+                          View Details
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>
-
-        {/* FAQ */}
-      
 
         {/* Final CTA */}
         <section className="py-20 px-4">

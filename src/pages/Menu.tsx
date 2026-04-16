@@ -414,11 +414,11 @@ export default function Menu() {
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
 
                               {/* Badge */}
-                              {p.badge && (
-                                <div className="absolute top-2.5 left-2.5 px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1.5 animate-in fade-in slide-in-from-left-4 duration-500">
+                              {(p.badge || (p.eventDiscount?.active && p.eventDiscount?.badge)) && (
+                                <div className="absolute top-2.5 left-2.5 px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1.5 animate-in fade-in slide-in-from-left-4 duration-500 z-10">
                                   <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
                                   <span className="text-[#3E2723] text-[0.6rem] font-bold uppercase tracking-wider">
-                                    {p.badge}
+                                    {p.badge || p.eventDiscount?.badge}
                                   </span>
                                 </div>
                               )}
@@ -453,7 +453,21 @@ export default function Menu() {
                               <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
                                 <div className="flex flex-col">
                                   <span className="text-[9px] font-bold uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
-                                  <span className="text-sm font-bold text-[#3E2723]">${(bestVariant ? bestVariant.price : p.price).toFixed(2)}</span>
+                                  <div className="flex flex-col">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm font-bold text-[#3E2723]">${(bestVariant ? bestVariant.price : p.price).toFixed(2)}</span>
+                                      {p.eventDiscount?.active && (
+                                        <span className="text-[10px] text-white bg-red-500 px-1.5 py-0.5 rounded-md font-black uppercase tracking-tighter">
+                                          {p.eventDiscount.discount}
+                                        </span>
+                                      )}
+                                    </div>
+                                    {p.eventDiscount?.active && (
+                                      <span className="text-[10px] opacity-40 line-through font-medium">
+                                        ${p.eventDiscount.originalPrice.toFixed(2)}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
 
                                 <button

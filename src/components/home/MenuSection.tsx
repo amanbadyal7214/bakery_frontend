@@ -23,7 +23,7 @@ export default function MenuSection() {
     const load = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`https://bakery-bakend.onrender.com/api/products?limit=8`, { signal: controller.signal });
+        const res = await fetch(`https://bakery-bakend.onrender.com/api/products?limit=50`, { signal: controller.signal });
         if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
         const json = await res.json();
         console.log('MenuSection API response:', json);
@@ -134,6 +134,16 @@ export default function MenuSection() {
     show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
   };
 
+  const curatedProducts = products
+    .sort((a, b) => {
+      const aDiscount = (a as any).eventDiscount?.active ? 1 : 0;
+      const bDiscount = (b as any).eventDiscount?.active ? 1 : 0;
+      return bDiscount - aDiscount;
+    })
+    .slice(0, 8);
+
+  const hasDiscounts = curatedProducts.some(p => (p as any).eventDiscount?.active);
+
   return (
     <section id="menu" className="py-6">
       <div className="max-w-6xl mx-auto">
@@ -144,10 +154,17 @@ export default function MenuSection() {
           viewport={{ once: true }}
           className="text-center mb-14"
         >
-          <p className="text-[0.8rem] font-bold font-playfair tracking-[0.2em] uppercase text-gold mb-3">Our Menu</p>
-          <h2 className="font-playfair text-xl md:text-2xl font-bold text-bread-dark mb-4">Made to Delight</h2>
+          <p className="text-[0.8rem] font-bold font-playfair tracking-[0.2em] uppercase text-gold mb-3">
+            {hasDiscounts ? "Special Event" : "Our Menu"}
+          </p>
+          <h2 className="font-playfair text-xl md:text-2xl font-bold text-bread-dark mb-4">
+            {hasDiscounts ? "Featured Items" : "Made to Delight"}
+          </h2>
           <p className="text-[#7A5C4F] text-sm max-w-xl mx-auto text-base leading-relaxed">
-            From flaky morning croissants to celebration cakes — something for every craving.
+            {hasDiscounts 
+              ? "Check out our exclusive celebration offers on your bakery favorites."
+              : "From flaky morning croissants to celebration cakes — something for every craving."
+            }
           </p>
         </motion.div>
 
@@ -186,7 +203,7 @@ export default function MenuSection() {
           {!loading && products.length === 0 && (
             <div className="col-span-2 md:col-span-4 text-center py-12 text-gray-500">No menu items available.</div>
           )}
-          {products.slice(0, 8).map((p, i) => (
+          {curatedProducts.map((p, i) => (
             <motion.article key={getProdId(p) || `prod-${i}`}
               variants={item}
               className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] hover:shadow-[0_20px_50px_rgba(62,39,35,0.12)] transition-all duration-500 border border-[#3E2723]/5 flex flex-col h-full group"
@@ -201,11 +218,11 @@ export default function MenuSection() {
                   />
 
                   {/* Badge */}
-                  {p.badge && (
-                    <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1">
+                  {(p.badge || ((p as any).eventDiscount?.active && (p as any).eventDiscount?.badge)) && (
+                    <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1 z-10">
                       <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
                       <span className="text-[#3E2723] text-[0.6rem] font-playfair uppercase tracking-wider">
-                        {p.badge}
+                        {p.badge || (p as any).eventDiscount?.badge}
                       </span>
                     </div>
                   )}
@@ -229,7 +246,21 @@ export default function MenuSection() {
                   <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
                     <div className="flex flex-col">
                       <span className="text-[9px] font-playfair uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
-                      <span className="text-sm font-playfair text-[#3E2723]">${p.price.toFixed(2)}</span>
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-playfair text-[#3E2723]">${p.price.toFixed(2)}</span>
+                          {(p as any).eventDiscount?.active && (
+                            <span className="text-[10px] text-white bg-red-500 px-1 py-0.5 rounded font-black">
+                              {(p as any).eventDiscount.discount}
+                            </span>
+                          )}
+                        </div>
+                        {(p as any).eventDiscount?.active && (
+                          <span className="text-[10px] opacity-40 line-through">
+                            ${(p as any).eventDiscount.originalPrice.toFixed(2)}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {(() => {
