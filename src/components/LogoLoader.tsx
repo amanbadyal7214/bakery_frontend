@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "../assets/Logo2.png";
+import logo from "../assets/CircleLogo.png";
 import { useEffect, useState } from "react";
 
 export default function LogoLoader({ onComplete }: { onComplete: () => void }) {
