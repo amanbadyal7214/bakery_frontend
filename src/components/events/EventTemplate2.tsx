@@ -238,7 +238,7 @@ export default function EventTemplate2({ config: c }: Props) {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
               {c.offers.map((offer, i) => {
                 const product = offer.productId;
                 const displayName = product?.name || offer.name;
@@ -311,16 +311,17 @@ export default function EventTemplate2({ config: c }: Props) {
              <h2 className="text-2xl md:text-5xl font-playfair font-black tracking-tighter leading-none italic mb-6" style={{color: bg}}>
               "Every ending is a new beginning."
              </h2>
-             <motion.a
-                href={c.ctaLink}
-                whileHover={{ x: 10 }}
-                className="flex items-center gap-6 group"
-             >
-                <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl" style={{background: accent, color: bg}}>
-                  <ArrowRight size={20} />
-                </div>
-                <span className="text-base font-playfair font-black italic group-hover:tracking-widest transition-all" style={{color: bg}}>Claim Your Invite</span>
-             </motion.a>
+             <Link to="/menu" className="inline-block">
+               <motion.div
+                  whileHover={{ x: 10 }}
+                  className="flex items-center gap-6 group"
+               >
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl" style={{background: accent, color: bg}}>
+                    <ArrowRight size={20} />
+                  </div>
+                  <span className="text-base font-playfair font-black italic group-hover:tracking-widest transition-all" style={{color: bg}}>Claim Your Invite</span>
+               </motion.div>
+             </Link>
           </div>
           
           <div className="lg:w-1/2 relative min-h-[350px] overflow-hidden">
@@ -329,8 +330,17 @@ export default function EventTemplate2({ config: c }: Props) {
             
             <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
                <div className="p-8 border rounded-[2rem] backdrop-blur-xl" style={{borderColor: accent + '40', background: bg + 'CC'}}>
-                 <p className="text-2xl font-playfair font-black mb-2 italic" style={{color: accent}}>40% Off</p>
-                 <p className="text-xs font-black uppercase tracking-[0.5em] opacity-60" style={{color: accent + '99'}}>Reserved for members</p>
+                 {(() => {
+                   const highest = c.offers.length > 0 
+                     ? Math.max(...c.offers.map(o => parseInt(o.discount) || 0))
+                     : 0;
+                   return (
+                    <p className="text-2xl font-playfair font-black mb-2 italic" style={{color: accent}}>
+                      {highest > 0 ? `${highest}% Off` : "Special Offer"}
+                    </p>
+                   );
+                 })()}
+                 <p className="text-xs font-black uppercase tracking-[0.5em] opacity-60" style={{color: accent + '99'}}>For members</p>
                </div>
             </div>
           </div>

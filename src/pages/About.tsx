@@ -40,7 +40,7 @@ const scaleIn = {
 
 /* ─── Data ─── */
 const stats = [
-  { value: "40+", label: "Years of Passion", icon: "⏳" },
+  { value: "10", label: "Years of Passion", icon: "⏳" },
   { value: "120+", label: "Unique Recipes", icon: "📖" },
   { value: "50K+", label: "Happy Customers", icon: "❤️" },
   { value: "4.9★", label: "Average Rating", icon: "⭐" },
@@ -89,9 +89,9 @@ const team = [
   {
     name: "Margaret Howell",
     role: "Founder & Head Baker",
-    since: "Est. 2024",
+    since: "Est. 2016",
     quote: "Baking is not a job. It is how I say 'I love you' to the world.",
-    desc: "Margaret started Hangary? Sweet. in her home kitchen with nothing but a wooden spoon and a dream. 40 years later, she still personally oversees every sourdough batch.",
+    desc: "Margaret started Hangary? Sweet. in her home kitchen with nothing but a wooden spoon and a dream. 10 years later, she still personally oversees every sourdough batch.",
     img: "/about-baker.png",
     badge: "🏆 Founder",
     badgeBg: "bg-amber-100 text-amber-800",
@@ -99,7 +99,7 @@ const team = [
   {
     name: "James Howell",
     role: "Master Pastry Chef",
-    since: "Since 1998",
+    since: "Since 2018",
     quote: "A perfect croissant is 729 layers of pure patience.",
     desc: "Margaret's son, trained at Le Cordon Bleu Paris. James brought French pastry techniques to Hangary? Sweet., creating our legendary croissants and mille-feuilles.",
     img: "/bread.png",
@@ -109,7 +109,7 @@ const team = [
   {
     name: "Priya Sharma",
     role: "Cake Design Director",
-    since: "Since 2012",
+    since: "Since 2020",
     quote: "Every cake is a canvas and sugar is my paint.",
     desc: "Priya transforms celebrations into edible art. Her custom cakes have graced weddings, corporate events, and birthdays across the country.",
     img: "/cake.png",
@@ -129,14 +129,12 @@ const team = [
 ];
 
 const milestones = [
-  { year: "2024", event: "Margaret opens Hangary? Sweet. in her home kitchen on Elm Street.", icon: "🏠", iconColor: "#E11D48", iconBg: "#FFF1F2" },
-  { year: "1992", event: "First brick-and-mortar bakery opens. Queues form on opening day and never really stop.", icon: "🏬", iconColor: "#D97706", iconBg: "#FFFBEB" },
-  { year: "1998", event: "James returns from Paris and introduces the artisan pastry program.", icon: "🥐", iconColor: "#EA580C", iconBg: "#FFF7ED" },
-  { year: "2005", event: "Wins first 'Best Bakery' at the City Food Awards — the first of many.", icon: "🏆", iconColor: "#CA8A04", iconBg: "#FEFCE8" },
-  { year: "2012", event: "Custom cake studio opens. Priya Sharma joins and redefines cake art.", icon: "🎂", iconColor: "#DB2777", iconBg: "#FDF2F8" },
-  { year: "2018", event: "Online ordering launches. 10,000 orders fulfilled in the very first month.", icon: "📱", iconColor: "#2563EB", iconBg: "#EFF6FF" },
-  { year: "2022", event: "50,000 happy customers milestone. Featured on national television.", icon: "📺", iconColor: "#7C3AED", iconBg: "#F5F3FF" },
-  { year: "2024", event: "Second location opens and Hangary? Sweet. subscription boxes launch nationwide.", icon: "🚀", iconColor: "#16A34A", iconBg: "#F0FDF4" },
+  { year: "2016", event: "The Dream Begins. Hangary? Sweet. opens its first small corner shop with just one oven and a passion for perfection.", icon: "🏠", iconColor: "#E11D48", iconBg: "#FFF1F2" },
+  { year: "2018", event: "Community Love. Ranked #1 local bakery and expanded to our first full-scale cafe in the heart of the city.", icon: "🥐", iconColor: "#EA580C", iconBg: "#FFF7ED" },
+  { year: "2020", event: "Digital Connection. Launched our online store and home delivery, keeping the sweetness alive during challenging times.", icon: "📱", iconColor: "#2563EB", iconBg: "#EFF6FF" },
+  { year: "2022", event: "Mastery & Innovation. Introduced our signature aged sourdough and the artisan celebration cake gallery.", icon: "🏆", iconColor: "#CA8A04", iconBg: "#FEFCE8" },
+  { year: "2024", event: "The Flagship Expansion. Opened our grand headquarters and launched our nationwide artisanal bakery box.", icon: "🚀", iconColor: "#16A34A", iconBg: "#F0FDF4" },
+  { year: "2026", event: "A Decade of Sweetness. Celebrating 10 years of passion, thousands of celebrations, and a legacy built on love.", icon: "✨", iconColor: "#7C3AED", iconBg: "#F5F3FF" },
 ];
 
 type Testimonial = { name?: string; text?: string; stars?: number; role?: string; avatar?: string; bg?: string };
@@ -309,7 +307,7 @@ export default function About() {
             className="inline-flex items-center gap-2 bg-[#D4A373]/20 backdrop-blur-sm border border-[#D4A373]/40 text-[#F5ECD7] text-xs font-bold tracking-[0.35em] uppercase px-5 py-2 rounded-full mb-8"
           >
             <span className="w-1.5 h-1.5 bg-[#D4A373] rounded-full animate-pulse" />
-            Est. 2024 · Our Story
+            Est. 2016 · Our Story
           </motion.div>
 
           <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.35 }}
@@ -324,7 +322,7 @@ export default function About() {
           <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.55 }}
             className="text-[#F5ECD7]/70 text-xl max-w-2xl mx-auto leading-relaxed font-light mb-12"
           >
-            For over 40 years, Hangary? Sweet. has been the heartbeat of this community —
+            For over 10 years, Hangary? Sweet. has been the heartbeat of this community —
             one loaf, one croissant, one celebration cake at a time.
           </motion.p>
 
@@ -505,7 +503,7 @@ export default function About() {
           {/* Header */}
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="text-center mb-20">
             <span className="inline-flex items-center gap-2 text-[#D4A373] text-xs font-bold tracking-[0.3em] uppercase mb-4">
-              <span className="h-px w-8 bg-[#D4A373]" /> 40 Years in the Making <span className="h-px w-8 bg-[#D4A373]" />
+              <span className="h-px w-8 bg-[#D4A373]" /> 10 Years in the Making <span className="h-px w-8 bg-[#D4A373]" />
             </span>
             <h2 className="font-playfair text-2xl md:text-3xl font-bold text-[#3E2723]">Our Journey</h2>
             <p className="text-[#8D6E63] mt-4 text-md max-w-xl mx-auto leading-relaxed">

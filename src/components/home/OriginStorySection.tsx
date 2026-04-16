@@ -49,7 +49,7 @@ export default function OriginStorySection() {
               viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.4 }}
               className="absolute -top-7 -left-7 bg-[#3E2723] rounded-2xl px-6 py-5 shadow-2xl"
             >
-              <div className="font-playfair text-4xl font-bold text-[#D4A373]">40+</div>
+              <div className="font-playfair text-4xl font-bold text-[#D4A373]">10</div>
               <div className="text-[#F5ECD7]/70 text-[0.65rem] font-playfair tracking-widest uppercase mt-0.5">Years of Craft</div>
             </motion.div>
 

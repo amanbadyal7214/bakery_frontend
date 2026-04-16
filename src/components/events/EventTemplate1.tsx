@@ -423,19 +423,33 @@ export default function EventTemplate1({ config: c }: Props) {
                   <span className="text-2xl animate-bounce">{c.floatingEmojis[1]}</span>
                   <span className="text-2xl animate-bounce-slow">{c.floatingEmojis[2]}</span>
                 </div>
+                {(() => {
+                   const highest = c.offers.length > 0 
+                     ? Math.max(...c.offers.map(o => parseInt(o.discount) || 0))
+                     : 0;
+                   if (highest === 0) return null;
+                   return (
+                    <div className="mb-4 px-6 py-2 rounded-full border border-white/40 backdrop-blur-md bg-white/20">
+                      <p className="text-lg font-playfair font-black italic" style={{color: c.accentColor}}>
+                        Up to {highest}% Off
+                      </p>
+                    </div>
+                   );
+                })()}
                 <h2 className="text-2xl md:text-4xl font-playfair font-black mb-6 max-w-2xl leading-none">
                   Savor the moments of this celebration.
                 </h2>
-                <motion.a
-                  href={c.ctaLink}
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                  className="px-10 py-4 bg-black text-white rounded-full font-black uppercase tracking-widest text-xs shadow-2xl flex items-center gap-3 hover:bg-[#D4A373] hover:text-black transition-all"
-                  style={{ backgroundColor: c.darkColor }}
-                >
-                  {c.ctaLabel}
-                  <ArrowRight size={14} />
-                </motion.a>
+                <Link to="/menu">
+                  <motion.div
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    className="px-10 py-4 bg-black text-white rounded-full font-black uppercase tracking-widest text-xs shadow-2xl flex items-center gap-3 hover:bg-[#D4A373] hover:text-black transition-all"
+                    style={{ backgroundColor: c.darkColor }}
+                  >
+                    {c.ctaLabel}
+                    <ArrowRight size={14} />
+                  </motion.div>
+                </Link>
                 <p className="mt-8 text-[9px] font-black uppercase tracking-[0.5em] opacity-30">
                   Offers active until {c.endDate}
                 </p>

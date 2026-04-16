@@ -161,7 +161,7 @@ export default function MenuSection() {
             {hasDiscounts ? "Featured Items" : "Made to Delight"}
           </h2>
           <p className="text-[#7A5C4F] text-sm max-w-xl mx-auto text-base leading-relaxed">
-            {hasDiscounts 
+            {hasDiscounts
               ? "Check out our exclusive celebration offers on your bakery favorites."
               : "From flaky morning croissants to celebration cakes — something for every craving."
             }
