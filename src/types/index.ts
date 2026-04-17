@@ -8,7 +8,14 @@ export interface Product {
   // optional fields that may come from backend
   rating?: number;
   flavor?: string[];
-  ingredients?: string[];
+  ingredients?: {
+    ingredient: {
+      name: string;
+      unit?: string;
+      [key: string]: any;
+    } | string;
+    qty: number;
+  }[];
   tasteDescription?: string;
   variants?: any[];
 }

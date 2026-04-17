@@ -236,31 +236,31 @@ export default function ProductDetails() {
                     <div className="h-4 w-48 bg-gray-200 rounded mb-10"></div>
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-16">
                         <div className="lg:col-span-5 space-y-8">
-                           <div className="aspect-square md:aspect-[5/4] rounded-[3rem] bg-gray-200"></div>
-                           <div className="flex gap-4 mt-8 justify-center">
-                              <div className="w-24 h-24 rounded-2xl bg-gray-200"></div>
-                              <div className="w-24 h-24 rounded-2xl bg-gray-200"></div>
-                              <div className="w-24 h-24 rounded-2xl bg-gray-200"></div>
-                           </div>
+                            <div className="aspect-square md:aspect-[5/4] rounded-[3rem] bg-gray-200"></div>
+                            <div className="flex gap-4 mt-8 justify-center">
+                                <div className="w-24 h-24 rounded-2xl bg-gray-200"></div>
+                                <div className="w-24 h-24 rounded-2xl bg-gray-200"></div>
+                                <div className="w-24 h-24 rounded-2xl bg-gray-200"></div>
+                            </div>
                         </div>
                         <div className="lg:col-span-4 flex flex-col space-y-8">
-                           <div className="h-6 w-32 bg-gray-200 rounded-full"></div>
-                           <div className="h-12 w-3/4 bg-gray-200 rounded"></div>
-                           <div className="space-y-3">
-                               <div className="h-4 w-full bg-gray-200 rounded"></div>
-                               <div className="h-4 w-5/6 bg-gray-200 rounded"></div>
-                               <div className="h-4 w-4/6 bg-gray-200 rounded"></div>
-                           </div>
-                           
-                           <div className="p-10 rounded-[3rem] bg-white border border-gray-100 h-64 shadow-sm flex flex-col gap-6">
-                               <div className="h-8 w-24 bg-gray-200 rounded"></div>
-                               <div className="h-10 w-full bg-gray-200 rounded"></div>
-                               <div className="h-10 w-full bg-gray-200 rounded"></div>
-                           </div>
-                           <div className="h-24 bg-gray-200 rounded-[2rem]"></div>
+                            <div className="h-6 w-32 bg-gray-200 rounded-full"></div>
+                            <div className="h-12 w-3/4 bg-gray-200 rounded"></div>
+                            <div className="space-y-3">
+                                <div className="h-4 w-full bg-gray-200 rounded"></div>
+                                <div className="h-4 w-5/6 bg-gray-200 rounded"></div>
+                                <div className="h-4 w-4/6 bg-gray-200 rounded"></div>
+                            </div>
+
+                            <div className="p-10 rounded-[3rem] bg-white border border-gray-100 h-64 shadow-sm flex flex-col gap-6">
+                                <div className="h-8 w-24 bg-gray-200 rounded"></div>
+                                <div className="h-10 w-full bg-gray-200 rounded"></div>
+                                <div className="h-10 w-full bg-gray-200 rounded"></div>
+                            </div>
+                            <div className="h-24 bg-gray-200 rounded-[2rem]"></div>
                         </div>
                         <div className="hidden lg:block lg:col-span-3">
-                           <div className="h-96 bg-gray-200 rounded-[3rem]"></div>
+                            <div className="h-96 bg-gray-200 rounded-[3rem]"></div>
                         </div>
                     </div>
                 </div>
@@ -317,11 +317,11 @@ export default function ProductDetails() {
                                     const y = ((e.clientY - rect.top) / rect.height) * 100;
                                     e.currentTarget.style.setProperty('--x', `${x}%`);
                                     e.currentTarget.style.setProperty('--y', `${y}%`);
-                                    
+
                                     const magnifier = e.currentTarget.querySelector('.magnifier-glass') as HTMLElement;
                                     if (magnifier) {
-                                      magnifier.style.left = `${e.clientX - rect.left}px`;
-                                      magnifier.style.top = `${e.clientY - rect.top}px`;
+                                        magnifier.style.left = `${e.clientX - rect.left}px`;
+                                        magnifier.style.top = `${e.clientY - rect.top}px`;
                                     }
                                 }}
                             >
@@ -342,14 +342,14 @@ export default function ProductDetails() {
                                                 transformOrigin: 'var(--x, 50%) var(--y, 50%)'
                                             }}
                                         />
-                                        
+
                                         {/* Magnifier Glass Overlay Element */}
                                         <div className="magnifier-glass absolute pointer-events-none opacity-0 group-hover/zoom:opacity-100 transition-opacity duration-300 w-16 h-16 bg-white/20 backdrop-blur-[2px] border-2 border-white rounded-full -translate-x-1/2 -translate-y-1/2 flex items-center justify-center shadow-2xl z-20">
                                             <Search size={24} className="text-white drop-shadow-md" />
                                         </div>
                                     </motion.div>
                                 </AnimatePresence>
-                                
+
                                 {/* Overlay Gradient for Depth */}
                                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/5 to-transparent" />
 
@@ -605,7 +605,7 @@ export default function ProductDetails() {
                         <div className="border-b border-[#F2EBE3] mb-12">
                             <h2 className="text-2xl font-playfair font-black pb-4 border-b-4 border-[#D4A373] inline-block">Product Information</h2>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             {/* Specifications Card */}
                             <div className="space-y-8">
@@ -618,7 +618,11 @@ export default function ProductDetails() {
                                                     <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373]/40" />
                                                     <span className="text-[10px] font-black text-[#B08968] uppercase tracking-widest">Type</span>
                                                 </div>
-                                                <span className="text-sm font-bold text-[#2C1810] uppercase tracking-tight">{Array.isArray(product.type) ? product.type.join(', ') : product.type}</span>
+                                                <span className="text-sm font-bold text-[#2C1810] uppercase tracking-tight">
+                                                    {Array.isArray(product.type) 
+                                                        ? product.type.map((t: any) => typeof t === 'string' ? t : (t.name || t.title || '')).filter(Boolean).join(', ') 
+                                                        : (typeof product.type === 'object' ? (product.type?.name || '') : product.type)}
+                                                </span>
                                             </div>
                                         )}
                                         {product.shape && (
@@ -628,7 +632,9 @@ export default function ProductDetails() {
                                                     <span className="text-[10px] font-black text-[#B08968] uppercase tracking-widest">Shape</span>
                                                 </div>
                                                 <span className="text-sm font-bold text-[#2C1810] uppercase tracking-tight">
-                                                    {Array.isArray(product.shape) ? product.shape.join(', ') : product.shape}
+                                                    {Array.isArray(product.shape) 
+                                                        ? product.shape.map((s: any) => typeof s === 'string' ? s : (s.name || s.title || '')).filter(Boolean).join(', ') 
+                                                        : (typeof product.shape === 'object' ? (product.shape?.name || '') : product.shape)}
                                                 </span>
                                             </div>
                                         )}
@@ -639,7 +645,9 @@ export default function ProductDetails() {
                                                     <span className="text-[10px] font-black text-[#B08968] uppercase tracking-widest">Theme</span>
                                                 </div>
                                                 <span className="text-sm font-bold text-[#2C1810] uppercase tracking-tight">
-                                                    {Array.isArray(product.theme) ? product.theme.join(', ') : product.theme}
+                                                    {Array.isArray(product.theme) 
+                                                        ? product.theme.map((th: any) => typeof th === 'string' ? th : (th.name || th.title || '')).filter(Boolean).join(', ') 
+                                                        : (typeof product.theme === 'object' ? (product.theme?.name || '') : product.theme)}
                                                 </span>
                                             </div>
                                         )}
@@ -649,7 +657,9 @@ export default function ProductDetails() {
                                                     <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373]/40" />
                                                     <span className="text-[10px] font-black text-[#B08968] uppercase tracking-widest">Occasions</span>
                                                 </div>
-                                                <span className="text-sm font-bold text-[#2C1810] text-right uppercase tracking-tight">{product.occasion.join(', ')}</span>
+                                                <span className="text-sm font-bold text-[#2C1810] text-right uppercase tracking-tight">
+                                                    {product.occasion.map((o: any) => typeof o === 'string' ? o : (o.name || o.title || '')).filter(Boolean).join(', ')}
+                                                </span>
                                             </div>
                                         )}
                                     </div>
@@ -666,10 +676,21 @@ export default function ProductDetails() {
                                     <div className="space-y-4">
                                         {(product.ingredients && product.ingredients.length > 0) ? (
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-3">
-                                                {product.ingredients.map((ing: string, i: number) => {
-                                                    const match = ing.match(/^(.*?)\s*\((.*?)\)$/);
-                                                    const name = match ? match[1] : ing;
-                                                    const value = match ? match[2] : "Natural";
+                                                {product.ingredients.map((ing: any, i: number) => {
+                                                    let name = "";
+                                                    let value = "Natural";
+
+                                                    if (typeof ing === 'string') {
+                                                        const match = ing.match(/^(.*?)\s*\((.*?)\)$/);
+                                                        name = match ? match[1] : ing;
+                                                        value = match ? match[2] : "Natural";
+                                                    } else if (ing && typeof ing === 'object') {
+                                                        const ingDetail = ing.ingredient;
+                                                        name = typeof ingDetail === 'string' ? ingDetail : (ingDetail?.name || "Secret Ingredient");
+                                                        const unit = typeof ingDetail === 'object' ? (ingDetail?.unit || "") : "";
+                                                        value = ing.qty ? `${ing.qty}${unit}` : "Premium";
+                                                    }
+
                                                     return (
                                                         <div key={i} className="flex items-center justify-between pb-2 border-b border-[#FDFBF7]">
                                                             <div className="flex items-center gap-3">
@@ -764,7 +785,7 @@ export default function ProductDetails() {
                                                     <div className="absolute top-2.5 left-2.5 px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1.5 ">
                                                         <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
                                                         <span className="text-[#3E2723] text-[0.6rem] font-bold uppercase tracking-wider">
-                                                          {p.badge || p.eventDiscount?.badge}
+                                                            {p.badge || p.eventDiscount?.badge}
                                                         </span>
                                                     </div>
                                                 )}
@@ -781,7 +802,7 @@ export default function ProductDetails() {
                                                     <span className="text-[#3E2723] text-xs font-bold">4.8</span>
                                                     <span className="text-[#3E2723]/40 text-[10px] uppercase font-bold tracking-widest ml-auto">{p.category}</span>
                                                 </div>
-                                                
+
                                                 <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
                                                     <div className="flex flex-col">
                                                         <span className="text-[9px] font-bold uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
@@ -791,12 +812,12 @@ export default function ProductDetails() {
                                                         </div>
 
                                                     </div>
-                                                    <button 
+                                                    <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             if (!isAuthenticated) {
-                                                              navigate('/login');
-                                                              return;
+                                                                navigate('/login');
+                                                                return;
                                                             }
                                                             void handleAddToCart(p, 1, isAuthenticated);
                                                         }}
