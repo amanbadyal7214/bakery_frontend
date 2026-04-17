@@ -456,17 +456,9 @@ export default function Menu() {
                                   <div className="flex flex-col">
                                     <div className="flex items-center gap-2">
                                       <span className="text-sm font-bold text-[#3E2723]">${(bestVariant ? bestVariant.price : p.price).toFixed(2)}</span>
-                                      {p.eventDiscount?.active && (
-                                        <span className="text-[10px] text-white bg-red-500 px-1.5 py-0.5 rounded-md font-black uppercase tracking-tighter">
-                                          {p.eventDiscount.discount}
-                                        </span>
-                                      )}
+
                                     </div>
-                                    {p.eventDiscount?.active && (
-                                      <span className="text-[10px] opacity-40 line-through font-medium">
-                                        ${p.eventDiscount.originalPrice.toFixed(2)}
-                                      </span>
-                                    )}
+
                                   </div>
                                 </div>
 

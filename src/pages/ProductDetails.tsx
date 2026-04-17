@@ -426,16 +426,7 @@ export default function ProductDetails() {
                                             <p className="text-[10px] font-black text-[#B08968] uppercase tracking-[0.3em]">Premium Collection</p>
                                             <div className="flex items-center gap-3">
                                                 <span className="text-2xl font-playfair font-black text-[#2C1810]">{formatCurrency(currentPrice)}</span>
-                                                {product.eventDiscount?.active && (
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-sm text-[#7A5C4F] line-through decoration-red-500/30">
-                                                            {formatCurrency(product.eventDiscount.originalPrice)}
-                                                        </span>
-                                                        <span className="px-2 py-0.5 bg-red-500 text-white text-[10px] font-black rounded-md uppercase tracking-tighter">
-                                                            {product.eventDiscount.discount}
-                                                        </span>
-                                                    </div>
-                                                )}
+
                                             </div>
                                         </div>
                                     </div>
@@ -533,16 +524,7 @@ export default function ProductDetails() {
                                     <p className="text-[10px] font-black text-[#7A5C4F] uppercase tracking-[0.3em] mb-4">One-time purchase</p>
                                     <div className="flex items-center gap-4">
                                         <span className="text-2xl font-playfair font-black text-[#2C1810]">{formatCurrency(currentPrice)}</span>
-                                        {product.eventDiscount?.active && (
-                                            <div className="flex flex-col">
-                                                <span className="text-xs text-[#7A5C4F] line-through opacity-50">
-                                                    {formatCurrency(product.eventDiscount.originalPrice)}
-                                                </span>
-                                                <span className="text-[10px] text-red-500 font-bold uppercase">
-                                                    SAVE {product.eventDiscount.discount}
-                                                </span>
-                                            </div>
-                                        )}
+
                                     </div>
                                     <p className="text-[11px] text-[#7A5C4F] mt-4 font-medium leading-relaxed">
                                         FREE delivery where available — fastest delivery at checkout
@@ -795,17 +777,9 @@ export default function ProductDetails() {
                                                         <span className="text-[9px] font-bold uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
                                                         <div className="flex items-center gap-2">
                                                             <span className="text-sm font-bold text-[#3E2723]">{formatCurrency(p.price)}</span>
-                                                            {p.eventDiscount?.active && (
-                                                                <span className="text-[10px] text-white bg-red-500 px-1 py-0.5 rounded font-black">
-                                                                    {p.eventDiscount.discount}
-                                                                </span>
-                                                            )}
+
                                                         </div>
-                                                        {p.eventDiscount?.active && (
-                                                            <span className="text-[10px] opacity-40 line-through">
-                                                                {formatCurrency(p.eventDiscount.originalPrice)}
-                                                            </span>
-                                                        )}
+
                                                     </div>
                                                     <button 
                                                         onClick={(e) => {

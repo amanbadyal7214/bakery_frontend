@@ -249,17 +249,9 @@ export default function MenuSection() {
                       <div className="flex flex-col">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-playfair text-[#3E2723]">${p.price.toFixed(2)}</span>
-                          {(p as any).eventDiscount?.active && (
-                            <span className="text-[10px] text-white bg-red-500 px-1 py-0.5 rounded font-black">
-                              {(p as any).eventDiscount.discount}
-                            </span>
-                          )}
+
                         </div>
-                        {(p as any).eventDiscount?.active && (
-                          <span className="text-[10px] opacity-40 line-through">
-                            ${(p as any).eventDiscount.originalPrice.toFixed(2)}
-                          </span>
-                        )}
+
                       </div>
                     </div>
 
