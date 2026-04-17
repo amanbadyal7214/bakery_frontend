@@ -110,20 +110,26 @@ export default function ProductDetails() {
             .then(([p, allProducts]: [any, any[]]) => {
                 setProduct(p);
 
+                const getName = (it: any) => typeof it === 'string' ? it : (it?.name || it?.title || '');
                 if (Array.isArray(p?.flavor) && p.flavor.length > 0) {
-                    setFlavors(p.flavor);
-                    setSelectedFlavor(p.flavor[0]);
-                } else if (p?.flavor && typeof p.flavor === 'string') {
-                    setFlavors([p.flavor]);
-                    setSelectedFlavor(p.flavor);
+                    const flvNames = p.flavor.map((f: any) => getName(f)).filter(Boolean);
+                    setFlavors(flvNames);
+                    setSelectedFlavor(flvNames[0] || 'Original');
+                } else if (p?.flavor) {
+                    const fName = getName(p.flavor);
+                    setFlavors([fName]);
+                    setSelectedFlavor(fName);
                 }
 
                 if (Array.isArray(p?.weight) && p.weight.length > 0) {
-                    const parsed = p.weight.map((w: string, idx: number) => ({
-                        label: w,
-                        pack: w.includes('kg') ? 'Serves 8-12' : 'Serves 4-6',
-                        multiplier: w.includes('kg') ? 1.8 : 1
-                    }));
+                    const parsed = p.weight.map((w: any) => {
+                        const wName = typeof w === 'string' ? w : (w?.name || w?.title || String(w));
+                        return {
+                            label: wName,
+                            pack: wName.includes('kg') ? 'Serves 8-12' : 'Serves 4-6',
+                            multiplier: wName.includes('kg') ? 1.8 : 1
+                        };
+                    });
                     setWeightOptions(parsed);
 
                     // Choose first available variant
