@@ -421,9 +421,9 @@ export default function Menu() {
 
                               {/* Badge */}
                               {(p.badge || (p.eventDiscount?.active && p.eventDiscount?.badge)) && (
-                                <div className="absolute top-2.5 left-2.5 px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1.5 animate-in fade-in slide-in-from-left-4 duration-500 z-10">
-                                  <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
-                                  <span className="text-[#3E2723] text-[0.6rem] font-bold uppercase tracking-wider">
+                                <div className="absolute top-2.5 left-2.5 px-2.5 py-1.5 rounded-full bg-bread-brown backdrop-blur-md shadow-sm flex items-center gap-1.5 animate-in fade-in slide-in-from-left-4 duration-500 z-10">
+                                  <Star size={10} className="fill-white text-white" />
+                                  <span className="text-white text-[0.6rem] font-bold uppercase tracking-wider">
                                     {p.badge || p.eventDiscount?.badge}
                                   </span>
                                 </div>
@@ -438,7 +438,7 @@ export default function Menu() {
                                 </h3>
                               </div>
 
-                              <div className="flex items-center gap-1.5 mb-2 text-[#D4A373]">
+                              <div className="flex items-center  text-[#D4A373]">
                                 <Star size={12} className="fill-[#D4A373] text-[#D4A373]" />
                                 <span className="text-[#3E2723] text-xs font-bold">{p.rating || "4.8"}</span>
                                 <span className="text-[#3E2723]/40 text-[10px] uppercase font-bold tracking-widest ml-auto">{p.category}</span>

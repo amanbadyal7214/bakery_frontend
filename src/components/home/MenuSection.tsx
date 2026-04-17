@@ -219,9 +219,9 @@ export default function MenuSection() {
 
                   {/* Badge */}
                   {(p.badge || ((p as any).eventDiscount?.active && (p as any).eventDiscount?.badge)) && (
-                    <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md shadow-sm flex items-center gap-1 z-10">
-                      <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
-                      <span className="text-[#3E2723] text-[0.6rem] font-playfair uppercase tracking-wider">
+                    <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-bread-brown backdrop-blur-md shadow-sm flex items-center gap-1 z-10">
+                      <Star size={10} className="fill-white text-white" />
+                      <span className="text-white text-[0.6rem] font-playfair uppercase tracking-wider">
                         {p.badge || (p as any).eventDiscount?.badge}
                       </span>
                     </div>
