@@ -107,7 +107,7 @@ export default function ProductDetails() {
             api.products.getById(String(id)),
             api.products.getAll({ limit: 50 })
         ])
-            .then(([p, allProducts]) => {
+            .then(([p, allProducts]: [any, any[]]) => {
                 setProduct(p);
 
                 if (Array.isArray(p?.flavor) && p.flavor.length > 0) {
@@ -621,7 +621,9 @@ export default function ProductDetails() {
                                                     <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373]/40" />
                                                     <span className="text-[10px] font-black text-[#B08968] uppercase tracking-widest">Shape</span>
                                                 </div>
-                                                <span className="text-sm font-bold text-[#2C1810] uppercase tracking-tight">{product.shape}</span>
+                                                <span className="text-sm font-bold text-[#2C1810] uppercase tracking-tight">
+                                                    {Array.isArray(product.shape) ? product.shape.join(', ') : product.shape}
+                                                </span>
                                             </div>
                                         )}
                                         {product.theme && (
@@ -630,7 +632,9 @@ export default function ProductDetails() {
                                                     <div className="w-1.5 h-1.5 rounded-full bg-[#D4A373]/40" />
                                                     <span className="text-[10px] font-black text-[#B08968] uppercase tracking-widest">Theme</span>
                                                 </div>
-                                                <span className="text-sm font-bold text-[#2C1810] uppercase tracking-tight">{product.theme}</span>
+                                                <span className="text-sm font-bold text-[#2C1810] uppercase tracking-tight">
+                                                    {Array.isArray(product.theme) ? product.theme.join(', ') : product.theme}
+                                                </span>
                                             </div>
                                         )}
                                         {product.occasion && product.occasion.length > 0 && (

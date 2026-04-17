@@ -140,11 +140,14 @@ export default function Menu() {
     const matchedWeight = filters.weight?.filter(w => prodWeight.includes(w)) || [];
     pushIf(matchedWeight);
 
-    // shape, theme (also consider subthemes)
+    // shape, theme
+    const prodShape = Array.isArray(p.shape) ? p.shape : (p.shape ? [p.shape] : []);
+    const matchedShape = filters.shape?.filter(s => prodShape.some(ps => matches(ps, s))) || [];
+    pushIf(matchedShape);
 
+    const prodTheme = Array.isArray(p.theme) ? p.theme : (p.theme ? [p.theme] : []);
     const prodSubthemes = Array.isArray(p.subthemes) ? p.subthemes : (typeof p.subthemes === 'string' ? p.subthemes.split(',').map((s: string) => s.trim()) : []);
-    if (filters.shape && filters.shape.length > 0 && p.shape && filters.shape.includes(p.shape)) pushIf([p.shape]);
-    const matchedTheme = (filters.theme?.filter(t => (p.theme && matches(p.theme, t)) || prodSubthemes.includes(t))) || [];
+    const matchedTheme = filters.theme?.filter(t => prodTheme.some(pt => matches(pt, t)) || prodSubthemes.some(pst => matches(pst, t))) || [];
     pushIf(matchedTheme);
 
     // also always surface any available subtheme/suboccasion labels (not filter-driven)
@@ -213,13 +216,16 @@ export default function Menu() {
     if (filters.weight.length > 0 && !fieldMatchesAny(p.weight, filters.weight)) return false;
 
     // shape
-    if (filters.shape.length > 0 && !filters.shape.some(s => matches(p.shape, s))) return false;
+    if (filters.shape.length > 0 && !fieldMatchesAny(p.shape, filters.shape)) return false;
 
     // theme: check main theme and subthemes
     if (filters.theme.length > 0) {
       const prodTheme = p.theme;
       const prodSubthemes = Array.isArray(p.subthemes) ? p.subthemes : (typeof p.subthemes === 'string' ? p.subthemes.split(',').map((s: string) => s.trim()) : []);
-      const themeMatch = filters.theme.some(t => (prodTheme && matches(prodTheme, t)) || prodSubthemes.some((v: string) => matches(v, t)));
+      const themeMatch = filters.theme.some(t => {
+        if (Array.isArray(prodTheme)) return prodTheme.some(pt => matches(pt, t)) || prodSubthemes.some(pst => matches(pst, t));
+        return matches(String(prodTheme), t) || prodSubthemes.some(pst => matches(pst, t));
+      });
       if (!themeMatch) return false;
     }
 
