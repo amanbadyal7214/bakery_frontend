@@ -268,19 +268,19 @@ export default function MenuSection() {
                       </div>
                     </div>
 
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            const prodId = getProdId(p);
-                            if (prodId) {
-                              navigate(`/product/${prodId}`);
-                            }
-                          }}
-                          className="bg-[#3E2723] text-white hover:bg-[#D4A373] hover:text-[#3E2723] shadow-md hover:shadow-lg font-playfair py-2 px-4 text-[9px] rounded-xl transition-all active:scale-95 duration-200 uppercase tracking-widest flex items-center justify-center gap-1.5"
-                        >
-                          <Eye size={12} />
-                          View Details
-                        </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const prodId = getProdId(p);
+                        if (prodId) {
+                          navigate(`/product/${prodId}`);
+                        }
+                      }}
+                      className="bg-[#3E2723] text-white hover:bg-[#D4A373] hover:text-[#3E2723] shadow-md hover:shadow-lg font-playfair py-2 px-4 text-[9px] rounded-xl transition-all active:scale-95 duration-200 uppercase tracking-widest flex items-center justify-center gap-1.5"
+                    >
+                      <Eye size={12} />
+                      View Details
+                    </button>
                   </div>
                 </div>
               </Link>
