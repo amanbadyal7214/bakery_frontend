@@ -147,7 +147,7 @@ export default function ProductDetails() {
                 if (related.length === 0) {
                     related = allProducts.filter((item: any) => item._id !== id);
                 }
-                setRelatedProducts(related.slice(0, 4));
+                setRelatedProducts(related.slice(0, 6));
             })
             .catch((err) => {
                 console.error(err);
@@ -160,10 +160,26 @@ export default function ProductDetails() {
 
     const currentPrice = useMemo(() => {
         if (!product) return 0;
-        if (Array.isArray(product.pricesByWeight) && product.pricesByWeight[selectedWeightIndex] !== undefined) {
-            return product.pricesByWeight[selectedWeightIndex];
+        if (Array.isArray(product.variants) && product.variants[selectedWeightIndex]) {
+            return Number(product.variants[selectedWeightIndex].sellingPrice || product.variants[selectedWeightIndex].mrp || product.variants[selectedWeightIndex].price || 0);
         }
-        return product.price || 0;
+        if (Array.isArray(product.pricesByWeight) && product.pricesByWeight[selectedWeightIndex] !== undefined) {
+            return Number(product.pricesByWeight[selectedWeightIndex]);
+        }
+        return Number(product.sellingPrice || product.mrp || product.price || 0);
+    }, [product, selectedWeightIndex]);
+
+    const currentMrp = useMemo(() => {
+        if (!product) return 0;
+        let mrp = 0;
+        if (Array.isArray(product.variants) && product.variants[selectedWeightIndex]) {
+            mrp = Number(product.variants[selectedWeightIndex].mrp || product.variants[selectedWeightIndex].price || 0);
+        } else if (Array.isArray(product.pricesByWeight) && product.pricesByWeight[selectedWeightIndex] !== undefined) {
+            mrp = Number(product.pricesByWeight[selectedWeightIndex]);
+        } else {
+            mrp = Number(product.mrp || product.price || 0);
+        }
+        return mrp;
     }, [product, selectedWeightIndex]);
 
     const currentStock = useMemo(() => {
@@ -430,9 +446,15 @@ export default function ProductDetails() {
                                     <div className="flex items-center justify-between">
                                         <div className="space-y-1">
                                             <p className="text-[10px] font-black text-[#B08968] uppercase tracking-[0.3em]">Premium Collection</p>
-                                            <div className="flex items-center gap-3">
-                                                <span className="text-2xl font-playfair font-black text-[#2C1810]">{formatCurrency(currentPrice)}</span>
-
+                                            <div className="flex items-end gap-3 flex-wrap">
+                                                <span className="text-2xl font-playfair font-black text-[#2C1810]">
+                                                    {formatCurrency(currentPrice)}
+                                                </span>
+                                                {currentMrp > currentPrice && (
+                                                    <span className="text-sm font-playfair text-[#2C1810]/60 line-through mb-1">
+                                                        {formatCurrency(currentMrp)}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -528,9 +550,15 @@ export default function ProductDetails() {
                             >
                                 <div>
                                     <p className="text-[10px] font-black text-[#7A5C4F] uppercase tracking-[0.3em] mb-4">One-time purchase</p>
-                                    <div className="flex items-center gap-4">
-                                        <span className="text-2xl font-playfair font-black text-[#2C1810]">{formatCurrency(currentPrice)}</span>
-
+                                    <div className="flex items-end gap-4 flex-wrap">
+                                        <span className="text-2xl font-playfair font-black text-[#2C1810]">
+                                            {formatCurrency(currentPrice)}
+                                        </span>
+                                        {currentMrp > currentPrice && (
+                                            <span className="text-sm font-playfair text-[#7A5C4F] line-through mb-1">
+                                                {formatCurrency(currentMrp)}
+                                            </span>
+                                        )}
                                     </div>
                                     <p className="text-[11px] text-[#7A5C4F] mt-4 font-medium leading-relaxed">
                                         FREE delivery where available — fastest delivery at checkout
@@ -543,9 +571,17 @@ export default function ProductDetails() {
                                     </label>
                                     <div className="grid grid-cols-3 gap-3">
                                         {weightOptions.map((opt, idx) => {
-                                            const optionPrice = Array.isArray(product.pricesByWeight) && product.pricesByWeight[idx] !== undefined
-                                                ? product.pricesByWeight[idx]
-                                                : product.price;
+                                            const optionPrice = Array.isArray(product.variants) && product.variants[idx]
+                                                ? (product.variants[idx].sellingPrice || product.variants[idx].mrp || product.variants[idx].price || 0)
+                                                : (Array.isArray(product.pricesByWeight) && product.pricesByWeight[idx] !== undefined
+                                                    ? product.pricesByWeight[idx]
+                                                    : (product.sellingPrice || product.mrp || product.price || 0));
+
+                                            const optionMrp = Array.isArray(product.variants) && product.variants[idx]
+                                                ? Number(product.variants[idx].mrp || product.variants[idx].price || 0)
+                                                : (Array.isArray(product.pricesByWeight) && product.pricesByWeight[idx] !== undefined
+                                                    ? Number(product.pricesByWeight[idx])
+                                                    : Number(product.mrp || product.price || 0));
                                             return (
                                                 <button
                                                     key={idx}
@@ -553,7 +589,12 @@ export default function ProductDetails() {
                                                     className={`p-3 rounded-2xl text-left border-2 transition-all relative ${selectedWeightIndex === idx ? 'border-[#2C1810] bg-[#f8f3ea] shadow-md' : 'border-[#F2EBE3] bg-white'}`}
                                                 >
                                                     <div className="font-black text-xs text-[#2C1810]">{opt.label}</div>
-                                                    <div className="text-[9px] text-[#7A5C4F] font-bold">{formatCurrency(optionPrice)}</div>
+                                                    <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                                                        <span className="text-[9px] text-[#7A5C4F] font-bold">{formatCurrency(optionPrice)}</span>
+                                                        {optionMrp > optionPrice && (
+                                                            <span className="text-[8px] text-[#7A5C4F]/60 line-through">{formatCurrency(optionMrp)}</span>
+                                                        )}
+                                                    </div>
                                                 </button>
                                             );
                                         })}
@@ -619,8 +660,8 @@ export default function ProductDetails() {
                                                     <span className="text-[10px] font-black text-[#B08968] uppercase tracking-widest">Type</span>
                                                 </div>
                                                 <span className="text-sm font-bold text-[#2C1810] uppercase tracking-tight">
-                                                    {Array.isArray(product.type) 
-                                                        ? product.type.map((t: any) => typeof t === 'string' ? t : (t.name || t.title || '')).filter(Boolean).join(', ') 
+                                                    {Array.isArray(product.type)
+                                                        ? product.type.map((t: any) => typeof t === 'string' ? t : (t.name || t.title || '')).filter(Boolean).join(', ')
                                                         : (typeof product.type === 'object' ? (product.type?.name || '') : product.type)}
                                                 </span>
                                             </div>
@@ -632,8 +673,8 @@ export default function ProductDetails() {
                                                     <span className="text-[10px] font-black text-[#B08968] uppercase tracking-widest">Shape</span>
                                                 </div>
                                                 <span className="text-sm font-bold text-[#2C1810] uppercase tracking-tight">
-                                                    {Array.isArray(product.shape) 
-                                                        ? product.shape.map((s: any) => typeof s === 'string' ? s : (s.name || s.title || '')).filter(Boolean).join(', ') 
+                                                    {Array.isArray(product.shape)
+                                                        ? product.shape.map((s: any) => typeof s === 'string' ? s : (s.name || s.title || '')).filter(Boolean).join(', ')
                                                         : (typeof product.shape === 'object' ? (product.shape?.name || '') : product.shape)}
                                                 </span>
                                             </div>
@@ -645,8 +686,8 @@ export default function ProductDetails() {
                                                     <span className="text-[10px] font-black text-[#B08968] uppercase tracking-widest">Theme</span>
                                                 </div>
                                                 <span className="text-sm font-bold text-[#2C1810] uppercase tracking-tight">
-                                                    {Array.isArray(product.theme) 
-                                                        ? product.theme.map((th: any) => typeof th === 'string' ? th : (th.name || th.title || '')).filter(Boolean).join(', ') 
+                                                    {Array.isArray(product.theme)
+                                                        ? product.theme.map((th: any) => typeof th === 'string' ? th : (th.name || th.title || '')).filter(Boolean).join(', ')
                                                         : (typeof product.theme === 'object' ? (product.theme?.name || '') : product.theme)}
                                                 </span>
                                             </div>
@@ -762,7 +803,7 @@ export default function ProductDetails() {
                                 </Button>
                             </div>
 
-                            <div className="grid grid-cols-1  sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
                                 {relatedProducts.map((p) => (
                                     <motion.div
                                         key={p._id}
@@ -773,9 +814,9 @@ export default function ProductDetails() {
                                         }}
                                         className="bg-[#FCFAFA] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(62,39,35,0.05)] hover:shadow-[0_20px_50px_rgba(62,39,35,0.12)] transition-all duration-500 border border-[#3E2723]/5 flex flex-col h-full group cursor-pointer"
                                     >
-                                        <div className="p-3 flex flex-col h-full">
+                                        <div className="p-2 flex flex-col h-full">
                                             {/* Image Container */}
-                                            <div className="relative aspect-square w-full rounded-[1.5rem] overflow-hidden mb-4 bg-[#F5F1ED]">
+                                            <div className="relative aspect-square w-full rounded-[1.2rem] overflow-hidden mb-2 bg-[#F5F1ED]">
                                                 <img
                                                     src={getFirstImage(p)}
                                                     alt={p.name}
@@ -793,22 +834,37 @@ export default function ProductDetails() {
 
                                             {/* Content */}
                                             <div className="px-1 flex flex-col flex-1">
-                                                <div className="flex justify-between items-start mb-1">
-                                                    <h4 className="font-playfair text-base font-bold text-[#3E2723] group-hover:text-[#D4A373] transition-colors line-clamp-1">{p.name}</h4>
+                                                <div className="flex justify-between items-start mb-0.5">
+                                                    <h4 className="font-playfair text-xs font-bold text-[#3E2723] group-hover:text-[#D4A373] transition-colors line-clamp-1">{p.name}</h4>
                                                 </div>
+                                                {/* Flavor display */}
+                                                {Array.isArray(p.flavor) && p.flavor.length > 0 && (
+                                                    <div className="text-[10px] text-[#7A5C4F] font-medium mb-1 line-clamp-1">
+                                                        {p.flavor.map(f => typeof f === 'object' && f !== null ? f.name : f).filter(Boolean).join(', ')}
+                                                    </div>
+                                                )}
 
-                                                <div className="flex items-center gap-1.5 mb-2 text-[#D4A373]">
-                                                    <Star size={12} className="fill-[#D4A373] text-[#D4A373]" />
-                                                    <span className="text-[#3E2723] text-xs font-bold">4.8</span>
-                                                    <span className="text-[#3E2723]/40 text-[10px] uppercase font-bold tracking-widest ml-auto">{p.category}</span>
+                                                <div className="flex items-center gap-1 mb-1.5 text-[#D4A373] flex-wrap">
+                                                    <Star size={10} className="fill-[#D4A373] text-[#D4A373]" />
+                                                    <span className="text-[#3E2723] text-[10px] font-bold">4.8</span>
+                                                    <span className="text-[#3E2723]/40 text-[8px] uppercase font-bold tracking-widest ml-auto">{p.category}</span>
                                                 </div>
 
                                                 <div className="mt-auto pt-3 border-t border-[#3E2723]/5 flex items-center justify-between gap-3">
                                                     <div className="flex flex-col">
-                                                        <span className="text-[9px] font-bold uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm font-bold text-[#3E2723]">{formatCurrency(p.price)}</span>
-
+                                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                                            {(() => {
+                                                                const vSellingPrice = p.variants?.[0]?.sellingPrice || p.sellingPrice || p.price || 0;
+                                                                const vMrp = p.variants?.[0]?.mrp || p.mrp || vSellingPrice;
+                                                                return (
+                                                                    <>
+                                                                        <span className="text-sm font-bold text-[#3E2723]">{formatCurrency(vSellingPrice)}</span>
+                                                                        {vMrp > vSellingPrice && (
+                                                                            <span className="text-[10px] text-[#3E2723]/60 line-through">{formatCurrency(vMrp)}</span>
+                                                                        )}
+                                                                    </>
+                                                                );
+                                                            })()}
                                                         </div>
 
                                                     </div>
@@ -819,11 +875,15 @@ export default function ProductDetails() {
                                                                 navigate('/login');
                                                                 return;
                                                             }
-                                                            void handleAddToCart(p, 1, isAuthenticated);
+                                                            const variant = Array.isArray(p.variants) && p.variants.length > 0 ? p.variants[0] : null;
+                                                            const bestPrice = variant ? (variant.sellingPrice || variant.mrp || variant.price) : (p.sellingPrice || p.mrp || p.price);
+                                                            const baseWeight = variant ? variant.weight : (Array.isArray(p.weight) && p.weight.length > 0 ? p.weight[0] : 'Standard');
+                                                            const baseFlavor = Array.isArray(p.flavor) && p.flavor.length > 0 ? p.flavor[0] : (typeof p.flavor === 'string' ? p.flavor : 'Original');
+                                                            void handleAddToCart({ ...p, name: `${p.name} (${baseFlavor}, ${baseWeight})`, price: bestPrice || 0 }, 1, isAuthenticated);
                                                         }}
-                                                        className="bg-[#3E2723] text-white font-bold py-2 px-4 text-[9px] rounded-xl hover:bg-[#D4A373] hover:text-[#3E2723] transition-all shadow-md hover:shadow-lg active:scale-95 duration-200 uppercase tracking-widest flex items-center gap-1.5"
+                                                        className="bg-[#3E2723] text-white font-bold py-1.5 px-2.5 text-[8px] rounded-lg hover:bg-[#D4A373] hover:text-[#3E2723] transition-all shadow-md hover:shadow-lg active:scale-95 duration-200 uppercase tracking-widest flex items-center gap-1 mt-2 justify-center w-full"
                                                     >
-                                                        <ShoppingBag size={12} />
+                                                        <ShoppingBag size={10} />
                                                         Add To Cart
                                                     </button>
                                                 </div>

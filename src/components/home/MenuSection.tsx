@@ -247,16 +247,34 @@ export default function MenuSection() {
                     <div className="flex flex-col">
                       <span className="text-[9px] font-playfair uppercase tracking-widest text-[#3E2723]/40 italic">Price</span>
                       <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-playfair text-[#3E2723]">${p.price.toFixed(2)}</span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {(() => {
+                            const pAny = p as any;
+                            const vPrice = pAny.variants?.[0]?.price ?? p.price;
+                            const vMrp = pAny.variants?.[0]?.mrp ?? pAny.mrp;
+                            const vSellingPrice = pAny.variants?.[0]?.sellingPrice ?? pAny.sellingPrice;
+                            
+                            const finalMrp = Number(vMrp || vPrice || 0);
+                            const finalSellingPrice = Number(vSellingPrice || finalMrp);
 
+                            return (
+                                <>
+                                  <span className="text-sm font-playfair text-[#3E2723]">${finalSellingPrice.toFixed(2)}</span>
+                                  {finalMrp > finalSellingPrice && (
+                                      <span className="text-[10px] font-playfair text-[#3E2723]/60 line-through">${finalMrp.toFixed(2)}</span>
+                                  )}
+                                </>
+                            );
+                          })()}
                         </div>
 
                       </div>
                     </div>
 
                     {(() => {
-                      const outOfStock = typeof (p as any).stock === 'number' ? Number((p as any).stock) <= 0 : false;
+                      const variantStock = Array.isArray((p as any).variants) && (p as any).variants.length > 0 ? (p as any).variants[0].stock : undefined;
+                      const finalStock = variantStock !== undefined ? variantStock : (p as any).stock;
+                      const outOfStock = typeof finalStock === 'number' ? Number(finalStock) <= 0 : false;
                       const disabled = outOfStock;
                       const label = outOfStock ? 'Soon' : 'Add To Cart';
                       const btnClass = disabled

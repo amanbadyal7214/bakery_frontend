@@ -57,9 +57,17 @@ export const useProductActions = () => {
       return null;
     }
 
-    const rawPrice = Number(record.price);
+    const variant = Array.isArray(record.variants) && record.variants.length > 0 ? record.variants[0] : null;
+    const variantPrice = variant ? (variant.sellingPrice || variant.mrp || variant.price) : undefined;
+    const recordPrice = record.sellingPrice || record.mrp || record.price;
+    const finalPrice = variantPrice !== undefined ? variantPrice : recordPrice;
+
+    const rawPrice = Number(finalPrice);
     const safePrice = Number.isFinite(rawPrice) ? rawPrice : 0;
-    const rawStock = Number(record.stock);
+
+    const variantStock = variant ? variant.stock : undefined;
+    const finalStock = variantStock !== undefined ? variantStock : record.stock;
+    const rawStock = Number(finalStock);
     // Preserve actual numeric stock including zero so frontend can render out-of-stock state
     const safeStock = Number.isFinite(rawStock) ? rawStock : 10;
 
@@ -76,9 +84,9 @@ export const useProductActions = () => {
         : typeof record.flavor === "string"
           ? [record.flavor]
           : undefined,
-      ingredients: Array.isArray(record.ingredients)
-        ? (record.ingredients as string[])
-        : undefined,
+      ingredients: (Array.isArray(record.ingredients)
+        ? record.ingredients
+        : undefined) as any,
       tasteDescription: typeof record.tasteDescription === "string"
         ? record.tasteDescription
         : undefined,
