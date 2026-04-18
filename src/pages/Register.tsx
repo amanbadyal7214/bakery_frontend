@@ -258,7 +258,7 @@ export default function Register() {
             <div className="flex justify-center py-2">
               <ReCAPTCHA
                 ref={recaptchaRef}
-                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LfpTaQsAAAAAMacLo5D1EtA-kPSE6nbmfjHyxCy"}
+                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LdIkb0sAAAAAB97umHkjt2OGu7hPNG5RtUasemF"}
                 onChange={(token) => setRecaptchaToken(token)}
                 theme="light"
               />
