@@ -133,7 +133,7 @@ const useDynamicOptions = () => {
             if (!item || typeof item !== 'object') return;
             const obj = item as any;
             const name = toStrings([item])[0];
-            const catVal = obj.category || obj.categoryId;
+            const catVal = obj.categories || obj.category || obj.categoryId;
             if (name && catVal) {
               const catsArr = Array.isArray(catVal) ? catVal : [catVal];
               catsArr.forEach(c => {

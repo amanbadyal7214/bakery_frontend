@@ -14,6 +14,12 @@ import { useToast } from '@/hooks/use-toast';
 // default fallback to common categories until products load
 const defaultCategories = ["Cakes", "Pastries", "Breads", "Cookies", "Muffins"];
 
+const getLabel = (it: any): string => {
+  if (!it) return "";
+  if (typeof it === "string") return it;
+  return it.name || it.title || it.label || it.type || String(it._id || it.id || "");
+};
+
 export default function Menu() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -73,12 +79,12 @@ export default function Menu() {
     try {
       const set = new Set<string>();
       for (const p of products) {
-        const cat = p?.category;
+        const cat = p?.categories || p?.category;
         if (!cat) continue;
         if (Array.isArray(cat)) {
-          for (const c of cat) if (c) set.add(String(c));
-        } else if (typeof cat === 'string') {
-          set.add(cat);
+          for (const c of cat) if (c) set.add(getLabel(c));
+        } else {
+          set.add(getLabel(cat));
         }
       }
       const arr = Array.from(set);
@@ -109,6 +115,7 @@ export default function Menu() {
   };
 
   // compute which of the currently selected filters a product matches
+  // compute which of the currently selected filters a product matches
   const getMatchedTags = (p: any) => {
     const tags: string[] = [];
     const pushIf = (vals: string[] | undefined) => {
@@ -117,42 +124,45 @@ export default function Menu() {
     };
 
     // category
-    if (filters.category && filters.category.length > 0 && filters.category.includes(p.category)) pushIf([p.category]);
+    if (filters.category && filters.category.length > 0 && filters.category.some(c => matches(p.category, c))) {
+      pushIf([p.category]);
+    }
 
-    // flavor (product may have string or array)
-    const prodFlavor = Array.isArray(p.flavor) ? p.flavor : (typeof p.flavor === 'string' ? p.flavor.split(',').map((s: string) => s.trim()) : []);
-    const matchedFlavor = filters.flavor?.filter(f => prodFlavor.includes(f)) || [];
+    // flavor
+    const prodFlavors = (Array.isArray(p.flavor) ? p.flavor : (p.flavor ? [p.flavor] : [])).map(getLabel);
+    const matchedFlavor = filters.flavor?.filter(f => prodFlavors.some(pf => matches(pf, f))) || [];
     pushIf(matchedFlavor);
 
     // type
-    const prodType = Array.isArray(p.type) ? p.type : (typeof p.type === 'string' ? p.type.split(',').map((s: string) => s.trim()) : []);
-    const matchedType = filters.type?.filter(t => prodType.includes(t)) || [];
+    const prodTypes = (Array.isArray(p.type) ? p.type : (p.type ? [p.type] : [])).map(getLabel);
+    const matchedType = filters.type?.filter(t => prodTypes.some(pt => matches(pt, t))) || [];
     pushIf(matchedType);
 
-    // occasion (also consider sub-occasions on product)
-    const prodOcc = Array.isArray(p.occasion) ? p.occasion : (typeof p.occasion === 'string' ? p.occasion.split(',').map((s: string) => s.trim()) : []);
-    const prodSubOcc = Array.isArray(p.suboccasions) ? p.suboccasions : (typeof p.suboccasions === 'string' ? p.suboccasions.split(',').map((s: string) => s.trim()) : []);
-    const matchedOcc = filters.occasion?.filter(o => prodOcc.includes(o) || prodSubOcc.includes(o)) || [];
+    // occasion
+    const prodOccs = (Array.isArray(p.occasion) ? p.occasion : (p.occasion ? [p.occasion] : [])).map(getLabel);
+    const prodSubOccs = (Array.isArray(p.suboccasions) ? p.suboccasions : (p.suboccasions ? [p.suboccasions] : [])).map(getLabel);
+    const matchedOcc = filters.occasion?.filter(o => prodOccs.some(po => matches(po, o)) || prodSubOccs.some(ps => matches(ps, o))) || [];
     pushIf(matchedOcc);
 
     // weight
-    const prodWeight = Array.isArray(p.weight) ? p.weight : (typeof p.weight === 'string' ? p.weight.split(',').map((s: string) => s.trim()) : []);
-    const matchedWeight = filters.weight?.filter(w => prodWeight.includes(w)) || [];
+    const prodWeights = (Array.isArray(p.weight) ? p.weight : (p.weight ? [p.weight] : [])).map(getLabel);
+    const matchedWeight = filters.weight?.filter(w => prodWeights.some(pw => matches(pw, w))) || [];
     pushIf(matchedWeight);
 
-    // shape, theme
-    const prodShape = Array.isArray(p.shape) ? p.shape : (p.shape ? [p.shape] : []);
-    const matchedShape = filters.shape?.filter(s => prodShape.some(ps => matches(ps, s))) || [];
+    // shape
+    const prodShapes = (Array.isArray(p.shape) ? p.shape : (p.shape ? [p.shape] : [])).map(getLabel);
+    const matchedShape = filters.shape?.filter(s => prodShapes.some(ps => matches(ps, s))) || [];
     pushIf(matchedShape);
 
-    const prodTheme = Array.isArray(p.theme) ? p.theme : (p.theme ? [p.theme] : []);
-    const prodSubthemes = Array.isArray(p.subthemes) ? p.subthemes : (typeof p.subthemes === 'string' ? p.subthemes.split(',').map((s: string) => s.trim()) : []);
-    const matchedTheme = filters.theme?.filter(t => prodTheme.some(pt => matches(pt, t)) || prodSubthemes.some(pst => matches(pst, t))) || [];
+    // theme
+    const prodThemes = (Array.isArray(p.theme) ? p.theme : (p.theme ? [p.theme] : [])).map(getLabel);
+    const prodSubthemes = (Array.isArray(p.subthemes) ? p.subthemes : (p.subthemes ? [p.subthemes] : [])).map(getLabel);
+    const matchedTheme = filters.theme?.filter(t => prodThemes.some(pt => matches(pt, t)) || prodSubthemes.some(ps => matches(ps, t))) || [];
     pushIf(matchedTheme);
 
     // also always surface any available subtheme/suboccasion labels (not filter-driven)
     pushIf(prodSubthemes);
-    pushIf(prodSubOcc);
+    pushIf(prodSubOccs);
 
     return tags.slice(0, 8);
   };
@@ -192,41 +202,48 @@ export default function Menu() {
 
   const filteredProducts = products.filter(p => {
     // 1. Category Filter (Top tabs)
-    if (selectedCategory !== "All" && !matches(p.category, selectedCategory)) return false;
+    if (selectedCategory !== "All") {
+      const prodCats = (Array.isArray(p.categories) ? p.categories : (p.category ? (Array.isArray(p.category) ? p.category : [p.category]) : [])).map(getLabel);
+      if (!prodCats.some(pc => matches(pc, selectedCategory))) return false;
+    }
 
     // 2. Sidebar Category Filter
-    if (filters.category.length > 0 && !filters.category.some(c => matches(p.category, c))) return false;
+    if (filters.category.length > 0) {
+      const prodCats = (Array.isArray(p.categories) ? p.categories : (p.category ? (Array.isArray(p.category) ? p.category : [p.category]) : [])).map(getLabel);
+      if (!filters.category.some(c => prodCats.some(pc => matches(pc, c)))) return false;
+    }
 
     // 3. Price Range
     if (p.price < filters.priceRange[0] || p.price > filters.priceRange[1]) return false;
 
-
     // 5. Dynamic Filters (Flavor, Type, Occasion, etc.)
-    if (filters.flavor.length > 0 && !fieldMatchesAny(p.flavor, filters.flavor)) return false;
-    if (filters.type.length > 0 && !fieldMatchesAny(p.type, filters.type)) return false;
+    const checkMatch = (val: any, filterArr: string[]) => {
+      if (filterArr.length === 0) return true;
+      const labels = (Array.isArray(val) ? val : (val ? [val] : [])).map(getLabel);
+      return filterArr.some(f => labels.some(l => matches(l, f)));
+    };
+
+    if (!checkMatch(p.flavor, filters.flavor)) return false;
+    if (!checkMatch(p.type, filters.type)) return false;
+    if (!checkMatch(p.weight, filters.weight)) return false;
+    if (!checkMatch(p.shape, filters.shape)) return false;
 
     // occasion: check both main occasion field and suboccasions
     if (filters.occasion.length > 0) {
-      const prodOcc = Array.isArray(p.occasion) ? p.occasion : (typeof p.occasion === 'string' ? p.occasion.split(',').map((s: string) => s.trim()) : []);
-      const prodSubOcc = Array.isArray(p.suboccasions) ? p.suboccasions : (typeof p.suboccasions === 'string' ? p.suboccasions.split(',').map((s: string) => s.trim()) : []);
-      const occMatch = filters.occasion.some(o => prodOcc.some((v: string) => matches(v, o)) || prodSubOcc.some((v: string) => matches(v, o)));
-      if (!occMatch) return false;
+      const labels = [
+        ...(Array.isArray(p.occasion) ? p.occasion : (p.occasion ? [p.occasion] : [])).map(getLabel),
+        ...(Array.isArray(p.suboccasions) ? p.suboccasions : (p.suboccasions ? [p.suboccasions] : [])).map(getLabel)
+      ];
+      if (!filters.occasion.some(o => labels.some(l => matches(l, o)))) return false;
     }
-
-    if (filters.weight.length > 0 && !fieldMatchesAny(p.weight, filters.weight)) return false;
-
-    // shape
-    if (filters.shape.length > 0 && !fieldMatchesAny(p.shape, filters.shape)) return false;
 
     // theme: check main theme and subthemes
     if (filters.theme.length > 0) {
-      const prodTheme = p.theme;
-      const prodSubthemes = Array.isArray(p.subthemes) ? p.subthemes : (typeof p.subthemes === 'string' ? p.subthemes.split(',').map((s: string) => s.trim()) : []);
-      const themeMatch = filters.theme.some(t => {
-        if (Array.isArray(prodTheme)) return prodTheme.some(pt => matches(pt, t)) || prodSubthemes.some(pst => matches(pst, t));
-        return matches(String(prodTheme), t) || prodSubthemes.some(pst => matches(pst, t));
-      });
-      if (!themeMatch) return false;
+      const labels = [
+        ...(Array.isArray(p.theme) ? p.theme : (p.theme ? [p.theme] : [])).map(getLabel),
+        ...(Array.isArray(p.subthemes) ? p.subthemes : (p.subthemes ? [p.subthemes] : [])).map(getLabel)
+      ];
+      if (!filters.theme.some(t => labels.some(l => matches(l, t)))) return false;
     }
 
     return true;
