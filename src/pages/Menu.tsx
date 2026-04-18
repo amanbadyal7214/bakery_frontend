@@ -462,21 +462,21 @@ export default function Menu() {
                                   <div className="flex flex-col">
                                     <div className="flex items-center gap-1.5 flex-wrap">
                                       {(() => {
-                                          const vPrice = bestVariant ? bestVariant.price : p.price;
-                                          const vMrp = bestVariant ? bestVariant.mrp : p.mrp;
-                                          const vSellingPrice = bestVariant ? bestVariant.sellingPrice : p.sellingPrice;
-                                          
-                                          const finalMrp = Number(vMrp || vPrice || 0);
-                                          const finalSellingPrice = Number(vSellingPrice || finalMrp);
-                                          
-                                          return (
-                                              <>
-                                                   <span className="text-sm font-bold text-[#3E2723]">${finalSellingPrice.toFixed(2)}</span>
-                                                   {finalMrp > finalSellingPrice && (
-                                                       <span className="text-[10px] text-[#3E2723]/60 line-through">${finalMrp.toFixed(2)}</span>
-                                                   )}
-                                              </>
-                                          );
+                                        const vPrice = bestVariant ? bestVariant.price : p.price;
+                                        const vMrp = bestVariant ? bestVariant.mrp : p.mrp;
+                                        const vSellingPrice = bestVariant ? bestVariant.sellingPrice : p.sellingPrice;
+
+                                        const finalMrp = Number(vMrp || vPrice || 0);
+                                        const finalSellingPrice = Number(vSellingPrice || finalMrp);
+
+                                        return (
+                                          <>
+                                            <span className="text-sm font-bold text-[#3E2723]">${finalSellingPrice.toFixed(2)}</span>
+                                            {finalMrp > finalSellingPrice && (
+                                              <span className="text-[10px] text-[#3E2723]/60 line-through">${finalMrp.toFixed(2)}</span>
+                                            )}
+                                          </>
+                                        );
                                       })()}
                                     </div>
 

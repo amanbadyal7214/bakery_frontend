@@ -253,17 +253,17 @@ export default function MenuSection() {
                             const vPrice = pAny.variants?.[0]?.price ?? p.price;
                             const vMrp = pAny.variants?.[0]?.mrp ?? pAny.mrp;
                             const vSellingPrice = pAny.variants?.[0]?.sellingPrice ?? pAny.sellingPrice;
-                            
+
                             const finalMrp = Number(vMrp || vPrice || 0);
                             const finalSellingPrice = Number(vSellingPrice || finalMrp);
 
                             return (
-                                <>
-                                  <span className="text-sm font-playfair text-[#3E2723]">${finalSellingPrice.toFixed(2)}</span>
-                                  {finalMrp > finalSellingPrice && (
-                                      <span className="text-[10px] font-playfair text-[#3E2723]/60 line-through">${finalMrp.toFixed(2)}</span>
-                                  )}
-                                </>
+                              <>
+                                <span className="text-sm font-playfair text-[#3E2723]">${finalSellingPrice.toFixed(2)}</span>
+                                {finalMrp > finalSellingPrice && (
+                                  <span className="text-[10px] font-playfair text-[#3E2723]/60 line-through">${finalMrp.toFixed(2)}</span>
+                                )}
+                              </>
                             );
                           })()}
                         </div>
