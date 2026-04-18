@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { useProductActions } from "../components/home/home-data";
 import Navbar from "../components/Navbar";
 import FooterSection from "../components/home/FooterSection";
 import FilterSidebar, { FilterState } from "../components/FilterSidebar";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { ShoppingBag, Star, Filter, X, ChevronRight } from "lucide-react";
+import { Star, Filter, X, ChevronRight, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { useToast } from '@/hooks/use-toast';
 
 // derive categories dynamically from loaded products; include 'All' as first option
 // default fallback to common categories until products load
@@ -36,10 +33,7 @@ export default function Menu() {
     theme: [],
   });
 
-  const { handleAddToCart } = useProductActions();
   const navigate = useNavigate();
-  const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated);
-  const { toast } = useToast();
 
   // products loaded from backend API (replace demo import)
   const [products, setProducts] = useState<any[]>([]);
@@ -503,36 +497,15 @@ export default function Menu() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    if (!isAuthenticated) {
-                                      toast({ title: 'Login required', description: 'Please sign in to add items to cart.' });
-                                      navigate('/login');
-                                      return;
+                                    const prodId = (p && (p._id ?? p.id ?? '')) || '';
+                                    if (prodId) {
+                                      navigate(`/product/${prodId}`);
                                     }
-                                    if (!inStock) {
-                                      toast({ title: 'Out of stock', description: 'This item is currently unavailable.' });
-                                      return;
-                                    }
-
-                                    const baseWeight = bestVariant ? bestVariant.weight : (Array.isArray(p.weight) && p.weight.length > 0 ? p.weight[0] : 'Standard');
-                                    const baseFlavor = Array.isArray(p.flavor) && p.flavor.length > 0 ? p.flavor[0] : (typeof p.flavor === 'string' ? p.flavor : 'Original');
-                                    const basePrice = bestVariant ? (bestVariant.sellingPrice || bestVariant.mrp || bestVariant.price) : (Array.isArray(p.pricesByWeight) && p.pricesByWeight[0] !== undefined ? p.pricesByWeight[0] : (p.sellingPrice || p.price));
-
-                                    const variantProductToAdd = {
-                                      ...p,
-                                      name: `${p.name} (${baseFlavor}, ${baseWeight})`,
-                                      price: basePrice,
-                                      stock: currentVariantStock || 0
-                                    };
-                                    void handleAddToCart(variantProductToAdd, 1, isAuthenticated);
                                   }}
-                                  disabled={!inStock}
-                                  className={`font-bold h-10 px-4 text-[9px] rounded-xl transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-1.5 ${!inStock
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-[#3E2723] text-white hover:bg-[#D4A373] hover:text-[#3E2723] shadow-md hover:shadow-lg active:scale-95'
-                                    }`}
+                                  className="bg-[#3E2723] text-white hover:bg-[#D4A373] hover:text-[#3E2723] font-bold h-10 px-4 text-[9px] rounded-xl transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg active:scale-95"
                                 >
-                                  <ShoppingBag size={12} />
-                                  {!inStock ? 'Soon' : 'Add To Cart'}
+                                  <Eye size={12} />
+                                  View Details
                                 </button>
                               </div>
                             </div>

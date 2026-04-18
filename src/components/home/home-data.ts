@@ -73,6 +73,7 @@ export const useProductActions = () => {
 
     return {
       id: String(rawId),
+      variantId: record.variantId ? String(record.variantId) : undefined,
       name: String(record.name ?? "Bakery Item"),
       category: String(record.category ?? "Bakery"),
       price: safePrice,
@@ -90,6 +91,7 @@ export const useProductActions = () => {
       tasteDescription: typeof record.tasteDescription === "string"
         ? record.tasteDescription
         : undefined,
+      variants: Array.isArray(record.variants) ? record.variants : undefined,
     };
   };
 
@@ -129,6 +131,7 @@ export const useProductActions = () => {
       try {
         const response = await addCartItem(token, {
           productId: String(cartProduct.id),
+          variantId: cartProduct.variantId,
           quantity: normalizedQuantity,
           name: cartProduct.name,
           stock: cartProduct.stock,

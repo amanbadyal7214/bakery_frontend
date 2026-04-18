@@ -1,16 +1,13 @@
 import type { Product } from "./home-data";
 import { useProductActions } from "./home-data";
-import { Star } from "lucide-react";
+import { Star, Eye } from "lucide-react";
 import { motion, Variants } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom"; // Import Link for navigation
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
 
 export default function MenuSection() {
-  const { handleAddToCart, scrollTo } = useProductActions();
+  const { scrollTo } = useProductActions();
   const navigate = useNavigate();
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
   // load products from backend (no local fallback)
   const [products, setProducts] = useState<Product[]>([]);
@@ -271,34 +268,19 @@ export default function MenuSection() {
                       </div>
                     </div>
 
-                    {(() => {
-                      const variantStock = Array.isArray((p as any).variants) && (p as any).variants.length > 0 ? (p as any).variants[0].stock : undefined;
-                      const finalStock = variantStock !== undefined ? variantStock : (p as any).stock;
-                      const outOfStock = typeof finalStock === 'number' ? Number(finalStock) <= 0 : false;
-                      const disabled = outOfStock;
-                      const label = outOfStock ? 'Soon' : 'Add To Cart';
-                      const btnClass = disabled
-                        ? 'bg-gray-100 text-gray-400 font-playfair py-2 px-4 text-[9px] rounded-xl cursor-not-allowed uppercase tracking-widest'
-                        : 'bg-[#3E2723] text-white font-playfair py-2 px-4 text-[9px] rounded-xl hover:bg-[#D4A373] hover:text-[#3E2723] transition-all shadow-md hover:shadow-lg active:scale-95 duration-200 uppercase tracking-widest';
-
-                      return (
                         <button
                           onClick={(e) => {
                             e.preventDefault();
-                            if (!isAuthenticated) {
-                              navigate('/login');
-                              return;
+                            const prodId = getProdId(p);
+                            if (prodId) {
+                              navigate(`/product/${prodId}`);
                             }
-                            if (outOfStock) return;
-                            void handleAddToCart(p, 1, isAuthenticated);
                           }}
-                          disabled={disabled}
-                          className={btnClass}
+                          className="bg-[#3E2723] text-white hover:bg-[#D4A373] hover:text-[#3E2723] shadow-md hover:shadow-lg font-playfair py-2 px-4 text-[9px] rounded-xl transition-all active:scale-95 duration-200 uppercase tracking-widest flex items-center justify-center gap-1.5"
                         >
-                          {label}
+                          <Eye size={12} />
+                          View Details
                         </button>
-                      );
-                    })()}
                   </div>
                 </div>
               </Link>

@@ -119,14 +119,20 @@ const CartSheet = () => {
     const getActualStock = (item: any) => {
         let actualStock = typeof item.stock === 'number' ? Number(item.stock) : Infinity;
         if (Array.isArray(item.variants) && item.variants.length > 0) {
-            const match = item.name.match(/\(([^,]+),\s*([^)]+)\)$/);
-            if (match) {
-                const weightStr = match[2].trim();
-                const variant = item.variants.find((v: any) => String(v.weight).toLowerCase() === weightStr.toLowerCase());
+            if (item.variantId) {
+                const variant = item.variants.find((v: any) => String(v._id) === String(item.variantId));
                 if (variant && typeof variant.stock !== 'undefined') actualStock = Number(variant.stock) || 0;
             } else {
-                const variant = item.variants.find((v: any) => item.name.includes(v.weight));
-                if (variant && typeof variant.stock !== 'undefined') actualStock = Number(variant.stock) || 0;
+                // Fallback for legacy items
+                const match = item.name.match(/\(([^,]+),\s*([^)]+)\)$/);
+                if (match) {
+                    const weightStr = match[2].trim();
+                    const variant = item.variants.find((v: any) => String(v.weight.name || v.weight).toLowerCase() === weightStr.toLowerCase());
+                    if (variant && typeof variant.stock !== 'undefined') actualStock = Number(variant.stock) || 0;
+                } else {
+                    const variant = item.variants.find((v: any) => item.name.includes(String(v.weight.name || v.weight)));
+                    if (variant && typeof variant.stock !== 'undefined') actualStock = Number(variant.stock) || 0;
+                }
             }
         }
         return actualStock;
@@ -316,8 +322,23 @@ const CartSheet = () => {
                                                         <div className="flex justify-between items-start gap-2">
                                                             <div className="w-8">{item.quantity}</div>
                                                             <div className="flex-1 px-2">
-                                                                <div className="font-semibold">{item.name}</div>
-                                                                <div className="text-[10px] text-[#666]">{item.category} {typeof item.stock === 'number' && (<span className="ml-2 text-[10px] font-medium">• Stock: {availableStock}</span>)}</div>
+                                                                <div className="font-semibold">{item.name.split(' (')[0]}</div>
+                                                                {/* Display Variant Details prominently */}
+                                                                <div className="flex flex-wrap gap-1 mt-0.5">
+                                                                    <span className="text-[10px] bg-[#F5ECD7] text-[#3E2723] px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">
+                                                                        {item.category}
+                                                                    </span>
+                                                                    {(item.name.includes('(') && item.name.includes(')')) && (
+                                                                        <span className="text-[10px] bg-[#2C1810] text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">
+                                                                            {item.name.match(/\(([^)]+)\)/)?.[1] || 'Standard'}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                {typeof item.stock === 'number' && (
+                                                                    <div className="text-[9px] text-[#8D6E63] mt-1 font-medium italic">
+                                                                        In Stock: {availableStock} units
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                             <div className="w-16 text-right">${price.toFixed(2)}</div>
                                                             <div className="w-16 text-right font-bold">${lineTotal.toFixed(2)}</div>

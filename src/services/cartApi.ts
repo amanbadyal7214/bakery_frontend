@@ -34,7 +34,7 @@ export const fetchCart = async (token: string) => {
   return parseResponse(response);
 };
 
-export const addCartItem = async (token: string, payload: { productId: string; quantity: number; name?: string; stock?: number; price?: number; weight?: string }) => {
+export const addCartItem = async (token: string, payload: { productId: string; variantId?: string; quantity: number; name?: string; stock?: number; price?: number; weight?: string }) => {
   const response = await fetch(`${API_BASE_URL}/api/cart/items`, {
     method: "POST",
     headers: authHeaders(token),

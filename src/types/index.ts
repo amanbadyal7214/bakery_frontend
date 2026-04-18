@@ -18,6 +18,7 @@ export interface Product {
   }[];
   tasteDescription?: string;
   variants?: any[];
+  variantId?: string;
 }
 
 export interface Order {

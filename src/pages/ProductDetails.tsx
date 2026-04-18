@@ -110,7 +110,11 @@ export default function ProductDetails() {
             .then(([p, allProducts]: [any, any[]]) => {
                 setProduct(p);
 
-                const getName = (it: any) => typeof it === 'string' ? it : (it?.name || it?.title || '');
+                const getName = (it: any) => {
+                    if (!it) return '';
+                    if (typeof it === 'string') return it;
+                    return it.name || it.title || '';
+                };
                 if (Array.isArray(p?.flavor) && p.flavor.length > 0) {
                     const flvNames = p.flavor.map((f: any) => getName(f)).filter(Boolean);
                     setFlavors(flvNames);
@@ -121,26 +125,35 @@ export default function ProductDetails() {
                     setSelectedFlavor(fName);
                 }
 
-                if (Array.isArray(p?.weight) && p.weight.length > 0) {
-                    const parsed = p.weight.map((w: any) => {
-                        const wName = typeof w === 'string' ? w : (w?.name || w?.title || String(w));
+                // Derive weight selection options
+                let finalWeightOptions: any[] = [];
+                const pAny = p as any;
+
+                if (Array.isArray(pAny.variants) && pAny.variants.length > 0) {
+                    // Prioritize variants for weight labels
+                    finalWeightOptions = pAny.variants.map((v: any) => {
+                        const wName = typeof v.weight === 'object' ? (v.weight.name || v.weight.weight || '') : String(v.weight || '');
                         return {
                             label: wName,
-                            pack: wName.includes('kg') ? 'Serves 8-12' : 'Serves 4-6',
-                            multiplier: wName.includes('kg') ? 1.8 : 1
+                            pack: wName.toLowerCase().includes('kg') ? 'Serves 8-12' : 'Serves 4-6',
+                            multiplier: wName.toLowerCase().includes('kg') ? 1.8 : 1
                         };
                     });
-                    setWeightOptions(parsed);
-
-                    // Choose first available variant
-                    const pAny = p as any;
-                    if (Array.isArray(pAny.variants) && pAny.variants.length > 0) {
-                        const availableVariantIndex = pAny.variants.findIndex((v: any) => Number(v.stock) > 0);
-                        if (availableVariantIndex !== -1) {
-                            setSelectedWeightIndex(availableVariantIndex);
-                        }
-                    }
+                    
+                    const availableVariantIndex = pAny.variants.findIndex((v: any) => Number(v.stock) > 0);
+                    setSelectedWeightIndex(availableVariantIndex !== -1 ? availableVariantIndex : 0);
+                } else if (Array.isArray(p?.weight) && p.weight.length > 0) {
+                    // Fallback to legacy weight array
+                    finalWeightOptions = p.weight.map((w: any) => {
+                        const wName = typeof w === 'object' ? (w?.name || w?.title || '') : String(w);
+                        return {
+                            label: wName,
+                            pack: wName.toLowerCase().includes('kg') ? 'Serves 8-12' : 'Serves 4-6',
+                            multiplier: wName.toLowerCase().includes('kg') ? 1.8 : 1
+                        };
+                    });
                 }
+                setWeightOptions(finalWeightOptions);
 
                 // Related products
                 let related = allProducts.filter((item: any) => item._id !== id && item.category === p.category);
@@ -213,9 +226,17 @@ export default function ProductDetails() {
 
         if (!product) return;
 
+        const flavorPart = selectedFlavor && typeof selectedFlavor === 'string' && selectedFlavor !== 'Original' ? selectedFlavor : '';
+        const weightPart = weightOptions[selectedWeightIndex]?.label || '';
+        const parts = [flavorPart, weightPart].filter(val => val && val.trim().length > 0);
+        const displayName = parts.length > 0 
+            ? `${product.name} (${parts.join(', ')})` 
+            : product.name;
+
         const variantProduct = {
             ...product,
-            name: `${product.name} (${selectedFlavor || 'Original'}, ${weightOptions[selectedWeightIndex]?.label || 'Standard'})`,
+            name: displayName,
+            variantId: product.variants?.[selectedWeightIndex]?._id,
             price: currentPrice,
             stock: currentStock
         };
@@ -229,9 +250,17 @@ export default function ProductDetails() {
             return;
         }
         if (!product) return;
+        const flavorPart = selectedFlavor && typeof selectedFlavor === 'string' && selectedFlavor !== 'Original' ? selectedFlavor : '';
+        const weightPart = weightOptions[selectedWeightIndex]?.label || '';
+        const parts = [flavorPart, weightPart].filter(val => val && val.trim().length > 0);
+        const displayName = parts.length > 0 
+            ? `${product.name} (${parts.join(', ')})` 
+            : product.name;
+
         const variantProduct = {
             ...product,
-            name: `${product.name} (${selectedFlavor || 'Original'}, ${weightOptions[selectedWeightIndex]?.label || 'Standard'})`,
+            name: displayName,
+            variantId: product.variants?.[selectedWeightIndex]?._id,
             price: currentPrice,
             stock: currentStock
         };
