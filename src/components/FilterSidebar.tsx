@@ -594,7 +594,7 @@ export default function FilterSidebar({ filters: externalFilters, onFilterChange
             </AccordionContent>
           </AccordionItem>
 
-          {/* Dynamic Checkbox Sections */}
+          {/* Dynamic Sections with Nested Sub-sections */}
           {Object.entries(options).map(([key, opts]) => {
             let displayOpts = opts;
             if (key === 'flavor') displayOpts = computeFlavorOptions();
@@ -607,137 +607,144 @@ export default function FilterSidebar({ filters: externalFilters, onFilterChange
             if (displayOpts.length === 0) return null;
 
             return (
-              <AccordionItem value={key} key={key} className="border-b border-[#D4A373]/20">
-                <AccordionTrigger className="capitalize text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">
-                  {key.replace(/([A-Z])/g, ' $1').trim()}
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="pt-1">
-                    {['type', 'weight'].includes(key) ? (
-                      <RadioGroup
-                        value={(filters[key as keyof FilterState] as string[])[0] || ""}
-                        onValueChange={(val) => handleRadioChange(key as keyof FilterState, val)}
-                        className="grid grid-cols-1 gap-1.5"
-                      >
-                        {displayOpts.map((option) => (
-                          <div
-                            key={option}
-                            className={`flex items-center px-2 py-1.5 rounded-lg transition-colors ${(filters[key as keyof FilterState] as string[]).includes(option)
-                              ? "bg-[#D4A373]/10"
-                              : "hover:bg-[#D4A373]/5"
-                              }`}
-                          >
-                            <RadioGroupItem
-                              value={option}
-                              id={`${key}-${option}`}
-                              className="border-[#D4A373] text-[#3E2723] rounded-full"
-                            />
-                            <Label
-                              htmlFor={`${key}-${option}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full flex-1 py-1 ml-2"
+              <div key={key}>
+                <AccordionItem value={key} className="border-b border-[#D4A373]/20">
+                  <AccordionTrigger className="capitalize text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">
+                    {key.replace(/([A-Z])/g, ' $1').trim()}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="pt-1">
+                      {['type', 'weight'].includes(key) ? (
+                        <RadioGroup
+                          value={(filters[key as keyof FilterState] as string[])[0] || ""}
+                          onValueChange={(val) => handleRadioChange(key as keyof FilterState, val)}
+                          className="grid grid-cols-1 gap-1.5"
+                        >
+                          {displayOpts.map((option) => (
+                            <div
+                              key={option}
+                              className={`flex items-center px-2 py-1.5 rounded-lg transition-colors ${(filters[key as keyof FilterState] as string[]).includes(option)
+                                ? "bg-[#D4A373]/10"
+                                : "hover:bg-[#D4A373]/5"
+                                }`}
                             >
-                              {option}
-                            </Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
-                    ) : (
-                      <div className="grid grid-cols-1 gap-1.5">
-                        {displayOpts.map((option) => (
+                              <RadioGroupItem
+                                value={option}
+                                id={`${key}-${option}`}
+                                className="border-[#D4A373] text-[#3E2723] rounded-full"
+                              />
+                              <Label
+                                htmlFor={`${key}-${option}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full flex-1 py-1 ml-2"
+                              >
+                                {option}
+                              </Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      ) : (
+                        <div className="grid grid-cols-1 gap-1.5">
+                          {displayOpts.map((option) => (
+                            <div
+                              key={option}
+                              className={`flex items-center px-2 py-1.5 rounded-lg transition-colors ${(filters[key as keyof FilterState] as string[]).includes(option)
+                                ? "bg-[#3E2723]/8"
+                                : "hover:bg-[#D4A373]/10"
+                                }`}
+                            >
+                              <Checkbox
+                                id={`${key}-${option}`}
+                                checked={(filters[key as keyof FilterState] as string[]).includes(option)}
+                                onCheckedChange={() => handleCheckboxChange(key as keyof FilterState, option)}
+                                className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723] rounded-none"
+                              />
+                              <label
+                                htmlFor={`${key}-${option}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full flex-1 py-1 ml-2"
+                              >
+                                {option}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Sub-Occasions (dependent on selected Occasion) */}
+                {key === 'occasion' && filters.occasion.length > 0 && computeSubOccOptions().length > 0 && (
+                  <AccordionItem value="suboccasions" className="border-b border-[#D4A373]/20 bg-[#F5ECD7]/30">
+                    <AccordionTrigger className="text-[#3E2723] font-bold hover:no-underline hover:text-[#D4A373] py-2 pl-4 text-xs uppercase tracking-widest italic">
+                      ↳ Sub-Occasions
+                    </AccordionTrigger>
+                    <AccordionContent className="pl-6 pb-2">
+                      <div className="grid grid-cols-1 gap-1 pt-1">
+                        {computeSubOccOptions().map((option) => (
                           <div
                             key={option}
-                            className={`flex items-center px-2 py-1.5 rounded-lg transition-colors ${(filters[key as keyof FilterState] as string[]).includes(option)
-                              ? "bg-[#3E2723]/8"
+                            className={`flex items-center px-2 py-1 rounded-lg transition-colors ${(filters.suboccasion as string[]).includes(option)
+                              ? "bg-[#3E2723]/8 "
                               : "hover:bg-[#D4A373]/10"
                               }`}
                           >
                             <Checkbox
-                              id={`${key}-${option}`}
-                              checked={(filters[key as keyof FilterState] as string[]).includes(option)}
-                              onCheckedChange={() => handleCheckboxChange(key as keyof FilterState, option)}
-                              className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723] rounded-none"
+                              id={`subocc-${option}`}
+                              checked={(filters.suboccasion as string[]).includes(option)}
+                              onCheckedChange={() => handleCheckboxChange('suboccasion', option as string)}
+                              className="w-3.5 h-3.5 border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723] rounded-none"
                             />
                             <label
-                              htmlFor={`${key}-${option}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full flex-1 py-1 ml-2"
+                              htmlFor={`subocc-${option}`}
+                              className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full flex-1 py-1 ml-2"
                             >
                               {option}
                             </label>
                           </div>
                         ))}
                       </div>
-                    )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+
+                {/* Sub-Themes (dependent on selected Theme) */}
+                {key === 'theme' && filters.theme.length > 0 && computeSubThemeOptions().length > 0 && (
+                  <AccordionItem value="subthemes" className="border-b border-[#D4A373]/20 bg-[#F5ECD7]/30">
+                    <AccordionTrigger className="text-[#3E2723] font-bold hover:no-underline hover:text-[#D4A373] py-2 pl-4 text-xs uppercase tracking-widest italic">
+                      ↳ Sub-Themes
+                    </AccordionTrigger>
+                    <AccordionContent className="pl-6 pb-2">
+                      <div className="grid grid-cols-1 gap-1 pt-1">
+                        {computeSubThemeOptions().map((option) => (
+                          <div
+                            key={option}
+                            className={`flex items-center px-2 py-1 rounded-lg transition-colors ${(filters.subtheme as string[]).includes(option)
+                              ? "bg-[#3E2723]/8 "
+                              : "hover:bg-[#D4A373]/10"
+                              }`}
+                          >
+                            <Checkbox
+                              id={`subtheme-${option}`}
+                              checked={(filters.subtheme as string[]).includes(option)}
+                              onCheckedChange={() => handleCheckboxChange('subtheme', option as string)}
+                              className="w-3.5 h-3.5 border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723] rounded-none"
+                            />
+                            <label
+                              htmlFor={`subtheme-${option}`}
+                              className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full flex-1 py-1 ml-2"
+                            >
+                              {option}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+              </div>
             );
           })}
 
-          {/* Sub-Occasions (dependent on selected Occasion) */}
-          {filters.occasion.length > 0 && computeSubOccOptions().length > 0 && (
-            <AccordionItem value="suboccasions" className="border-b border-[#D4A373]/20">
-              <AccordionTrigger className="text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">Sub-Occasions</AccordionTrigger>
-              <AccordionContent>
-                <div className="grid grid-cols-1 gap-1.5 pt-1">
-                  {computeSubOccOptions().map((option) => (
-                    <div
-                      key={option}
-                      className={`flex items-center px-2 py-1.5 rounded-lg transition-colors ${(filters.suboccasion as string[]).includes(option)
-                        ? "bg-[#3E2723]/8 "
-                        : "hover:bg-[#D4A373]/10"
-                        }`}
-                    >
-                      <Checkbox
-                        id={`subocc-${option}`}
-                        checked={(filters.suboccasion as string[]).includes(option)}
-                        onCheckedChange={() => handleCheckboxChange('suboccasion', option as string)}
-                        className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723] rounded-none"
-                      />
-                      <label
-                        htmlFor={`subocc-${option}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full flex-1 py-1 ml-2"
-                      >
-                        {option}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          )}
-
-          {/* Sub-Themes (dependent on selected Theme) */}
-          {filters.theme.length > 0 && computeSubThemeOptions().length > 0 && (
-            <AccordionItem value="subthemes" className="border-b border-[#D4A373]/20">
-              <AccordionTrigger className="text-[#3E2723] font-semibold hover:no-underline hover:text-[#D4A373] py-3">Sub-Themes</AccordionTrigger>
-              <AccordionContent>
-                <div className="grid grid-cols-1 gap-1.5 pt-1">
-                  {computeSubThemeOptions().map((option) => (
-                    <div
-                      key={option}
-                      className={`flex items-center px-2 py-1.5 rounded-lg transition-colors ${(filters.subtheme as string[]).includes(option)
-                        ? "bg-[#3E2723]/8 "
-                        : "hover:bg-[#D4A373]/10"
-                        }`}
-                    >
-                      <Checkbox
-                        id={`subtheme-${option}`}
-                        checked={(filters.subtheme as string[]).includes(option)}
-                        onCheckedChange={() => handleCheckboxChange('subtheme', option as string)}
-                        className="border-[#D4A373] data-[state=checked]:bg-[#3E2723] data-[state=checked]:border-[#3E2723] rounded-none"
-                      />
-                      <label
-                        htmlFor={`subtheme-${option}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#5D4037] cursor-pointer w-full flex-1 py-1 ml-2"
-                      >
-                        {option}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          )}
 
 
         </Accordion>

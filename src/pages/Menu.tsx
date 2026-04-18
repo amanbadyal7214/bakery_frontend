@@ -231,6 +231,11 @@ export default function Menu() {
       if (!filters.occasion.some(o => labels.some(l => matches(l, o)))) return false;
     }
 
+    if (filters.suboccasion.length > 0) {
+      const labels = (Array.isArray(p.suboccasions) ? p.suboccasions : (p.suboccasions ? [p.suboccasions] : [])).map(getLabel);
+      if (!filters.suboccasion.some(s => labels.some(l => matches(l, s)))) return false;
+    }
+
     // theme: check main theme and subthemes
     if (filters.theme.length > 0) {
       const labels = [
@@ -238,6 +243,11 @@ export default function Menu() {
         ...(Array.isArray(p.subthemes) ? p.subthemes : (p.subthemes ? [p.subthemes] : [])).map(getLabel)
       ];
       if (!filters.theme.some(t => labels.some(l => matches(l, t)))) return false;
+    }
+
+    if (filters.subtheme.length > 0) {
+      const labels = (Array.isArray(p.subthemes) ? p.subthemes : (p.subthemes ? [p.subthemes] : [])).map(getLabel);
+      if (!filters.subtheme.some(s => labels.some(l => matches(l, s)))) return false;
     }
 
     return true;
