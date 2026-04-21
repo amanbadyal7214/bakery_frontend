@@ -209,6 +209,11 @@ export default function ProductDetails() {
         }
     }, [currentStock, quantity]);
 
+    // Reset quantity to 1 when variant changes
+    useEffect(() => {
+        setQuantity(1);
+    }, [selectedWeightIndex, selectedFlavor]);
+
     const formatCurrency = (v: number) => {
         return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(v);
     };

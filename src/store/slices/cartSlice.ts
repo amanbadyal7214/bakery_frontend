@@ -44,13 +44,19 @@ const cartSlice = createSlice({
         state.items.push({ ...payloadProduct, quantity: quantityToAdd });
       }
     },
-    removeFromCart: (state, action: PayloadAction<Product['id']>) => {
-      state.items = state.items.filter(item => item.id !== action.payload);
+    removeFromCart: (state, action: PayloadAction<{ id: string; variantId?: string }>) => {
+      const { id, variantId } = action.payload;
+      state.items = state.items.filter(item => 
+        !(item.id === id && item.variantId === variantId)
+      );
     },
-    updateQuantity: (state, action: PayloadAction<{ id: Product['id']; quantity: number }>) => {
-      const item = state.items.find(item => item.id === action.payload.id);
-      if (item && action.payload.quantity > 0) {
-        item.quantity = action.payload.quantity;
+    updateQuantity: (state, action: PayloadAction<{ id: string; variantId?: string; quantity: number }>) => {
+      const { id, variantId, quantity } = action.payload;
+      const item = state.items.find(item => 
+        item.id === id && item.variantId === variantId
+      );
+      if (item && quantity > 0) {
+        item.quantity = quantity;
       }
     },
     clearCart: (state) => {

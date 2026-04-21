@@ -57,7 +57,9 @@ export const useProductActions = () => {
       return null;
     }
 
-    const variant = Array.isArray(record.variants) && record.variants.length > 0 ? record.variants[0] : null;
+    const variant = Array.isArray(record.variants) && record.variants.length > 0 
+      ? (record.variantId ? record.variants.find((v: any) => String(v._id) === String(record.variantId)) : record.variants[0])
+      : null;
     const variantPrice = variant ? (variant.sellingPrice || variant.mrp || variant.price) : undefined;
     const recordPrice = record.sellingPrice || record.mrp || record.price;
     const finalPrice = variantPrice !== undefined ? variantPrice : recordPrice;
@@ -120,8 +122,8 @@ export const useProductActions = () => {
     const normalizedQuantity = Math.max(1, Math.floor(Number(quantity) || 1));
     const findExisting = cartItems?.find((item: any) => item.id && item.id.toString() === cartProduct.id.toString() && item.name === cartProduct.name);
     if (findExisting && (findExisting.quantity + normalizedQuantity > Number(cartProduct.stock))) {
-        toast({ title: 'Stock limit reached', description: `You cannot add ${normalizedQuantity} more units. You already have ${findExisting.quantity} of "${cartProduct.name}" in your cart, and only ${cartProduct.stock} are available!` });
-        return;
+      toast({ title: 'Stock limit reached', description: `You cannot add ${normalizedQuantity} more units. You already have ${findExisting.quantity} of "${cartProduct.name}" in your cart, and only ${cartProduct.stock} are available!` });
+      return;
     }
 
     const token = localStorage.getItem("token");
@@ -164,12 +166,12 @@ export const useProductActions = () => {
 };
 
 export const products: Product[] = [
-  { 
-    id: 1, 
-    name: "Classic Croissant", 
-    category: "Pastries", 
-    price: 3.50, 
-    img: "/croissant.png", 
+  {
+    id: 1,
+    name: "Classic Croissant",
+    category: "Pastries",
+    price: 3.50,
+    img: "/croissant.png",
     badge: "Bestseller",
     rating: 4.8,
     flavor: "Butter",
@@ -178,12 +180,12 @@ export const products: Product[] = [
     weight: ["500g"],
     delivery: ["Same Day Delivery", "Express Delivery"]
   },
-  { 
-    id: 2, 
-    name: "Strawberry Dream Cake", 
-    category: "Cakes", 
-    price: 28.00, 
-    img: "/cake.png", 
+  {
+    id: 2,
+    name: "Strawberry Dream Cake",
+    category: "Cakes",
+    price: 28.00,
+    img: "/cake.png",
     badge: "New",
     rating: 4.9,
     flavor: "Strawberry",
@@ -193,12 +195,12 @@ export const products: Product[] = [
     shape: "Round",
     delivery: ["Scheduled Delivery", "Midnight Delivery"]
   },
-  { 
-    id: 3, 
-    name: "Rustic Sourdough", 
-    category: "Breads", 
-    price: 9.00, 
-    img: "/bread.png", 
+  {
+    id: 3,
+    name: "Rustic Sourdough",
+    category: "Breads",
+    price: 9.00,
+    img: "/bread.png",
     badge: "Artisan",
     rating: 4.7,
     flavor: "Plain",
@@ -207,12 +209,12 @@ export const products: Product[] = [
     weight: ["500g"],
     delivery: ["Same Day Delivery"]
   },
-  { 
-    id: 4, 
-    name: "Chocolate Chip Cookies", 
-    category: "Cookies", 
-    price: 2.50, 
-    img: chocolateJpg, 
+  {
+    id: 4,
+    name: "Chocolate Chip Cookies",
+    category: "Cookies",
+    price: 2.50,
+    img: chocolateJpg,
     badge: "Classic",
     rating: 4.6,
     flavor: "Chocolate",
@@ -221,12 +223,12 @@ export const products: Product[] = [
     weight: ["500g"],
     delivery: ["Express Delivery"]
   },
-  { 
-    id: 5, 
-    name: "Blueberry Muffin", 
-    category: "Muffins", 
-    price: 3.00, 
-    img: cakeJpg, 
+  {
+    id: 5,
+    name: "Blueberry Muffin",
+    category: "Muffins",
+    price: 3.00,
+    img: cakeJpg,
     badge: "Fresh",
     rating: 4.5,
     flavor: "Blueberry",
@@ -234,35 +236,35 @@ export const products: Product[] = [
     occasion: ["Breakfast"],
     weight: ["500g"]
   },
-  { 
-    id: 6, 
-    name: "Cinnamon Roll", 
-    category: "Pastries", 
-    price: 4.00, 
-    img: pastryJpg, 
+  {
+    id: 6,
+    name: "Cinnamon Roll",
+    category: "Pastries",
+    price: 4.00,
+    img: pastryJpg,
     badge: "Hot",
     rating: 4.8,
     flavor: "Cinnamon",
     type: ["Eggless"],
     weight: ["500g"]
   },
-  { 
-    id: 7, 
-    name: "Baguette", 
-    category: "Breads", 
-    price: 3.00, 
-    img: "/bread.png", 
+  {
+    id: 7,
+    name: "Baguette",
+    category: "Breads",
+    price: 3.00,
+    img: "/bread.png",
     badge: "Crispy",
     rating: 4.4,
     dietary: ["Vegan"],
     weight: ["500g"]
   },
-  { 
-    id: 8, 
-    name: "Cheesecake Slice", 
-    category: "Cakes", 
-    price: 5.00, 
-    img: doJpg, 
+  {
+    id: 8,
+    name: "Cheesecake Slice",
+    category: "Cakes",
+    price: 5.00,
+    img: doJpg,
     badge: "Creamy",
     rating: 4.9,
     flavor: "Cheese",

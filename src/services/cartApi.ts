@@ -46,18 +46,23 @@ export const addCartItem = async (token: string, payload: { productId: string; v
 export const setCartItemQuantity = async (
   token: string,
   productId: string,
+  variantId: string | undefined,
   quantity: number,
 ) => {
   const response = await fetch(`${API_BASE_URL}/api/cart/items/${productId}`, {
     method: "PATCH",
     headers: authHeaders(token),
-    body: JSON.stringify({ quantity }),
+    body: JSON.stringify({ quantity, variantId }),
   });
   return parseResponse(response);
 };
 
-export const removeCartItem = async (token: string, productId: string) => {
-  const response = await fetch(`${API_BASE_URL}/api/cart/items/${productId}`, {
+export const removeCartItem = async (token: string, productId: string, variantId?: string) => {
+  const url = variantId 
+    ? `${API_BASE_URL}/api/cart/items/${productId}?variantId=${variantId}`
+    : `${API_BASE_URL}/api/cart/items/${productId}`;
+    
+  const response = await fetch(url, {
     method: "DELETE",
     headers: authHeaders(token),
   });

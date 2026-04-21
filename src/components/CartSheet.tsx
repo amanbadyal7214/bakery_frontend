@@ -21,14 +21,14 @@ const CartSheet = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [billNo] = useState(() => `BL${Math.random().toString(36).substr(2, 9).toUpperCase()}`);
     const [billDate] = useState(new Date().toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: '2-digit' }));
-    
+
     // Delivery details
     const [deliveryType, setDeliveryType] = useState<'pickup' | 'home'>('home');
     const [customerName, setCustomerName] = useState('');
     const [customerPhone, setCustomerPhone] = useState('');
     const [deliveryAddress, setDeliveryAddress] = useState('');
     const [instructions, setInstructions] = useState('');
-    
+
     // Auto-populate from user data when authenticated
     useEffect(() => {
         if (isAuthenticated && user) {
@@ -60,18 +60,18 @@ const CartSheet = () => {
         return () => window.removeEventListener(CART_OPEN_EVENT, handleOpenCart);
     }, []);
 
-    const updateItemQuantity = async (id: string, nextQuantity: number) => {
+    const updateItemQuantity = async (id: string, variantId: string | undefined, nextQuantity: number) => {
         const token = localStorage.getItem("token");
 
         if (isAuthenticated && token) {
             try {
                 if (nextQuantity <= 0) {
-                    const response = await removeCartItem(token, id);
+                    const response = await removeCartItem(token, id, variantId);
                     dispatch(setCartItems(response.cart.items));
                     return;
                 }
 
-                const response = await setCartItemQuantity(token, id, nextQuantity);
+                const response = await setCartItemQuantity(token, id, variantId, nextQuantity);
                 dispatch(setCartItems(response.cart.items));
                 return;
             } catch (error) {
@@ -80,17 +80,17 @@ const CartSheet = () => {
         }
 
         if (nextQuantity <= 0) {
-            dispatch(removeFromCart(id));
+            dispatch(removeFromCart({ id, variantId }));
             return;
         }
-        dispatch(updateQuantity({ id, quantity: nextQuantity }));
+        dispatch(updateQuantity({ id, variantId, quantity: nextQuantity }));
     };
 
-    const removeItem = async (id: string) => {
+    const removeItem = async (id: string, variantId?: string) => {
         const token = localStorage.getItem("token");
         if (isAuthenticated && token) {
             try {
-                const response = await removeCartItem(token, id);
+                const response = await removeCartItem(token, id, variantId);
                 dispatch(setCartItems(response.cart.items));
                 return;
             } catch (error) {
@@ -98,7 +98,7 @@ const CartSheet = () => {
             }
         }
 
-        dispatch(removeFromCart(id));
+        dispatch(removeFromCart({ id, variantId }));
     };
 
     const clearAllItems = async () => {
@@ -347,7 +347,7 @@ const CartSheet = () => {
                                                         {/* Quantity Controls */}
                                                         <div className="flex justify-end gap-1 mt-2 items-center">
                                                             <button
-                                                                onClick={() => void updateItemQuantity(item.id, item.quantity - 1)}
+                                                                onClick={() => void updateItemQuantity(item.id, item.variantId, item.quantity - 1)}
                                                                 className="p-1 hover:bg-[#F5ECD7] rounded transition-colors"
                                                                 title="Decrease"
                                                             >
@@ -361,7 +361,7 @@ const CartSheet = () => {
                                                                         else alert(`Only ${availableStock} unit(s) available for "${item.name}"`);
                                                                         return;
                                                                     }
-                                                                    void updateItemQuantity(item.id, item.quantity + 1);
+                                                                    void updateItemQuantity(item.id, item.variantId, item.quantity + 1);
                                                                 }}
                                                                 disabled={!canIncrease}
                                                                 className={`p-1 rounded transition-colors ${!canIncrease ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#F5ECD7]'}`}
@@ -370,7 +370,7 @@ const CartSheet = () => {
                                                                 <Plus className="w-3 h-3" />
                                                             </button>
                                                             <button
-                                                                onClick={() => void removeItem(item.id)}
+                                                                onClick={() => void removeItem(item.id, item.variantId)}
                                                                 className="ml-2 px-2 py-1 text-[10px] font-bold text-red-600 hover:bg-red-50 rounded transition-colors"
                                                             >
                                                                 DEL
@@ -391,22 +391,20 @@ const CartSheet = () => {
                                                 <div className="grid grid-cols-2 gap-2">
                                                     <button
                                                         onClick={() => setDeliveryType('pickup')}
-                                                        className={`flex items-center gap-2 p-3 rounded-lg border-2 text-sm font-semibold transition-all ${
-                                                            deliveryType === 'pickup'
+                                                        className={`flex items-center gap-2 p-3 rounded-lg border-2 text-sm font-semibold transition-all ${deliveryType === 'pickup'
                                                                 ? 'border-[#2C1810] bg-white text-[#2C1810]'
                                                                 : 'border-[#D4A373] bg-transparent text-[#666] hover:border-[#2C1810]'
-                                                        }`}
+                                                            }`}
                                                     >
                                                         <Home className="w-4 h-4" />
                                                         <span>PICKUP</span>
                                                     </button>
                                                     <button
                                                         onClick={() => setDeliveryType('home')}
-                                                        className={`flex items-center gap-2 p-3 rounded-lg border-2 text-sm font-semibold transition-all ${
-                                                            deliveryType === 'home'
+                                                        className={`flex items-center gap-2 p-3 rounded-lg border-2 text-sm font-semibold transition-all ${deliveryType === 'home'
                                                                 ? 'border-[#2C1810] bg-white text-[#2C1810]'
                                                                 : 'border-[#D4A373] bg-transparent text-[#666] hover:border-[#2C1810]'
-                                                        }`}
+                                                            }`}
                                                     >
                                                         <Truck className="w-4 h-4" />
                                                         <span>HOME DELIVERY</span>
@@ -510,7 +508,7 @@ const CartSheet = () => {
 
                             {/* Action Buttons */}
                             <div className="border-t-2 border-[#2C1810] bg-[#F5ECD7] px-6 py-4 space-y-3 font-mono text-sm">
-                                <Button 
+                                <Button
                                     onClick={handlePayNow}
                                     disabled={cartItems.length === 0 || cartItems.some(it => {
                                         const actualStk = getActualStock(it);
