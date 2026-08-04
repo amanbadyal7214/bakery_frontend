@@ -206,7 +206,7 @@ export default function About() {
 
   useEffect(() => {
     let mounted = true;
-    const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || 'https://bakery-bakend.onrender.com';
+    const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || 'https://api.hangrysweet.com';
     fetch(`${apiBase}/api/contacts/testimonials`)
       .then((res) => {
         if (!res.ok) throw new Error('Network response was not ok');
@@ -241,7 +241,7 @@ export default function About() {
 
   useEffect(() => {
     let mounted = true;
-    const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || 'https://bakery-bakend.onrender.com';
+    const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || 'https://api.hangrysweet.com';
     fetch(`${apiBase}/api/team`)
       .then((res) => {
         if (!res.ok) throw new Error('Network response was not ok');

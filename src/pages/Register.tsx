@@ -27,7 +27,7 @@ export default function Register() {
     }
     setSendingOtp(true);
     try {
-      const response = await fetch("https://bakery-bakend.onrender.com/api/customers/send-otp", {
+      const response = await fetch("https://api.hangrysweet.com/api/customers/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -56,7 +56,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const apiBase = "https://bakery-bakend.onrender.com";
+      const apiBase = "https://api.hangrysweet.com";
       const response = await fetch(`${apiBase}/api/customers/register`, {
         method: "POST",
         headers: {
@@ -258,7 +258,7 @@ export default function Register() {
             <div className="flex justify-center py-2">
               <ReCAPTCHA
                 ref={recaptchaRef}
-                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LfpTaQsAAAAAMacLo5D1EtA-kPSE6nbmfjHyxCy"}
+                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LfLAnUtAAAAAFpbF3yMA5zfKCZuKQw1AqoZEXtA"}
                 onChange={(token) => setRecaptchaToken(token)}
                 theme="light"
               />

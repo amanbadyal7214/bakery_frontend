@@ -131,7 +131,7 @@ export default function Navbar() {
 
     const endpoints = [
       `/api/products/search?${baseParams.toString()}`,
-      `https://bakery-bakend.onrender.com/api/products?search=${encodeURIComponent(debouncedQuery)}&limit=6${selectedCategory && selectedCategory !== 'All' ? `&category=${encodeURIComponent(selectedCategory)}` : ''}`,
+      `https://api.hangrysweet.com/api/products?search=${encodeURIComponent(debouncedQuery)}&limit=6${selectedCategory && selectedCategory !== 'All' ? `&category=${encodeURIComponent(selectedCategory)}` : ''}`,
       `/api/products?search=${encodeURIComponent(debouncedQuery)}&limit=6${selectedCategory && selectedCategory !== 'All' ? `&category=${encodeURIComponent(selectedCategory)}` : ''}`,
     ];
 
@@ -180,7 +180,7 @@ export default function Navbar() {
 
       // Try to fetch the full product list (fallback to Menu's source) and filter client-side
       try {
-        const resAll = await fetch('https://bakery-bakend.onrender.com/api/products?limit=100', { signal: ac.signal, headers });
+        const resAll = await fetch('https://api.hangrysweet.com/api/products?limit=100', { signal: ac.signal, headers });
         if (resAll.ok) {
           const allData: unknown = await resAll.json();
           let allItems: unknown[] = [];

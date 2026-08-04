@@ -1,6 +1,6 @@
 import type { CartItem } from "@/store/slices/cartSlice";
 
-const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || "https://bakery-bakend.onrender.com";
+const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || "https://api.hangrysweet.com";
 
 type CartApiResponse = {
   cart: {
@@ -58,10 +58,10 @@ export const setCartItemQuantity = async (
 };
 
 export const removeCartItem = async (token: string, productId: string, variantId?: string) => {
-  const url = variantId 
+  const url = variantId
     ? `${API_BASE_URL}/api/cart/items/${productId}?variantId=${variantId}`
     : `${API_BASE_URL}/api/cart/items/${productId}`;
-    
+
   const response = await fetch(url, {
     method: "DELETE",
     headers: authHeaders(token),

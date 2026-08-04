@@ -20,7 +20,7 @@ export default function MenuSection() {
     const load = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`https://bakery-bakend.onrender.com/api/products?limit=50`, { signal: controller.signal });
+        const res = await fetch(`https://api.hangrysweet.com/api/products?limit=50`, { signal: controller.signal });
         if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
         const json = await res.json();
         console.log('MenuSection API response:', json);
