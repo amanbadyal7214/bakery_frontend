@@ -81,21 +81,20 @@ export default function HeroSection() {
       </div>
 
       {/* Title row */}
-      <div className="relative z-10 w-full max-w-[1300px] mx-auto px-6 md:px-12 py-8">
-        <h1 className="flex items-center justify-between w-full gap-4 leading-none m-0">
+      <div className="relative z-10 w-full max-w-[1300px] mx-auto px-6 md:px-12 py-4 md:py-8 flex-1 flex flex-col justify-center">
+        <h1 className="flex flex-col md:flex-row items-center justify-between w-full gap-4 md:gap-4 leading-none m-0">
 
           {/* Left word */}
           <img
             src={hangryImage}
             alt="Hangry?"
-            className="flex-shrink-0 self-start mt-12 animate-fade-up object-contain"
-            style={{ height: "clamp(8rem, 12vw, 14rem)" }}
+            className="flex-shrink-0 self-center md:self-start mt-4 md:mt-12 animate-fade-up object-contain h-[70px] sm:h-[100px] md:h-[clamp(8rem,12vw,14rem)]"
           />
 
           {/* Centre images */}
           <div
-            className="relative flex-1 flex items-center justify-center"
-            style={{ height: "clamp(400px, 55vw, 700px)" }}
+            className="relative flex-1 flex items-center justify-center w-full min-h-[260px] sm:min-h-[350px] md:min-h-[400px]"
+            style={{ height: "clamp(260px, 45vw, 650px)" }}
             aria-hidden="true"
           >
             {/* Main centre item — all images stacked, only active one is visible */}
@@ -108,7 +107,7 @@ export default function HeroSection() {
                   alt={`Cake ${i + 1}`}
                   className="absolute object-contain drop-shadow-2xl pointer-events-none mix-blend-multiply"
                   style={{
-                    width: "clamp(350px,45vw,650px)",
+                    width: "clamp(220px, 40vw, 600px)",
                     top: "50%",
                     left: "50%",
                     opacity: isActive ? (animating ? 0 : 1) : 0,
@@ -140,24 +139,24 @@ export default function HeroSection() {
             `}</style>
 
             {/* Seed dots */}
-            <span className="absolute w-2.5 h-2.5 rounded-full bg-[#1A2744]/40" style={{ top: "20%", left: "22%" }} />
-            <span className="absolute w-1.5 h-1.5 rounded-full bg-[#1A2744]/40" style={{ top: "65%", left: "15%" }} />
-            <span className="absolute w-3   h-3   rounded-full bg-[#1A2744]/25" style={{ bottom: "25%", right: "28%" }} />
-            <span className="absolute w-2   h-2   rounded-full bg-[#1A2744]/40" style={{ top: "30%", right: "22%" }} />
+            <span className="absolute w-2 h-2 rounded-full bg-[#1A2744]/30" style={{ top: "15%", left: "20%" }} />
+            <span className="absolute w-1.5 h-1.5 rounded-full bg-[#1A2744]/30" style={{ top: "70%", left: "12%" }} />
+            <span className="absolute w-2.5 h-2.5 rounded-full bg-[#1A2744]/20" style={{ bottom: "20%", right: "25%" }} />
+            <span className="absolute w-1.5 h-1.5 rounded-full bg-[#1A2744]/30" style={{ top: "25%", right: "18%" }} />
           </div>
 
           {/* Right word */}
           <img
             src={sweetImage}
             alt="Sweet."
-            className="flex-shrink-0 self-end mb-6 animate-fade-up object-contain"
-            style={{ height: "clamp(8rem, 12vw, 14rem)", animationDelay: "0.2s" }}
+            className="flex-shrink-0 self-center md:self-end mb-4 md:mb-6 animate-fade-up object-contain h-[70px] sm:h-[100px] md:h-[clamp(8rem,12vw,14rem)]"
+            style={{ animationDelay: "0.2s" }}
           />
         </h1>
       </div>
 
       {/* Bottom-left info card */}
-      <div className="absolute bottom-[5%] left-[5%] z-20 bg-[#3e2723] text-white rounded-xl p-4 hidden sm:flex items-center gap-4 max-w-sm shadow-2xl shadow-[#D4A373]/40 animate-fade-up">
+      <div className="absolute bottom-[5%] left-[5%] z-20 bg-[#3e2723] text-white rounded-xl p-4 hidden md:flex items-center gap-4 max-w-sm shadow-2xl shadow-[#D4A373]/40 animate-fade-up">
         <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
           <img src="/bread.png" alt="Organic bread" className="w-full h-full object-cover brightness-[0.65]" />
           <button
