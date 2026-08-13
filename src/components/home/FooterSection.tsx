@@ -176,16 +176,15 @@ export default function FooterSection() {
         <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="text-center md:text-left">
             <p className="text-white/20 text-[11px] font-medium tracking-wide">
-              © 2024 HANGARY? SWEET. ALL RIGHTS RESERVED.
+              © 2026 HANGARY? SWEET. ALL RIGHTS RESERVED.
             </p>
-            <p className="text-white/10 text-[10px] mt-1 font-light italic">
+            <p className="text-white text-[10px] mt-1 font-light italic">
               Crafted with soul by <a href="https://pisoftinformatics.com" target="_blank" className="hover:text-[#D4A373] underline transition-colors">Pisoft Informatics</a>
             </p>
           </div>
 
           <div className="flex items-center gap-10">
              <div className="flex gap-6 text-[10px] font-black uppercase tracking-widest text-white/20">
-                <Link to="/login" className="hover:text-[#D4A373] transition-colors">Admin Portal</Link>
                 <a href="#" className="hover:text-[#D4A373] transition-colors">Privacy</a>
              </div>
              
